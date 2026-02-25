@@ -10,8 +10,8 @@ export default function BottomNav() {
   const isInvestment = pathname.startsWith("/investment");
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 bg-white/80 backdrop-blur border-t border-slate-200/60 pb-safe md:hidden">
-      <div className="mx-auto max-w-[1024px] grid grid-cols-3 gap-1 px-4 py-2">
+    <nav className="fixed bottom-0 inset-x-0 bg-white/90 backdrop-blur-lg border-t border-slate-200/60 pb-safe z-40 md:hidden">
+      <div className="mx-auto max-w-[1024px] grid grid-cols-3 gap-1 px-4 pt-2 pb-1">
         <Link href="/" prefetch className={`group flex flex-col items-center justify-center w-full gap-1 ${isHome ? "text-slate-900" : "text-gray-400 hover:text-slate-900 transition-colors"}`}>
           <div className={`relative grid h-8 w-8 place-items-center rounded-xl transition-colors ${isHome ? "bg-slate-900/5" : "group-hover:bg-slate-900/5"}`}>
             <Icon name="home" className="h-[22px] w-[22px]" />
