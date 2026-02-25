@@ -4,9 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**myWallet** is a personal portfolio tracker built with Next.js 14 and TypeScript. It helps users track their net worth by managing cash accounts and stock holdings, with automatic price updates from Yahoo Finance.
+**myWallet** is a personal built with Next.js 14 and TypeScript. It helps users track their net worth by managing cash accounts and stock holdings, with automatic price updates from Yahoo Finance.
 
 The app is a client-side SPA that stores all data in localStorage. It features:
+
 - Cash account tracking
 - Taiwan stock tracking (2330.TW format)
 - Real-time stock price fetching via Yahoo Finance API
@@ -56,31 +57,34 @@ pnpm lint
 ### Data Model
 
 **Asset Types:**
+
 ```typescript
 type Asset = {
-  id: number;           // Timestamp-based unique ID
+  id: number; // Timestamp-based unique ID
   type: "cash" | "stock";
   // Cash fields
-  name?: string;        // Account name (e.g., "LINE Bank")
-  amount?: number;      // Cash amount in NT$
+  name?: string; // Account name (e.g., "LINE Bank")
+  amount?: number; // Cash amount in NT$
   // Stock fields
-  ticker?: string;      // Stock ticker (e.g., "2330")
-  date?: string;        // Purchase date (YYYY-MM-DD)
-  shares?: number;      // Number of shares
-  price?: number;       // Purchase price per share
-  costAmount?: number;  // Total cost (shares × price)
+  ticker?: string; // Stock ticker (e.g., "2330")
+  date?: string; // Purchase date (YYYY-MM-DD)
+  shares?: number; // Number of shares
+  price?: number; // Purchase price per share
+  costAmount?: number; // Total cost (shares × price)
 };
 ```
 
 **History Entry:**
+
 ```typescript
 type HistoryEntry = {
-  date: string;   // YYYY-MM-DD format
-  value: number;  // Net worth snapshot
+  date: string; // YYYY-MM-DD format
+  value: number; // Net worth snapshot
 };
 ```
 
 **localStorage Keys:**
+
 - `my_portfolio_assets_v3` - Current assets array
 - `my_portfolio_history` - Historical net worth entries
 - `my_portfolio_assets_archive` - Backup of assets (for restore)
@@ -106,6 +110,7 @@ https://query1.finance.yahoo.com/v8/finance/chart/{TICKER}.TW
 ```
 
 **Important Notes:**
+
 - Ticker format: Taiwan stocks use `.TW` suffix (e.g., `2330.TW` for TSMC)
 - OTC stocks use `.TWO` suffix
 - The API returns `meta.regularMarketPrice` for current price
@@ -114,6 +119,7 @@ https://query1.finance.yahoo.com/v8/finance/chart/{TICKER}.TW
 ## Component Notes
 
 ### MainChart.tsx
+
 - Uses Chart.js with auto-destroy on re-render
 - Filters history by selected range ("1m", "3m", "1y", "all")
 - Handles single data point (shows dot instead of line)
@@ -121,12 +127,14 @@ https://query1.finance.yahoo.com/v8/finance/chart/{TICKER}.TW
 - Custom tooltips with NT$ currency formatting
 
 ### HiddenAmount.tsx
+
 - Simple privacy mode component showing placeholder dots
 - Used throughout UI when privacy mode is enabled
 
 ## State Management
 
 No external state library. All state managed with React hooks in `app/page.tsx`:
+
 - `assets` - Array of cash/stock assets
 - `history` - Array of net worth snapshots
 - `stockPrices` - Map of ticker → current price
@@ -165,6 +173,7 @@ No external state library. All state managed with React hooks in `app/page.tsx`:
 ## Common Workflows
 
 ### Adding a New Asset Type
+
 1. Update `AssetType` in `types/portfolio.ts`
 2. Add fields to `Asset` interface
 3. Update form in `app/page.tsx` modal
@@ -172,11 +181,13 @@ No external state library. All state managed with React hooks in `app/page.tsx`:
 5. Update total calculation logic
 
 ### Modifying Stock Price API
+
 - Edit `lib/yahoo.ts`
 - Consider fallback/retry logic for API failures
 - Note: CORS proxy is required for browser-based fetch
 
 ### Changing localStorage Schema
+
 - Update keys in `lib/storage.ts`
 - Add migration logic in `useEffect` on mount
 - Consider backwards compatibility

@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import Icon from "../../../components/Icon";
 
 type Props = {
@@ -20,7 +21,8 @@ export default function TopBar({ onAdd, privacy, onTogglePrivacy }: Props) {
     <div className="hidden md:block fixed top-0 inset-x-0 z-40 bg-white/80 backdrop-blur border-b border-slate-200/60">
       <div className="mx-auto max-w-[960px] px-4 sm:px-6">
         <div className="flex items-center justify-between h-12">
-          <div className="flex items-center gap-2">
+          {/* Left: Navigation */}
+          <div className="flex flex-1 items-center gap-2">
             <Link
               href="/"
               prefetch
@@ -40,7 +42,24 @@ export default function TopBar({ onAdd, privacy, onTogglePrivacy }: Props) {
               <Icon name="pie-chart" className="h-4 w-4" />
             </Link>
           </div>
-          <div className="flex items-center gap-2">
+
+          {/* Center: Logo */}
+          <div className="flex flex-none items-center justify-center">
+            <Link href="/" className="transition active:scale-95">
+              <div className="h-8 w-8 rounded-full border border-slate-200 overflow-hidden bg-white shadow-sm ring-2 ring-white">
+                <Image 
+                  src="/logo.png" 
+                  alt="kinko logo" 
+                  width={32} 
+                  height={32} 
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            </Link>
+          </div>
+
+          {/* Right: Actions */}
+          <div className="flex flex-1 items-center justify-end gap-2">
             {onTogglePrivacy ? (
               <button
                 onClick={onTogglePrivacy}

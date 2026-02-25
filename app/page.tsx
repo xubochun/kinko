@@ -89,7 +89,7 @@ export default function Page() {
   return (
     <main className="min-h-screen relative z-10">
       <TopBar onAdd={toggleAddModal} privacy={privacy} onTogglePrivacy={togglePrivacy} />
-      <div className="mx-auto max-w-[960px] px-4 pb-28 pt-5 sm:px-6 sm:pt-7 md:pt-14 md:pb-14">
+      <div className="mx-auto max-w-[960px] px-4 pb-28 pt-5 sm:px-6 sm:pt-7 md:pt-20 md:pb-14">
         {showEmptyHero ? (
           <div className="pt-6 sm:pt-10 md:pt-12">
             <EmptyStateHero onAddAsset={toggleAddModal} />

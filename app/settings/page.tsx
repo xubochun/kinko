@@ -125,7 +125,7 @@ export default function SettingsPage() {
   return (
     <main className="min-h-screen relative z-10">
       <TopBar />
-      <div className="mx-auto max-w-[720px] px-4 pb-28 pt-6 sm:px-6 sm:pt-8 md:pt-16 md:pb-14">
+      <div className="mx-auto max-w-[720px] px-4 pb-28 pt-6 sm:px-6 sm:pt-8 md:pt-20 md:pb-14">
         <div className="mb-4">
           <h1 className="text-[18px] font-semibold text-slate-900">設定</h1>
         </div>

@@ -170,7 +170,7 @@ export default function InvestmentPage() {
   return (
     <main className="min-h-screen relative z-10">
       <TopBar onAdd={openNewGoal} />
-      <div className="mx-auto max-w-[960px] px-4 pb-24 pt-5 sm:px-6 sm:pt-7 md:pt-14 md:pb-12">
+      <div className="mx-auto max-w-[960px] px-4 pb-24 pt-5 sm:px-6 sm:pt-7 md:pt-20 md:pb-12">
         <section className="mb-4">
           <div className="flex items-center justify-center">
             <button
