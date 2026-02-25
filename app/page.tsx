@@ -63,9 +63,9 @@ export default function Page() {
 
   if (!isReady) {
     return (
-      <main className="min-h-screen relative z-10">
+      <main className="min-h-screen relative z-10 bg-slate-50/50">
         <TopBar onAdd={toggleAddModal} />
-        <div className="mx-auto max-w-[960px] px-4 pb-28 pt-5 sm:px-6 sm:pt-7 md:pt-14 md:pb-14">
+        <div className="mx-auto max-w-7xl px-4 pb-28 pt-5 sm:px-6 sm:pt-7 md:pt-14 md:pb-14">
           <div className="soft-card p-6">
             <div className="flex flex-col gap-4">
               <div className="skeleton skeleton-text w-40"></div>
@@ -87,9 +87,9 @@ export default function Page() {
   const showDashboard = (isReady && hasAssets) || (!isReady && initialLoadState === "hasData");
 
   return (
-    <main className="min-h-screen relative z-10">
+    <main className="min-h-screen relative z-10 bg-slate-50/50">
       <TopBar onAdd={toggleAddModal} privacy={privacy} onTogglePrivacy={togglePrivacy} />
-      <div className="mx-auto max-w-[960px] px-4 pb-28 pt-5 sm:px-6 sm:pt-7 md:pt-20 md:pb-14">
+      <div className="mx-auto max-w-7xl px-4 pb-28 pt-5 sm:px-6 sm:pt-7 md:pt-20 md:pb-14">
         {showEmptyHero ? (
           <div className="pt-6 sm:pt-10 md:pt-12">
             <EmptyStateHero onAddAsset={toggleAddModal} />

@@ -57,14 +57,14 @@ export default function DetailSheet({
       <div className="absolute inset-0 bg-slate-900/40" onClick={onClose}></div>
       <div
         id="detailSheet"
-        className={`detail-sheet detail-sheet--fullscreen relative w-full bg-white sm:max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto shadow-2xl ${open ? "sheet-enter-active" : "sheet-enter"} ${type === "stock" ? "detail-sheet--stock" : ""}`}
+        className={`detail-sheet detail-sheet--fullscreen relative w-full bg-white mx-auto shadow-2xl ${open ? "sheet-enter-active" : "sheet-enter"} ${type === "stock" ? "detail-sheet--stock" : ""}`}
       >
         <div className="detail-header detail-header--minimal">
           <button onClick={onClose} className="detail-close detail-close--single">
             <i data-lucide="x" className="h-5 w-5"></i>
           </button>
         </div>
-        <div className="detail-content overflow-y-auto max-h-[80vh] md:max-h-[75vh]">
+        <div className="detail-content overflow-y-auto flex-1">
           <div id="detailSummary" className={`detail-summary mb-4 ${type === "stock" ? "detail-summary--stock" : ""}`}>
             {type === "cash" && (
               <>
