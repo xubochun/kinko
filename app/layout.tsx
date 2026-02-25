@@ -19,11 +19,11 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "kinko Team" }],
   creator: "kinko",
-  metadataBase: new URL("https://kinko.vercel.app"),
+  metadataBase: new URL("https://kinko-sand.vercel.app"),
   openGraph: {
     type: "website",
     locale: "zh_TW",
-    url: "https://kinko.vercel.app",
+    url: "https://kinko-sand.vercel.app",
     title: "kinko",
     description:
       "輕鬆追蹤全球資產，掌握每一分財富。kinko 為您提供最直覺的投資組合管理體驗。",

@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://kinko.vercel.app";
+  const baseUrl = "https://kinko-sand.vercel.app";
 
   return [
     {

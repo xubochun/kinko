@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/settings"],
     },
-    sitemap: "https://kinko.vercel.app/sitemap.xml",
+    sitemap: "https://kinko-sand.vercel.app/sitemap.xml",
   };
 }
