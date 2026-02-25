@@ -1,0 +1,20 @@
+:root{
+  --bg: #F8F9FB;              
+  --ink: #111827;             
+  --muted: #6B7280;           
+  --card: #FFFFFF;
+  --border: rgba(17,24,39,.06);
+  --shadow: 0 10px 30px rgba(17,24,39,.06);
+  --primary: #1E293B;         
+  --accent: #2563EB;          
+  --danger: #9B2C2C;          
+}
+
+html, body {
+  height: 100%; width: 100%; margin: 0; overflow-x: hidden;
+  background: var(--bg); color: var(--ink);
+  font-family: "IBM Plex Sans", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+}
+*, *::before, *::after { box-sizing: border-box; }
+
+.tabular-nums { font-variant-numeric: tabular-nums; }
