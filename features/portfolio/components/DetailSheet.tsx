@@ -221,33 +221,30 @@ export default function DetailSheet({
                         </div>
 
                         {showActionMenuId === asset.id && (
-                          <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex items-center justify-center gap-8 rounded-2xl animate-in fade-in zoom-in duration-200">
+                          <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex items-center justify-center gap-10 rounded-2xl animate-in fade-in zoom-in duration-200">
                             <button
                               onClick={(e) => { e.stopPropagation(); handleEdit(asset); setShowActionMenuId(null); }}
-                              className="flex flex-col items-center gap-1.5 text-blue-600"
+                              className="text-blue-600 active:scale-90 transition-transform"
                             >
-                              <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                                <i data-lucide="edit-3" className="h-5 w-5"></i>
+                              <div className="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center">
+                                <i data-lucide="edit-3" className="h-6 w-6"></i>
                               </div>
-                              <span className="text-[11px] font-bold">編輯</span>
                             </button>
                             <button
                               onClick={(e) => { e.stopPropagation(); handleDelete(asset.id); }}
-                              className="flex flex-col items-center gap-1.5 text-red-600"
+                              className="text-red-600 active:scale-90 transition-transform"
                             >
-                              <div className="h-10 w-10 rounded-full bg-red-50 flex items-center justify-center">
-                                <i data-lucide="trash-2" className="h-5 w-5"></i>
+                              <div className="h-12 w-12 rounded-full bg-red-50 flex items-center justify-center">
+                                <i data-lucide="trash-2" className="h-6 w-6"></i>
                               </div>
-                              <span className="text-[11px] font-bold">刪除</span>
                             </button>
                             <button
                               onClick={(e) => { e.stopPropagation(); setShowActionMenuId(null); }}
-                              className="flex flex-col items-center gap-1.5 text-slate-500"
+                              className="text-slate-500 active:scale-90 transition-transform"
                             >
-                              <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
-                                <i data-lucide="x" className="h-5 w-5"></i>
+                              <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center">
+                                <i data-lucide="x" className="h-6 w-6"></i>
                               </div>
-                              <span className="text-[11px] font-bold">取消</span>
                             </button>
                           </div>
                         )}
@@ -390,33 +387,30 @@ export default function DetailSheet({
                                   </div>
 
                                   {showActionMenuId === lot.id && (
-                                    <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex items-center justify-center gap-6 rounded-xl animate-in fade-in zoom-in duration-200">
+                                    <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex items-center justify-center gap-8 rounded-xl animate-in fade-in zoom-in duration-200">
                                       <button
                                         onClick={(e) => { e.stopPropagation(); handleEdit(lot); setShowActionMenuId(null); }}
-                                        className="flex flex-col items-center gap-1 text-blue-600"
+                                        className="text-blue-600 active:scale-90 transition-transform"
                                       >
-                                        <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center">
-                                          <i data-lucide="edit-3" className="h-4 w-4"></i>
+                                        <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                                          <i data-lucide="edit-3" className="h-5 w-5"></i>
                                         </div>
-                                        <span className="text-[10px] font-bold">編輯</span>
                                       </button>
                                       <button
                                         onClick={(e) => { e.stopPropagation(); handleDelete(lot.id); }}
-                                        className="flex flex-col items-center gap-1 text-red-600"
+                                        className="text-red-600 active:scale-90 transition-transform"
                                       >
-                                        <div className="h-8 w-8 rounded-full bg-red-50 flex items-center justify-center">
-                                          <i data-lucide="trash-2" className="h-4 w-4"></i>
+                                        <div className="h-10 w-10 rounded-full bg-red-50 flex items-center justify-center">
+                                          <i data-lucide="trash-2" className="h-5 w-5"></i>
                                         </div>
-                                        <span className="text-[10px] font-bold">刪除</span>
                                       </button>
                                       <button
                                         onClick={(e) => { e.stopPropagation(); setShowActionMenuId(null); }}
-                                        className="flex flex-col items-center gap-1 text-slate-500"
+                                        className="text-slate-500 active:scale-90 transition-transform"
                                       >
-                                        <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center">
-                                          <i data-lucide="x" className="h-4 w-4"></i>
+                                        <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
+                                          <i data-lucide="x" className="h-5 w-5"></i>
                                         </div>
-                                        <span className="text-[10px] font-bold">取消</span>
                                       </button>
                                     </div>
                                   )}
