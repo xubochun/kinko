@@ -64,19 +64,37 @@ export default function DetailSheet({
     setOpenTicker((prev) => (prev === ticker ? null : ticker));
   };
 
-  const handleEdit = (asset: Asset) => {
-    setEditingId(asset.id);
-    if (asset.type === "cash") {
-      setEditName(asset.name || "");
-      setEditAmount(String(asset.amount || ""));
+  const [editingTicker, setEditingTicker] = useState<string | null>(null);
+
+  const handleEdit = (assetOrTicker: Asset | string) => {
+    if (typeof assetOrTicker === "string") {
+      setEditingTicker(assetOrTicker);
+      const firstLot = assets.find(a => a.ticker === assetOrTicker);
+      setEditName(firstLot?.name || assetOrTicker);
+      return;
+    }
+
+    setEditingId(assetOrTicker.id);
+    if (assetOrTicker.type === "cash") {
+      setEditName(assetOrTicker.name || "");
+      setEditAmount(String(assetOrTicker.amount || ""));
     } else {
-      setEditDate(asset.date || "");
-      setEditShares(String(asset.shares || ""));
-      setEditPrice(String(asset.price || ""));
+      setEditDate(assetOrTicker.date || "");
+      setEditShares(String(assetOrTicker.shares || ""));
+      setEditPrice(String(assetOrTicker.price || ""));
     }
   };
 
   const handleSave = () => {
+    if (editingTicker) {
+      const targetLots = assets.filter(a => a.ticker === editingTicker);
+      targetLots.forEach(lot => {
+        onUpdateAsset(lot.id, { name: editName });
+      });
+      setEditingTicker(null);
+      return;
+    }
+
     if (editingId) {
       const asset = assets.find(a => a.id === editingId);
       if (asset?.type === "cash") {
@@ -96,16 +114,27 @@ export default function DetailSheet({
     }
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (idOrTicker: number | string) => {
+    if (typeof idOrTicker === "string") {
+      if (confirm(`確定要刪除 ${idOrTicker} 的所有持股紀錄嗎？`)) {
+        const targetIds = assets
+          .filter((a) => a.type === "stock" && a.ticker === idOrTicker)
+          .map((a) => a.id);
+        targetIds.forEach((id) => onRemoveAsset(id));
+        setShowActionMenuId(null);
+      }
+      return;
+    }
+
     if (confirm("確定要刪除這筆紀錄嗎？")) {
-      onRemoveAsset(id);
+      onRemoveAsset(idOrTicker);
       setShowActionMenuId(null);
     }
   };
 
-  const startPress = (id: number) => {
+  const startPress = (id: number | string) => {
     const timer = setTimeout(() => {
-      setShowActionMenuId(id);
+      setShowActionMenuId(id as any);
       if (typeof window !== "undefined" && navigator.vibrate) {
         navigator.vibrate(10); // 俐落的短促震動 (類似 iOS Haptic)
       }
@@ -278,28 +307,89 @@ export default function DetailSheet({
                   const isOpen = openTicker === ticker;
 
                     return (
-                      <div key={ticker} className={`detail-stock-item ${isOpen ? "is-open" : ""}`}>
-                        <button className="detail-stock-button" type="button" data-ticker={ticker} aria-expanded={isOpen} aria-controls={`stock-${ticker}`} onClick={() => onTickerToggle(ticker)}>
-                          <div className="detail-stock-left">
-                            <div className="detail-stock-text">
-                              <div className="detail-stock-name">{name}</div>
-                              <div className="detail-stock-meta detail-stock-meta--compact">
-                                <span className="badge">{ticker}</span>
-                                <span className="meta-dot">•</span>
-                                <span>{shares} 股</span>
-                              </div>
+                      <div key={ticker} className={`detail-stock-item relative ${isOpen ? "is-open" : ""} ${showActionMenuId === (ticker as any) ? "z-20" : ""}`}>
+                        {editingTicker === ticker ? (
+                          <div className="p-4 bg-white border-b border-gray-100 flex flex-col gap-3">
+                            <div className="flex flex-col gap-1">
+                              <label className="text-[11px] font-medium text-slate-500">修改股票名稱 ({ticker})</label>
+                              <input
+                                type="text"
+                                value={editName}
+                                onChange={(e) => setEditName(e.target.value)}
+                                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-2.5 text-[14px] outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]"
+                                placeholder="輸入新名稱"
+                                autoFocus
+                              />
+                            </div>
+                            <div className="flex justify-end gap-2">
+                              <button onClick={() => setEditingTicker(null)} className="px-4 py-2 text-[12px] font-semibold text-gray-500">取消</button>
+                              <button onClick={handleSave} className="px-4 py-2 text-[12px] font-semibold bg-[#2563EB] text-white rounded-lg">儲存</button>
                             </div>
                           </div>
-                          <div className="detail-stock-right">
-                            <div className="detail-stock-value">{valueHtml}</div>
-                            {!isOpen && (
-                              <div className={`detail-stock-pnl detail-stock-pnl--compact ${pnlClass(pnl)}`}>
-                                {pnlHtmlLocal} <span>{pnlPctHtmlLocal}</span>
+                        ) : (
+                          <button
+                            className="detail-stock-button relative active:scale-[0.98] transition-transform select-none"
+                            type="button"
+                            data-ticker={ticker}
+                            aria-expanded={isOpen}
+                            aria-controls={`stock-${ticker}`}
+                            onClick={() => onTickerToggle(ticker)}
+                            onTouchStart={() => startPress(ticker)}
+                            onTouchEnd={endPress}
+                            onMouseDown={() => startPress(ticker)}
+                            onMouseUp={endPress}
+                            onMouseLeave={endPress}
+                          >
+                            <div className="detail-stock-left">
+                              <div className="detail-stock-text">
+                                <div className="detail-stock-name">{name}</div>
+                                <div className="detail-stock-meta detail-stock-meta--compact">
+                                  <span className="badge">{ticker}</span>
+                                  <span className="meta-dot">•</span>
+                                  <span>{shares} 股</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="detail-stock-right">
+                              <div className="detail-stock-value">{valueHtml}</div>
+                              {!isOpen && (
+                                <div className={`detail-stock-pnl detail-stock-pnl--compact ${pnlClass(pnl)}`}>
+                                  {pnlHtmlLocal} <span>{pnlPctHtmlLocal}</span>
+                                </div>
+                              )}
+                            </div>
+                            <i data-lucide="chevron-down" className="detail-chevron h-4 w-4 text-gray-400"></i>
+
+                            {showActionMenuId === (ticker as any) && (
+                              <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex items-center justify-center gap-10 rounded-2xl animate-in fade-in zoom-in duration-200">
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleEdit(ticker); setShowActionMenuId(null); }}
+                                  className="text-blue-600 active:scale-90 transition-transform"
+                                >
+                                  <div className="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center">
+                                    <i data-lucide="edit-3" className="h-6 w-6"></i>
+                                  </div>
+                                </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleDelete(ticker); }}
+                                  className="text-red-600 active:scale-90 transition-transform"
+                                >
+                                  <div className="h-12 w-12 rounded-full bg-red-50 flex items-center justify-center">
+                                    <i data-lucide="trash-2" className="h-6 w-6"></i>
+                                  </div>
+                                </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setShowActionMenuId(null); }}
+                                  className="text-slate-500 active:scale-90 transition-transform"
+                                >
+                                  <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center">
+                                    <i data-lucide="x" className="h-6 w-6"></i>
+                                  </div>
+                                </button>
                               </div>
                             )}
-                          </div>
-                          <i data-lucide="chevron-down" className="detail-chevron h-4 w-4 text-gray-400"></i>
-                        </button>
+                          </button>
+                        )}
                         <div id={`stock-${ticker}`} className={`detail-stock-body ${isOpen ? "" : "hidden"}`} data-ticker={ticker}>
                           <div className="detail-asset-metrics">
                             <div className={`metric-block metric-block--pnl ${pnlClass(pnl)}`}>
