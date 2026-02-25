@@ -75,7 +75,7 @@ export default function AddAssetModal({ open, onClose, onAddAsset }: Props) {
               id="assetType"
               value={assetType}
               onChange={(e) => setAssetType(e.target.value as "cash" | "stock")}
-              className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-[14px] text-gray-900 outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all"
+              className="w-full appearance-none rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-[14px] text-gray-900 outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all h-[46px]"
             >
               <option value="cash">銀行帳戶 (現金、活定存)</option>
               <option value="stock">股票與 ETF (投資部位)</option>
@@ -92,7 +92,7 @@ export default function AddAssetModal({ open, onClose, onAddAsset }: Props) {
                 value={cashName}
                 onChange={(e) => setCashName(e.target.value)}
                 required={assetType === "cash"}
-                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-[14px] text-gray-900 outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all"
+                className="w-full appearance-none rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-[14px] text-gray-900 outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all h-[46px]"
               />
             </div>
             <div>
@@ -105,7 +105,7 @@ export default function AddAssetModal({ open, onClose, onAddAsset }: Props) {
                 value={assetAmount}
                 onChange={(e) => setAssetAmount(e.target.value)}
                 required={assetType === "cash"}
-                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-[14px] text-gray-900 outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all"
+                className="w-full appearance-none rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-[14px] text-gray-900 outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all h-[46px]"
               />
             </div>
           </div>
@@ -120,7 +120,7 @@ export default function AddAssetModal({ open, onClose, onAddAsset }: Props) {
                 value={stockTicker}
                 onChange={(e) => setStockTicker(e.target.value)}
                 required={assetType === "stock"}
-                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-[14px] text-gray-900 outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all"
+                className="w-full appearance-none rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-[14px] text-gray-900 outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all h-[46px]"
               />
             </div>
             <div>
@@ -131,7 +131,7 @@ export default function AddAssetModal({ open, onClose, onAddAsset }: Props) {
                 value={stockDate}
                 onChange={(e) => setStockDate(e.target.value)}
                 required={assetType === "stock"}
-                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-[14px] text-gray-900 outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all"
+                className="w-full appearance-none rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-[14px] text-gray-900 outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all h-[46px]"
               />
             </div>
             <div>
@@ -145,7 +145,7 @@ export default function AddAssetModal({ open, onClose, onAddAsset }: Props) {
                 value={stockShares}
                 onChange={(e) => setStockShares(e.target.value)}
                 required={assetType === "stock"}
-                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-[14px] text-gray-900 outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all"
+                className="w-full appearance-none rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-[14px] text-gray-900 outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all h-[46px]"
               />
             </div>
             <div>
@@ -159,7 +159,7 @@ export default function AddAssetModal({ open, onClose, onAddAsset }: Props) {
                 value={stockPrice}
                 onChange={(e) => setStockPrice(e.target.value)}
                 required={assetType === "stock"}
-                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-[14px] text-gray-900 outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all"
+                className="w-full appearance-none rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-[14px] text-gray-900 outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all h-[46px]"
               />
             </div>
             <div className="text-[12px] text-gray-500 leading-relaxed">

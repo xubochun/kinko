@@ -236,6 +236,28 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
     [assets, setNextAnimationMs]
   );
 
+  const updateAsset = useCallback(
+    (id: number, payload: Partial<Asset>) => {
+      const nextAssets = assets.map((a) => (a.id === id ? { ...a, ...payload } : a));
+      setAssets(nextAssets);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(nextAssets));
+      memoryCache.assets = nextAssets;
+      setNextAnimationMs(400);
+    },
+    [assets, setNextAnimationMs]
+  );
+
+  const removeAsset = useCallback(
+    (id: number) => {
+      const nextAssets = assets.filter((a) => a.id !== id);
+      setAssets(nextAssets);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(nextAssets));
+      memoryCache.assets = nextAssets;
+      setNextAnimationMs(600);
+    },
+    [assets, setNextAnimationMs]
+  );
+
   const clearCurrentData = useCallback(async () => {
     const currentAssets = localStorage.getItem(STORAGE_KEY);
     const currentHistory = localStorage.getItem(HISTORY_KEY);
@@ -298,6 +320,8 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
     isReady,
     initialLoadState,
     addAsset,
+    updateAsset,
+    removeAsset,
     toggleClearData,
     loadDemoData
   };

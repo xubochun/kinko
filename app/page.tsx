@@ -39,6 +39,8 @@ export default function Page() {
     isReady,
     initialLoadState,
     addAsset,
+    updateAsset,
+    removeAsset,
     toggleClearData,
   } = usePortfolioData({ privacy });
 
@@ -214,6 +216,8 @@ export default function Page() {
         cashCount={cashCount}
         stockPrices={stockPrices}
         onClose={closeDetail}
+        onUpdateAsset={updateAsset}
+        onRemoveAsset={removeAsset}
       />
 
       <AddAssetModal

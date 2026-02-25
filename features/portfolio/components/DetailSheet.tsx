@@ -11,6 +11,8 @@ type Props = {
   cashCount: number;
   stockPrices: Record<string, number>;
   onClose: () => void;
+  onUpdateAsset: (id: number, payload: Partial<Asset>) => void;
+  onRemoveAsset: (id: number) => void;
 };
 
 export default function DetailSheet({
@@ -20,9 +22,16 @@ export default function DetailSheet({
   cashTotal,
   cashCount,
   stockPrices,
-  onClose
+  onClose,
+  onUpdateAsset,
+  onRemoveAsset
 }: Props) {
   const [openTicker, setOpenTicker] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editAmount, setEditAmount] = useState("");
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const [showActionMenuId, setShowActionMenuId] = useState<number | null>(null);
 
   useEffect(() => {
     if (open) document.body.classList.add("no-scroll");
@@ -50,6 +59,44 @@ export default function DetailSheet({
 
   const onTickerToggle = (ticker: string) => {
     setOpenTicker((prev) => (prev === ticker ? null : ticker));
+  };
+
+  const handleEdit = (asset: Asset) => {
+    setEditingId(asset.id);
+    setEditName(asset.name || "");
+    setEditAmount(String(asset.amount || ""));
+  };
+
+  const handleSave = () => {
+    if (editingId) {
+      onUpdateAsset(editingId, {
+        name: editName,
+        amount: Number(editAmount)
+      });
+      setEditingId(null);
+    }
+  };
+
+  const handleDelete = (id: number) => {
+    if (confirm("確定要刪除這筆紀錄嗎？")) {
+      onRemoveAsset(id);
+      setShowActionMenuId(null);
+    }
+  };
+
+  const startPress = (id: number) => {
+    const timer = setTimeout(() => {
+      setShowActionMenuId(id);
+      if (window.navigator.vibrate) window.navigator.vibrate(50); // 觸覺反饋
+    }, 500);
+    setLongPressTimer(timer);
+  };
+
+  const endPress = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
   };
 
   return (
@@ -101,17 +148,87 @@ export default function DetailSheet({
                 <div className="detail-row text-[13px] text-gray-500">尚未新增現金帳戶</div>
               ) : (
                 assets.filter((a) => a.type === "cash").map((asset) => (
-                  <div key={asset.id} className="detail-row">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="grid h-9 w-9 place-items-center rounded-xl bg-slate-900 text-white">
-                        <i data-lucide="banknote" className="h-4 w-4"></i>
+                  <div
+                    key={asset.id}
+                    className="detail-row flex-col items-stretch gap-3 !h-auto relative active:scale-[0.98] transition-transform select-none"
+                    onTouchStart={() => startPress(asset.id)}
+                    onTouchEnd={endPress}
+                    onMouseDown={() => startPress(asset.id)}
+                    onMouseUp={endPress}
+                    onMouseLeave={endPress}
+                  >
+                    {editingId === asset.id ? (
+                      <div className="flex flex-col gap-3 p-1">
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[11px] font-medium text-slate-500">帳戶名稱</label>
+                          <input
+                            type="text"
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-2.5 text-[13px] outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all"
+                            placeholder="帳戶名稱"
+                          />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[11px] font-medium text-slate-500">金額</label>
+                          <input
+                            type="number"
+                            value={editAmount}
+                            onChange={(e) => setEditAmount(e.target.value)}
+                            className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-2.5 text-[13px] outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all"
+                            placeholder="金額"
+                          />
+                        </div>
+                        <div className="flex justify-end gap-2 mt-2 pt-2 border-t border-gray-100">
+                          <button onClick={() => setEditingId(null)} className="px-4 py-2 text-[12px] font-semibold text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">取消</button>
+                          <button onClick={handleSave} className="px-4 py-2 text-[12px] font-semibold bg-[#2563EB] text-white rounded-lg hover:bg-blue-700 shadow-sm transition-colors">儲存變更</button>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <div className="text-[13px] font-semibold text-gray-900 truncate">{asset.name || "未命名帳戶"}</div>
-                        <div className="text-[11px] text-gray-500">現金資產</div>
+                    ) : (
+                      <div className="flex items-center justify-between gap-4 w-full">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-slate-900 text-white shadow-sm">
+                            <i data-lucide="banknote" className="h-4.5 w-4.5"></i>
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-[14px] font-bold text-gray-900 truncate">{asset.name || "未命名帳戶"}</div>
+                            <div className="text-[11px] font-medium text-slate-400 mt-0.5">現金資產</div>
+                          </div>
+                        </div>
+                        <div className="text-right text-[15px] font-bold text-gray-900 tabular-nums">
+                          {currency(Number(asset.amount || 0))}
+                        </div>
+
+                        {showActionMenuId === asset.id && (
+                          <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex items-center justify-center gap-6 rounded-2xl animate-in fade-in zoom-in duration-200">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleEdit(asset); setShowActionMenuId(null); }}
+                              className="flex flex-col items-center gap-1.5 text-blue-600"
+                            >
+                              <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                                <i data-lucide="edit-3" className="h-5 w-5"></i>
+                              </div>
+                              <span className="text-[11px] font-bold">編輯</span>
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleDelete(asset.id); }}
+                              className="flex flex-col items-center gap-1.5 text-red-600"
+                            >
+                              <div className="h-10 w-10 rounded-full bg-red-50 flex items-center justify-center">
+                                <i data-lucide="trash-2" className="h-5 w-5"></i>
+                              </div>
+                              <span className="text-[11px] font-bold">刪除</span>
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setShowActionMenuId(null); }}
+                              className="absolute top-2 right-2 p-1 text-slate-400"
+                            >
+                              <i data-lucide="x" className="h-4 w-4"></i>
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                    <div className="text-right text-[14px] font-semibold text-gray-900">{currency(Number(asset.amount || 0))}</div>
+                    )}
                   </div>
                 ))
               )

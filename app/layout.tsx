@@ -46,7 +46,15 @@ export const metadata: Metadata = {
   icons: {
     icon: "/logo.png",
     shortcut: "/logo.png",
-    apple: "/logo.png",
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/logo.png", sizes: "512x512", type: "image/png" },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "kinko",
   },
 };
 
