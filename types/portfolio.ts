@@ -17,4 +17,4 @@ export type HistoryEntry = {
   value: number;
 };
 
-export type RangeKey = "1m" | "3m" | "1y" | "all";
+export type RangeKey = "1W" | "1M" | "3M" | "1Y" | "ALL";
