@@ -30,6 +30,9 @@ export default function DetailSheet({
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [editAmount, setEditAmount] = useState("");
+  const [editDate, setEditDate] = useState("");
+  const [editShares, setEditShares] = useState("");
+  const [editPrice, setEditPrice] = useState("");
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
   const [showActionMenuId, setShowActionMenuId] = useState<number | null>(null);
 
@@ -63,16 +66,32 @@ export default function DetailSheet({
 
   const handleEdit = (asset: Asset) => {
     setEditingId(asset.id);
-    setEditName(asset.name || "");
-    setEditAmount(String(asset.amount || ""));
+    if (asset.type === "cash") {
+      setEditName(asset.name || "");
+      setEditAmount(String(asset.amount || ""));
+    } else {
+      setEditDate(asset.date || "");
+      setEditShares(String(asset.shares || ""));
+      setEditPrice(String(asset.price || ""));
+    }
   };
 
   const handleSave = () => {
     if (editingId) {
-      onUpdateAsset(editingId, {
-        name: editName,
-        amount: Number(editAmount)
-      });
+      const asset = assets.find(a => a.id === editingId);
+      if (asset?.type === "cash") {
+        onUpdateAsset(editingId, {
+          name: editName,
+          amount: Number(editAmount)
+        });
+      } else {
+        onUpdateAsset(editingId, {
+          date: editDate,
+          shares: Number(editShares),
+          price: Number(editPrice),
+          costAmount: Number(editShares) * Number(editPrice)
+        });
+      }
       setEditingId(null);
     }
   };
@@ -87,7 +106,9 @@ export default function DetailSheet({
   const startPress = (id: number) => {
     const timer = setTimeout(() => {
       setShowActionMenuId(id);
-      if (window.navigator.vibrate) window.navigator.vibrate(50); // 觸覺反饋
+      if (typeof window !== "undefined" && navigator.vibrate) {
+        navigator.vibrate(10); // 俐落的短促震動 (類似 iOS Haptic)
+      }
     }, 500);
     setLongPressTimer(timer);
   };
@@ -200,7 +221,7 @@ export default function DetailSheet({
                         </div>
 
                         {showActionMenuId === asset.id && (
-                          <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex items-center justify-center gap-6 rounded-2xl animate-in fade-in zoom-in duration-200">
+                          <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex items-center justify-center gap-8 rounded-2xl animate-in fade-in zoom-in duration-200">
                             <button
                               onClick={(e) => { e.stopPropagation(); handleEdit(asset); setShowActionMenuId(null); }}
                               className="flex flex-col items-center gap-1.5 text-blue-600"
@@ -221,9 +242,12 @@ export default function DetailSheet({
                             </button>
                             <button
                               onClick={(e) => { e.stopPropagation(); setShowActionMenuId(null); }}
-                              className="absolute top-2 right-2 p-1 text-slate-400"
+                              className="flex flex-col items-center gap-1.5 text-slate-500"
                             >
-                              <i data-lucide="x" className="h-4 w-4"></i>
+                              <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
+                                <i data-lucide="x" className="h-5 w-5"></i>
+                              </div>
+                              <span className="text-[11px] font-bold">取消</span>
                             </button>
                           </div>
                         )}
@@ -306,8 +330,56 @@ export default function DetailSheet({
                               const lotPctHtml = formatPnlPct(lotPnlPct);
                               const lotDate = lot.date ? formatDate(lot.date) : "—";
 
+                              if (editingId === lot.id) {
+                                return (
+                                  <div key={lot.id} className="detail-lot-row flex-col items-stretch gap-3 !h-auto">
+                                    <div className="grid grid-cols-2 gap-2">
+                                      <div className="flex flex-col gap-1">
+                                        <label className="text-[10px] font-medium text-slate-500">股數</label>
+                                        <input
+                                          type="number"
+                                          value={editShares}
+                                          onChange={(e) => setEditShares(e.target.value)}
+                                          className="w-full rounded-lg border border-gray-200 p-2 text-[12px] outline-none focus:border-blue-500"
+                                        />
+                                      </div>
+                                      <div className="flex flex-col gap-1">
+                                        <label className="text-[10px] font-medium text-slate-500">買入價</label>
+                                        <input
+                                          type="number"
+                                          value={editPrice}
+                                          onChange={(e) => setEditPrice(e.target.value)}
+                                          className="w-full rounded-lg border border-gray-200 p-2 text-[12px] outline-none focus:border-blue-500"
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                      <label className="text-[10px] font-medium text-slate-500">日期</label>
+                                      <input
+                                        type="date"
+                                        value={editDate}
+                                        onChange={(e) => setEditDate(e.target.value)}
+                                        className="w-full rounded-lg border border-gray-200 p-2 text-[12px] outline-none focus:border-blue-500 h-[38px]"
+                                      />
+                                    </div>
+                                    <div className="flex justify-end gap-2 border-t pt-2">
+                                      <button onClick={() => setEditingId(null)} className="px-3 py-1 text-[11px] font-medium text-gray-500">取消</button>
+                                      <button onClick={handleSave} className="px-3 py-1 text-[11px] font-medium bg-blue-600 text-white rounded-md">儲存</button>
+                                    </div>
+                                  </div>
+                                );
+                              }
+
                               return (
-                                <div key={lot.id} className="detail-lot-row">
+                                <div
+                                  key={lot.id}
+                                  className="detail-lot-row relative active:scale-[0.98] transition-transform select-none"
+                                  onTouchStart={() => startPress(lot.id)}
+                                  onTouchEnd={endPress}
+                                  onMouseDown={() => startPress(lot.id)}
+                                  onMouseUp={endPress}
+                                  onMouseLeave={endPress}
+                                >
                                   <div className="detail-lot-main">
                                     <div className="detail-lot-date">{lotDate}</div>
                                     <div className="detail-lot-meta">{Number(lot.shares || 0)} 股 · 成本 {lotCostHtml}</div>
@@ -316,6 +388,38 @@ export default function DetailSheet({
                                     <div className="detail-lot-value">{lotValueHtml}</div>
                                     <div className={`detail-lot-pnl ${pnlClass(lotPnl)}`}>{lotPnlHtml} <span>{lotPctHtml}</span></div>
                                   </div>
+
+                                  {showActionMenuId === lot.id && (
+                                    <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex items-center justify-center gap-6 rounded-xl animate-in fade-in zoom-in duration-200">
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); handleEdit(lot); setShowActionMenuId(null); }}
+                                        className="flex flex-col items-center gap-1 text-blue-600"
+                                      >
+                                        <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center">
+                                          <i data-lucide="edit-3" className="h-4 w-4"></i>
+                                        </div>
+                                        <span className="text-[10px] font-bold">編輯</span>
+                                      </button>
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); handleDelete(lot.id); }}
+                                        className="flex flex-col items-center gap-1 text-red-600"
+                                      >
+                                        <div className="h-8 w-8 rounded-full bg-red-50 flex items-center justify-center">
+                                          <i data-lucide="trash-2" className="h-4 w-4"></i>
+                                        </div>
+                                        <span className="text-[10px] font-bold">刪除</span>
+                                      </button>
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); setShowActionMenuId(null); }}
+                                        className="flex flex-col items-center gap-1 text-slate-500"
+                                      >
+                                        <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center">
+                                          <i data-lucide="x" className="h-4 w-4"></i>
+                                        </div>
+                                        <span className="text-[10px] font-bold">取消</span>
+                                      </button>
+                                    </div>
+                                  )}
                                 </div>
                               );
                             })}
