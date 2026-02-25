@@ -8,7 +8,9 @@ type IconName =
   | "file-up"
   | "archive"
   | "archive-restore"
-  | "sparkles";
+  | "sparkles"
+  | "eye"
+  | "eye-off";
 
 type Props = {
   name: IconName;

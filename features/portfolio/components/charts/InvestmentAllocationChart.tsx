@@ -89,14 +89,14 @@ export default function InvestmentAllocationChart({ slices }: { slices: Slice[] 
             borderColor: "#FFFFFF",
             borderRadius: 6,
             spacing: 2,
-            hoverOffset: 8
+            hoverOffset: 8,
+            cutout: "72%"
           }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: "72%",
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -119,7 +119,7 @@ export default function InvestmentAllocationChart({ slices }: { slices: Slice[] 
         }
       },
       plugins: [centerText]
-    });
+    } as any);
 
     return () => {
       if (chartRef.current) chartRef.current.destroy();

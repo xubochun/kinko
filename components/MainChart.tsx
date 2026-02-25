@@ -187,9 +187,9 @@ export default function MainChart({
           }
         },
         onClick: (evt) => {
-          if (!chartRef.current) return;
+          if (!chartRef.current || !evt.native) return;
           const points = chartRef.current.getElementsAtEventForMode(
-            evt,
+            evt.native,
             "nearest",
             { intersect: false },
             true
