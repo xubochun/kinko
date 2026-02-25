@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import Icon from "../../../components/Icon";
 
 type Props = {
@@ -25,12 +26,18 @@ export default function PortfolioHeader({
     <header className="mb-10 flex items-center justify-between">
       <div className="flex items-center gap-8">
         <div className="flex items-center gap-3">
-          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white/70 ring-1 ring-black/[.06]">
-            <i data-lucide="wallet" className="h-5 w-5 text-slate-800"></i>
+          <div className="h-10 w-10 shrink-0 rounded-xl overflow-hidden ring-1 ring-black/[.06] bg-white shadow-sm flex items-center justify-center">
+            <Image 
+              src="/logo.png" 
+              alt="kinko logo" 
+              width={40} 
+              height={40} 
+              className="h-full w-full object-cover"
+            />
           </div>
           <div className="leading-tight">
-            <div className="text-[12px] font-medium text-gray-500">Portfolio</div>
-            <div className="text-[14px] font-semibold text-gray-900">Home</div>
+            <div className="text-[12px] font-medium text-gray-500">Asset Tracker</div>
+            <div className="text-[16px] font-bold text-gray-900 tracking-tight">kinko</div>
           </div>
         </div>
 

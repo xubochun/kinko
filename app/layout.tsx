@@ -56,6 +56,9 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "kinko",
   },
+  other: {
+    "mobile-web-app-capable": "yes",
+  }
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

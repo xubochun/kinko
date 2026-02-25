@@ -1,5 +1,6 @@
 type StockPriceCacheEntry = {
   price: number;
+  name?: string;
   updatedAt: number;
 };
 
@@ -25,10 +26,12 @@ export function getCachedPrice(
 export function upsertCachedPrice(
   cache: StockPriceCache,
   ticker: string,
-  price: number
+  price: number,
+  name?: string
 ) {
   cache[ticker] = {
     price,
+    name,
     updatedAt: Date.now()
   };
 }

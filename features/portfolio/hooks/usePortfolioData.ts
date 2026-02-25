@@ -116,20 +116,48 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
       const prices: Record<string, number> = {};
       const cache = readStockPriceCache(localStorage.getItem(STOCK_PRICE_CACHE_KEY)) || {};
       let cacheUpdated = false;
+      let assetsUpdated = false;
+      const nextAssets = [...assets];
 
       for (const ticker of Object.keys(stockShares)) {
         let price = 0;
+        let name = "";
         const cached = getCachedPrice(cache, ticker);
-        if (isCacheFresh(cached, priceTtlMs)) {
-          price = cached?.price ?? 0;
+        
+        // 檢查快取是否新鮮
+        const isFresh = isCacheFresh(cached, priceTtlMs);
+        
+        // 判斷是否需要更新名稱：如果當前資產裡任何一個名稱還是代號，就視為需要更新
+        const needsNameUpdate = nextAssets.some(a => a.type === "stock" && a.ticker === ticker && (!a.name || a.name === ticker));
+        
+        // 如果快取新鮮 且 不需要更新名稱，才使用快取
+        if (isFresh && cached && !needsNameUpdate) {
+          price = cached.price;
+          name = cached.name || "";
         } else {
+          // 否則，去抓新的 (包含名稱)
           try {
             const yahooData = await fetchStockPriceFromYahoo(ticker);
-            if (yahooData) price = yahooData.price;
+            if (yahooData) {
+              price = yahooData.price;
+              name = yahooData.name;
+
+              if (name && name !== ticker) {
+                nextAssets.forEach((a, idx) => {
+                  if (a.type === "stock" && a.ticker === ticker) {
+                    // 只有當目前的名稱是空的，或者是原始代號時，才自動更新為 API 抓到的中文名
+                    if (!a.name || a.name === ticker) {
+                      nextAssets[idx] = { ...a, name: name };
+                      assetsUpdated = true;
+                    }
+                  }
+                });
+              }
+            }
           } catch (e) {
-            console.warn(`[Yahoo API] ${ticker} 失敗，改用備用 API`);
+            console.warn(`[Yahoo API] ${ticker} 失敗`);
           }
-          upsertCachedPrice(cache, ticker, price);
+          upsertCachedPrice(cache, ticker, price, name);
           cacheUpdated = true;
         }
         stockCurrentTotal += stockShares[ticker] * price;
@@ -139,6 +167,10 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
       const totalValue = cashTotalValue + stockCurrentTotal;
 
       if (!active) return;
+      if (assetsUpdated) {
+        setAssets(nextAssets);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(nextAssets));
+      }
       setCashTotal(cashTotalValue);
       setStockTotal(stockCurrentTotal);
       setTotal(totalValue);
