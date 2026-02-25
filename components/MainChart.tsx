@@ -179,7 +179,7 @@ export default function MainChart({
             suggestedMax: yMax + rangePadding,
             ticks: {
               color: "rgba(17,24,39,.45)",
-              font: { size: 11, weight: "500" },
+              font: { size: 11, weight: 500 },
               callback: (v) => formatCompact(Number(v)),
               maxTicksLimit: 4
             },
