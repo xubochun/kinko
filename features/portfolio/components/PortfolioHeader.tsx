@@ -36,8 +36,7 @@ export default function PortfolioHeader({
             />
           </div>
           <div className="leading-tight">
-            <div className="text-[12px] font-medium text-gray-500">Asset Tracker</div>
-            <div className="text-[16px] font-bold text-gray-900 tracking-tight">kinko</div>
+            <div className="text-[18px] font-black text-black tracking-tight">Kinko</div>
           </div>
         </div>
 
