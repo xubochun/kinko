@@ -535,7 +535,20 @@ export default function DetailSheet({
                                 >
                                   <div className="detail-lot-main">
                                     <div className="detail-lot-date">{lotDate}</div>
-                                    <div className="detail-lot-meta">{Number(lot.shares || 0)} 股 · 買入價 ${Number.isInteger(Number(lot.price || 0)) ? Number(lot.price || 0) : Number(lot.price || 0).toFixed(2)} · 成本 {lotCostHtml}</div>
+                                    <div className="detail-lot-grid">
+                                      <div className="detail-lot-col">
+                                        <span className="detail-lot-label">股數</span>
+                                        <span className="detail-lot-value-sm">{Number(lot.shares || 0)}</span>
+                                      </div>
+                                      <div className="detail-lot-col">
+                                        <span className="detail-lot-label">買入價</span>
+                                        <span className="detail-lot-value-sm">${Number.isInteger(Number(lot.price || 0)) ? Number(lot.price || 0) : Number(lot.price || 0).toFixed(2)}</span>
+                                      </div>
+                                      <div className="detail-lot-col">
+                                        <span className="detail-lot-label">成本</span>
+                                        <span className="detail-lot-value-sm">{lotCostHtml.replace("NT$ ", "")}</span>
+                                      </div>
+                                    </div>
                                   </div>
                                   <div className="detail-lot-right">
                                     <div className="detail-lot-value tabular-nums">{lotValueHtml}</div>
