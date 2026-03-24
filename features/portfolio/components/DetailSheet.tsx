@@ -535,7 +535,7 @@ export default function DetailSheet({
                                 >
                                   <div className="detail-lot-main">
                                     <div className="detail-lot-date">{lotDate}</div>
-                                    <div className="detail-lot-meta">{Number(lot.shares || 0)} 股 · 成本 {lotCostHtml}</div>
+                                    <div className="detail-lot-meta">{Number(lot.shares || 0)} 股 · 買入價 ${Number.isInteger(Number(lot.price || 0)) ? Number(lot.price || 0) : Number(lot.price || 0).toFixed(2)} · 成本 {lotCostHtml}</div>
                                   </div>
                                   <div className="detail-lot-right">
                                     <div className="detail-lot-value tabular-nums">{lotValueHtml}</div>

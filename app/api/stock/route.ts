@@ -10,16 +10,20 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Ticker is required' }, { status: 400 });
   }
 
-  // 1. 嘗試抓取價格 (v8 接口)
+  // 1. 抓取價格
   const priceData = await fetchPrice(ticker);
   
-  // 2. 嘗試抓取中文名稱 (使用 Search 接口，對台股名稱最準)
-  const nameData = await fetchName(ticker);
+  // 2. 抓取名稱 (多重策略)
+  let nameData = await fetchNameFromSearch(ticker);
+  if (!nameData || /^[A-Z\s]+$/.test(nameData)) { // 如果沒拿到或拿到純英文大寫
+    const backupName = await fetchNameFromQuote(ticker);
+    if (backupName) nameData = backupName;
+  }
 
   if (priceData) {
     return NextResponse.json({
       ...priceData,
-      name: nameData || ticker // 如果抓不到名稱就用代號
+      name: nameData || ticker
     });
   }
 
@@ -45,27 +49,35 @@ async function fetchPrice(ticker: string) {
   return null;
 }
 
-async function fetchName(ticker: string) {
-  // Yahoo Search API 加入 zh-TW 標頭
-  const url = `https://query2.finance.yahoo.com/v1/finance/search?q=${ticker}.TW`;
+async function fetchNameFromSearch(ticker: string) {
+  // 策略：直接搜尋代號 + ".TW"，並強制要求中文環境
+  const url = `https://query2.finance.yahoo.com/v1/finance/search?q=${ticker}.TW&lang=zh-TW&region=TW&quotesCount=1`;
   try {
     const response = await fetch(url, {
-      next: { revalidate: 86400 },
       headers: { 
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-        'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7' // 強制要求中文
+        'Accept-Language': 'zh-TW,zh;q=0.9'
       }
     });
-    if (!response.ok) return null;
     const data = await response.json();
-    
-    // 尋找對應的代號
-    const result = data.quotes?.find((q: any) => q.symbol === `${ticker}.TW` || q.symbol === `${ticker}.TWO`);
-    
-    // 對台股來說，shortname 通常是「台積電」，longname 是「台灣積體電路製造股份有限公司」
-    // 我們優先取短名稱
-    return result?.shortname || result?.longname || null;
-  } catch (e) {
-    return null;
-  }
+    const result = data.quotes?.[0];
+    // 優先回傳 dispname (通常是中文簡稱)
+    return result?.dispname || result?.shortname || null;
+  } catch (e) { return null; }
+}
+
+async function fetchNameFromQuote(ticker: string) {
+  // 備援策略：使用 v7 quote 接口
+  const url = `https://query2.finance.yahoo.com/v7/finance/quote?symbols=${ticker}.TW`;
+  try {
+    const response = await fetch(url, {
+      headers: { 
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+        'Accept-Language': 'zh-TW,zh;q=0.9'
+      }
+    });
+    const data = await response.json();
+    const result = data.quoteResponse?.result?.[0];
+    return result?.longName || result?.shortName || null;
+  } catch (e) { return null; }
 }
