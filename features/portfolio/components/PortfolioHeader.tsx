@@ -81,10 +81,10 @@ export default function PortfolioHeader({
             onClick={onTogglePrivacy}
             className={`inline-flex items-center justify-center rounded-full min-w-[44px] min-h-[44px] ring-1 ring-black/[.06] transition-all active:scale-[0.97] ${privacy ? 'bg-slate-900 text-white ring-slate-900/20 hover:bg-slate-800' : 'bg-white/70 text-gray-600 hover:bg-white hover:ring-slate-300'}`}
           >
-            <i
-              data-lucide={privacy ? 'eye' : 'eye-off'}
+            <Icon
+              name={privacy ? 'eye' : 'eye-off'}
               className="h-[18px] w-[18px]"
-            ></i>
+            />
           </button>
         </div>
       </div>
