@@ -1,6 +1,6 @@
-import type { HistoryEntry, RangeKey } from "../../../../types/portfolio";
-import type { ComponentType } from "react";
-import { useEffect, useState } from "react";
+import type { HistoryEntry, RangeKey } from '../../../../types/portfolio';
+import type { ComponentType } from 'react';
+import { useEffect, useState } from 'react';
 
 type MainChartProps = {
   history?: HistoryEntry[];
@@ -13,18 +13,20 @@ type MainChartProps = {
 const MainChart = ({
   history,
   range,
-  goalValue
+  goalValue,
 }: {
   history: HistoryEntry[];
   range: RangeKey;
   goalValue?: number | null;
 }) => {
-  const [Chart, setChart] = useState<ComponentType<MainChartProps> | null>(null);
+  const [Chart, setChart] = useState<ComponentType<MainChartProps> | null>(
+    null,
+  );
 
   useEffect(() => {
     let active = true;
     const load = async () => {
-      const mod = await import("../../../../components/MainChart");
+      const mod = await import('../../../../components/MainChart');
       if (active) setChart(() => mod.default);
     };
     load();
@@ -48,8 +50,8 @@ export default function NetWorthChartSection({
   hasAssets,
   isReady,
   history,
-  privacy,
-  resetKey
+  privacy: _privacy,
+  resetKey,
 }: {
   hasAssets: boolean;
   isReady: boolean;
@@ -57,16 +59,16 @@ export default function NetWorthChartSection({
   privacy: boolean;
   resetKey: number;
 }) {
-  const [range, setRange] = useState<RangeKey>("1M");
+  const [range, setRange] = useState<RangeKey>('1M');
   const [goalValue, setGoalValue] = useState<number | null>(null);
   const [goalOpen, setGoalOpen] = useState(false);
-  const [goalInput, setGoalInput] = useState("");
-  const [goalError, setGoalError] = useState("");
+  const [goalInput, setGoalInput] = useState('');
+  const [goalError, setGoalError] = useState('');
   const [chartOpen, setChartOpen] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = window.localStorage.getItem("my_portfolio_networth_goal");
+    if (typeof window === 'undefined') return;
+    const stored = window.localStorage.getItem('my_portfolio_networth_goal');
     if (!stored) return;
     const parsed = Number(stored);
     if (!Number.isNaN(parsed)) setGoalValue(parsed);
@@ -74,33 +76,33 @@ export default function NetWorthChartSection({
   }, []);
 
   const openGoalModal = () => {
-    setGoalError("");
-    setGoalInput(goalValue ? String(goalValue) : "");
+    setGoalError('');
+    setGoalInput(goalValue ? String(goalValue) : '');
     setGoalOpen(true);
   };
 
   const closeGoalModal = () => {
     setGoalOpen(false);
-    setGoalError("");
+    setGoalError('');
   };
 
   const submitGoal = () => {
     const trimmed = goalInput.trim();
     if (!trimmed) {
-      if (typeof window !== "undefined") {
-        window.localStorage.removeItem("my_portfolio_networth_goal");
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem('my_portfolio_networth_goal');
       }
       setGoalValue(null);
       closeGoalModal();
       return;
     }
-    const parsed = Number(trimmed.replace(/,/g, ""));
+    const parsed = Number(trimmed.replace(/,/g, ''));
     if (Number.isNaN(parsed)) {
-      setGoalError("請輸入有效數字");
+      setGoalError('請輸入有效數字');
       return;
     }
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("my_portfolio_networth_goal", String(parsed));
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('my_portfolio_networth_goal', String(parsed));
     }
     setGoalValue(parsed);
     closeGoalModal();
@@ -113,7 +115,9 @@ export default function NetWorthChartSection({
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500">
             <i data-lucide="line-chart" className="h-4 w-4"></i>
           </span>
-          <span className="text-[12px] font-semibold text-gray-500">資產走勢</span>
+          <span className="text-[12px] font-semibold text-gray-500">
+            資產走勢
+          </span>
         </div>
         <div className="flex flex-1 items-center justify-center">
           <button
@@ -149,7 +153,7 @@ export default function NetWorthChartSection({
       <div className="chart-wrap">
         {isReady && hasAssets ? (
           <MainChart
-            key={`${resetKey}-${range}-${goalValue ?? "none"}`}
+            key={`${resetKey}-${range}-${goalValue ?? 'none'}`}
             history={Array.isArray(history) ? history : []}
             range={range}
             goalValue={goalValue}
@@ -163,17 +167,26 @@ export default function NetWorthChartSection({
 
       {goalOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-slate-900/40" onClick={closeGoalModal}></div>
+          <div
+            className="absolute inset-0 bg-slate-900/40"
+            onClick={closeGoalModal}
+          ></div>
           <div className="relative w-[92%] max-w-sm rounded-2xl bg-white p-5 shadow-2xl">
-            <div className="text-[14px] font-semibold text-gray-900">設定淨值目標</div>
-            <div className="mt-1 text-[11px] text-gray-500">輸入數字即可，留空表示清除</div>
+            <div className="text-[14px] font-semibold text-gray-900">
+              設定淨值目標
+            </div>
+            <div className="mt-1 text-[11px] text-gray-500">
+              輸入數字即可，留空表示清除
+            </div>
             <input
               value={goalInput}
               onChange={(e) => setGoalInput(e.target.value)}
               placeholder="例如：4500000"
               className="mt-3 w-full rounded-xl border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-slate-400"
             />
-            {goalError ? <div className="mt-2 text-[11px] text-rose-600">{goalError}</div> : null}
+            {goalError ? (
+              <div className="mt-2 text-[11px] text-rose-600">{goalError}</div>
+            ) : null}
             <div className="mt-4 flex items-center justify-end gap-2">
               <button
                 onClick={closeGoalModal}
@@ -194,14 +207,19 @@ export default function NetWorthChartSection({
 
       {chartOpen ? (
         <div className="fixed inset-0 z-50 hidden md:flex items-center justify-center">
-          <div className="absolute inset-0 bg-slate-900/40" onClick={() => setChartOpen(false)}></div>
+          <div
+            className="absolute inset-0 bg-slate-900/40"
+            onClick={() => setChartOpen(false)}
+          ></div>
           <div className="relative w-[90%] max-w-4xl rounded-2xl bg-white p-6 shadow-2xl">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500">
                   <i data-lucide="line-chart" className="h-4 w-4"></i>
                 </span>
-                <span className="text-[13px] font-semibold text-gray-700">資產走勢</span>
+                <span className="text-[13px] font-semibold text-gray-700">
+                  資產走勢
+                </span>
               </div>
               <button
                 onClick={() => setChartOpen(false)}
@@ -213,7 +231,7 @@ export default function NetWorthChartSection({
             </div>
             <div className="h-[520px]">
               <MainChart
-                key={`modal-${resetKey}-${range}-${goalValue ?? "none"}`}
+                key={`modal-${resetKey}-${range}-${goalValue ?? 'none'}`}
                 history={Array.isArray(history) ? history : []}
                 range={range}
                 goalValue={goalValue}

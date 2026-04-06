@@ -1,16 +1,33 @@
-import { useCallback, useEffect, useLayoutEffect, useState } from "react";
-import type { Asset, HistoryEntry } from "../../../types/portfolio";
-import { ARCHIVE_KEY, HISTORY_ARCHIVE_KEY, HISTORY_KEY, STOCK_PRICE_CACHE_KEY, STORAGE_KEY } from "../../../lib/storage";
-import { fetchStockPriceFromYahoo } from "../../../lib/yahoo";
-import { demoAssets } from "../lib/demoAssets";
-import { buildDemoHistory } from "../lib/demoHistory";
-import { recordTodayNetWorth } from "../lib/history";
-import { useAnimatedTotal } from "./useAnimatedTotal";
-import { getCachedPrice, isCacheFresh, readStockPriceCache, upsertCachedPrice } from "../lib/stockPriceCache";
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import type { Asset, HistoryEntry } from '../../../types/portfolio';
+import {
+  ARCHIVE_KEY,
+  HISTORY_ARCHIVE_KEY,
+  HISTORY_KEY,
+  STOCK_PRICE_CACHE_KEY,
+  STORAGE_KEY,
+} from '../../../lib/storage';
+import { fetchStockPriceFromYahoo } from '../../../lib/yahoo';
+import { demoAssets } from '../lib/demoAssets';
+import { buildDemoHistory } from '../lib/demoHistory';
+import { recordTodayNetWorth } from '../lib/history';
+import { useAnimatedTotal } from './useAnimatedTotal';
+import {
+  getCachedPrice,
+  isCacheFresh,
+  readStockPriceCache,
+  upsertCachedPrice,
+} from '../lib/stockPriceCache';
 
 export type NewAssetPayload =
-  | { type: "cash"; name: string; amount: number }
-  | { type: "stock"; ticker: string; date: string; shares: number; price: number };
+  | { type: 'cash'; name: string; amount: number }
+  | {
+      type: 'stock';
+      ticker: string;
+      date: string;
+      shares: number;
+      price: number;
+    };
 
 type UsePortfolioDataOptions = {
   privacy: boolean;
@@ -25,7 +42,7 @@ type CacheState = {
 let memoryCache: CacheState = {
   assets: null,
   history: null,
-  hasArchive: false
+  hasArchive: false,
 };
 
 const safeParse = <T>(raw: string | null, fallback: T): T => {
@@ -46,32 +63,43 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
   const [total, setTotal] = useState(0);
   const [cashCount, setCashCount] = useState(0);
   const [stockCount, setStockCount] = useState(0);
-  const [cashPct, setCashPct] = useState("0.0");
-  const [stockPct, setStockPct] = useState("0.0");
-  const [updatedAt, setUpdatedAt] = useState("");
+  const [cashPct, setCashPct] = useState('0.0');
+  const [stockPct, setStockPct] = useState('0.0');
+  const [updatedAt, setUpdatedAt] = useState('');
   const [hasArchive, setHasArchive] = useState(false);
   const [chartResetKey, setChartResetKey] = useState(0);
   const [isReady, setIsReady] = useState(false);
-  const [initialLoadState, setInitialLoadState] = useState<"unknown" | "empty" | "hasData">("unknown");
-  const { animatedTotal, setNextAnimationMs } = useAnimatedTotal(total, privacy);
+  const [initialLoadState, setInitialLoadState] = useState<
+    'unknown' | 'empty' | 'hasData'
+  >('unknown');
+  const { animatedTotal, setNextAnimationMs } = useAnimatedTotal(
+    total,
+    privacy,
+  );
   const priceTtlMs = 10 * 60 * 1000;
 
   useLayoutEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     if (memoryCache.assets) {
       setAssets(memoryCache.assets);
-      setInitialLoadState(memoryCache.assets.length > 0 ? "hasData" : "empty");
+      setInitialLoadState(memoryCache.assets.length > 0 ? 'hasData' : 'empty');
     } else {
-      const parsedAssets = safeParse<Asset[]>(localStorage.getItem(STORAGE_KEY), []);
+      const parsedAssets = safeParse<Asset[]>(
+        localStorage.getItem(STORAGE_KEY),
+        [],
+      );
       setAssets(parsedAssets);
-      setInitialLoadState(parsedAssets.length > 0 ? "hasData" : "empty");
+      setInitialLoadState(parsedAssets.length > 0 ? 'hasData' : 'empty');
     }
 
     if (memoryCache.history) {
       setHistory(memoryCache.history);
     } else {
-      const parsedHistory = safeParse<HistoryEntry[]>(localStorage.getItem(HISTORY_KEY), []);
+      const parsedHistory = safeParse<HistoryEntry[]>(
+        localStorage.getItem(HISTORY_KEY),
+        [],
+      );
       setHistory(parsedHistory);
     }
 
@@ -85,14 +113,17 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
     memoryCache.hasArchive = Boolean(localStorage.getItem(ARCHIVE_KEY));
     setHasArchive(memoryCache.hasArchive);
     setUpdatedAt(
-      new Date().toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })
+      new Date().toLocaleTimeString('zh-TW', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
     );
     setNextAnimationMs(600);
     setIsReady(true);
   }, [setNextAnimationMs]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
     let active = true;
 
     const run = async () => {
@@ -102,10 +133,10 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
       const stockShares: Record<string, number> = {};
 
       assets.forEach((asset) => {
-        if (asset.type === "cash") {
+        if (asset.type === 'cash') {
           cashTotalValue += Number(asset.amount || 0);
           if (asset.name) cashNames.add(asset.name);
-        } else if (asset.type === "stock" && asset.ticker) {
+        } else if (asset.type === 'stock' && asset.ticker) {
           stockTickers.add(asset.ticker);
           if (!stockShares[asset.ticker]) stockShares[asset.ticker] = 0;
           stockShares[asset.ticker] += Number(asset.shares || 0);
@@ -114,26 +145,32 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
 
       let stockCurrentTotal = 0;
       const prices: Record<string, number> = {};
-      const cache = readStockPriceCache(localStorage.getItem(STOCK_PRICE_CACHE_KEY)) || {};
+      const cache =
+        readStockPriceCache(localStorage.getItem(STOCK_PRICE_CACHE_KEY)) || {};
       let cacheUpdated = false;
       let assetsUpdated = false;
       const nextAssets = [...assets];
 
       for (const ticker of Object.keys(stockShares)) {
         let price = 0;
-        let name = "";
+        let name = '';
         const cached = getCachedPrice(cache, ticker);
-        
+
         // 檢查快取是否新鮮
         const isFresh = isCacheFresh(cached, priceTtlMs);
-        
+
         // 判斷是否需要更新名稱：如果當前資產裡任何一個名稱還是代號，就視為需要更新
-        const needsNameUpdate = nextAssets.some(a => a.type === "stock" && a.ticker === ticker && (!a.name || a.name === ticker));
-        
+        const needsNameUpdate = nextAssets.some(
+          (a) =>
+            a.type === 'stock' &&
+            a.ticker === ticker &&
+            (!a.name || a.name === ticker),
+        );
+
         // 如果快取新鮮 且 不需要更新名稱，才使用快取
         if (isFresh && cached && !needsNameUpdate) {
           price = cached.price;
-          name = cached.name || "";
+          name = cached.name || '';
         } else {
           // 否則，去抓新的 (包含名稱)
           try {
@@ -144,7 +181,7 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
 
               if (name && name !== ticker) {
                 nextAssets.forEach((a, idx) => {
-                  if (a.type === "stock" && a.ticker === ticker) {
+                  if (a.type === 'stock' && a.ticker === ticker) {
                     // 只有當目前的名稱是空的，或者是原始代號時，才自動更新為 API 抓到的中文名
                     if (!a.name || a.name === ticker) {
                       nextAssets[idx] = { ...a, name: name };
@@ -154,7 +191,7 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
                 });
               }
             }
-          } catch (e) {
+          } catch {
             console.warn(`[Yahoo API] ${ticker} 失敗`);
           }
           upsertCachedPrice(cache, ticker, price, name);
@@ -196,7 +233,7 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
     };
 
     const schedule =
-      typeof window.requestIdleCallback === "function"
+      typeof window.requestIdleCallback === 'function'
         ? window.requestIdleCallback
         : (cb: () => void) => window.setTimeout(cb, 120);
 
@@ -209,12 +246,12 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
   }, [assets]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
     if (!isReady) return;
     const stored = safeParse<Asset[]>(localStorage.getItem(STORAGE_KEY), []);
     if (assets.length === 0 && stored.length > 0) {
       setAssets(stored);
-      setInitialLoadState(stored.length > 0 ? "hasData" : "empty");
+      setInitialLoadState(stored.length > 0 ? 'hasData' : 'empty');
       memoryCache.assets = stored;
       return;
     }
@@ -224,8 +261,8 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
 
   useEffect(() => {
     const totalAsset = cashTotal + stockTotal;
-    let cashPctValue = "0.0";
-    let stockPctValue = "0.0";
+    let cashPctValue = '0.0';
+    let stockPctValue = '0.0';
 
     if (totalAsset > 0) {
       cashPctValue = ((cashTotal / totalAsset) * 100).toFixed(1);
@@ -245,7 +282,7 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
       const type = payload.type;
       const newRecord: Asset = { id: Date.now(), type };
 
-      if (type === "cash") {
+      if (type === 'cash') {
         newRecord.name = payload.name;
         newRecord.amount = Number(payload.amount || 0);
       } else {
@@ -265,18 +302,20 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
       memoryCache.assets = nextAssets;
       setNextAnimationMs(800);
     },
-    [assets, setNextAnimationMs]
+    [assets, setNextAnimationMs],
   );
 
   const updateAsset = useCallback(
     (id: number, payload: Partial<Asset>) => {
-      const nextAssets = assets.map((a) => (a.id === id ? { ...a, ...payload } : a));
+      const nextAssets = assets.map((a) =>
+        a.id === id ? { ...a, ...payload } : a,
+      );
       setAssets(nextAssets);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(nextAssets));
       memoryCache.assets = nextAssets;
       setNextAnimationMs(400);
     },
-    [assets, setNextAnimationMs]
+    [assets, setNextAnimationMs],
   );
 
   const removeAsset = useCallback(
@@ -287,7 +326,7 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
       memoryCache.assets = nextAssets;
       setNextAnimationMs(600);
     },
-    [assets, setNextAnimationMs]
+    [assets, setNextAnimationMs],
   );
 
   const clearCurrentData = useCallback(async () => {
@@ -295,7 +334,8 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
     const currentHistory = localStorage.getItem(HISTORY_KEY);
 
     if (currentAssets) localStorage.setItem(ARCHIVE_KEY, currentAssets);
-    if (currentHistory) localStorage.setItem(HISTORY_ARCHIVE_KEY, currentHistory);
+    if (currentHistory)
+      localStorage.setItem(HISTORY_ARCHIVE_KEY, currentHistory);
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
     localStorage.setItem(HISTORY_KEY, JSON.stringify([]));
@@ -305,11 +345,11 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
     memoryCache.history = [];
     setNextAnimationMs(600);
 
-    alert("✅ 資料已清空並備份！");
+    alert('✅ 資料已清空並備份！');
   }, [setNextAnimationMs]);
 
   const toggleClearData = useCallback(async () => {
-    const confirmed = confirm("確定要清空所有資料嗎？\n\n資料將被備份。");
+    const confirmed = confirm('確定要清空所有資料嗎？\n\n資料將被備份。');
     if (confirmed) {
       await clearCurrentData();
     }
@@ -317,7 +357,7 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
 
   const loadDemoData = useCallback(async () => {
     const confirmed = confirm(
-      "載入示範資料將覆蓋目前的資料（如有）。\n\n示範資料包含：\n• 2 個銀行帳戶\n• 台積電投資紀錄\n\n確定要繼續嗎？"
+      '載入示範資料將覆蓋目前的資料（如有）。\n\n示範資料包含：\n• 2 個銀行帳戶\n• 台積電投資紀錄\n\n確定要繼續嗎？',
     );
     if (!confirmed) return;
 
@@ -331,7 +371,7 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
     localStorage.setItem(HISTORY_KEY, JSON.stringify(demoHistory));
     memoryCache.history = demoHistory;
 
-    alert("✅ 示範資料載入完成！\n系統正在獲取台積電最新股價...");
+    alert('✅ 示範資料載入完成！\n系統正在獲取台積電最新股價...');
   }, [setNextAnimationMs]);
 
   return {
@@ -355,6 +395,6 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
     updateAsset,
     removeAsset,
     toggleClearData,
-    loadDemoData
+    loadDemoData,
   };
 }
