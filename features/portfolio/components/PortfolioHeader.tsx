@@ -12,11 +12,11 @@ type Props = {
 };
 
 export default function PortfolioHeader({
-  _hasAssets,
+  hasAssets: _hasAssets,
   privacy,
   onAddAsset,
   onTogglePrivacy,
-  _onToggleClearData,
+  onToggleClearData: _onToggleClearData,
 }: Props) {
   return (
     <header className="mb-10 flex items-center justify-between">
