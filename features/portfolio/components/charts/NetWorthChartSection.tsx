@@ -109,30 +109,28 @@ export default function NetWorthChartSection({
   };
 
   return (
-    <section className="soft-card p-5 sm:p-6">
-      <div className="mb-4 flex items-center justify-between gap-3">
+    <section className="h-full">
+      <div className="mb-6 flex items-center justify-between gap-3 px-1">
         <div className="flex items-center gap-2">
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-slate-900/5 text-slate-600">
             <i data-lucide="line-chart" className="h-4 w-4"></i>
           </span>
-          <span className="text-[12px] font-semibold text-gray-500">
-            資產走勢
+          <span className="text-[14px] font-bold text-slate-900">
+            資產淨值走勢
           </span>
         </div>
-        <div className="flex flex-1 items-center justify-center">
+        <div className="flex items-center gap-2">
           <button
             onClick={openGoalModal}
-            className="rounded-full px-3 py-1 text-[11px] font-semibold transition bg-slate-900 text-white"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11px] font-bold transition bg-slate-100 text-slate-600 hover:bg-slate-200"
             aria-label="設定目標"
           >
             設定目標
           </button>
-        </div>
-        <div className="flex items-center gap-2">
           <select
             value={range}
             onChange={(e) => setRange(e.target.value as RangeKey)}
-            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-700 outline-none hover:bg-slate-50"
+            className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-700 outline-none hover:border-slate-300 transition-all"
             aria-label="選擇時間區間"
           >
             <option value="1W">1W</option>
@@ -143,10 +141,10 @@ export default function NetWorthChartSection({
           </select>
           <button
             onClick={() => setChartOpen(true)}
-            className="hidden md:inline-flex h-[28px] w-[28px] items-center justify-center rounded-full text-slate-600 transition bg-white/70 ring-1 ring-black/[.06] hover:bg-white"
+            className="hidden md:inline-flex h-8 w-8 items-center justify-center rounded-xl text-slate-600 transition bg-slate-50 border border-slate-200 hover:bg-slate-100"
             aria-label="放大圖表"
           >
-            <i data-lucide="maximize-2" className="h-3.5 w-3.5"></i>
+            <i data-lucide="maximize-2" className="h-4 w-4"></i>
           </button>
         </div>
       </div>
