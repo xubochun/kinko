@@ -4,7 +4,6 @@ import { useState } from 'react';
 import BottomNav from '../features/portfolio/components/BottomNav';
 import DetailSheet from '../features/portfolio/components/DetailSheet';
 import AddAssetModal from '../features/portfolio/components/AddAssetModal';
-import TopBar from '../features/portfolio/components/TopBar';
 import { usePortfolioData } from '../features/portfolio/hooks/usePortfolioData';
 import { useLucideIcons } from '../features/portfolio/hooks/useLucideIcons';
 import EmptyStateHero from '../features/portfolio/components/EmptyStateHero';
@@ -65,17 +64,13 @@ export default function Page() {
     (isReady && hasAssets) || (!isReady && initialLoadState === 'hasData');
 
   return (
-    <main className="min-h-screen relative z-10 bg-slate-50/50">
-      <TopBar
-        onAdd={toggleAddModal}
-        privacy={privacy}
-        onTogglePrivacy={togglePrivacy}
-      />
-
-      <div className="mx-auto max-w-7xl px-4 pb-28 pt-5 sm:px-6 sm:pt-7 md:pt-20 md:pb-14">
+    <main className="min-h-screen relative z-10">
+      <div className="w-full">
         {showEmptyHero ? (
-          <div className="pt-6 sm:pt-10 md:pt-12">
-            <EmptyStateHero onAddAsset={toggleAddModal} />
+          <div className="px-4 pb-28 pt-5 sm:px-6 sm:pt-7 md:pt-20 md:pb-14">
+            <div className="pt-6 sm:pt-10 md:pt-12">
+              <EmptyStateHero onAddAsset={toggleAddModal} />
+            </div>
           </div>
         ) : showDashboard ? (
           <DashboardLayout

@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import Icon from '../../../components/Icon';
 
 type Props = {
@@ -18,6 +19,9 @@ export default function PortfolioHeader({
   onTogglePrivacy,
   onToggleClearData: _onToggleClearData,
 }: Props) {
+  const pathname = usePathname();
+  const isHome = pathname === '/' || pathname === '';
+
   return (
     <header className="mb-10 flex items-center justify-between">
       <div className="flex items-center gap-8">
@@ -66,27 +70,38 @@ export default function PortfolioHeader({
         <div className="hidden md:flex items-center">
           <button
             onClick={onAddAsset}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2563EB] px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition hover:bg-[#1d4ed8] active:scale-[0.98]"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.98]"
           >
             <Icon name="plus" className="h-4 w-4" />
-            新增資產
+            新增
           </button>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex md:hidden items-center">
           <button
-            id="privacyBtn"
-            aria-label="隱私模式"
-            aria-pressed={privacy}
-            title={privacy ? '顯示金額' : '隱藏金額'}
-            onClick={onTogglePrivacy}
-            className={`inline-flex items-center justify-center rounded-full min-w-[44px] min-h-[44px] ring-1 ring-black/[.06] transition-all active:scale-[0.97] ${privacy ? 'bg-slate-900 text-white ring-slate-900/20 hover:bg-slate-800' : 'bg-white/70 text-gray-600 hover:bg-white hover:ring-slate-300'}`}
+            onClick={onAddAsset}
+            className="inline-flex items-center justify-center rounded-full min-w-[44px] min-h-[44px] bg-slate-900 text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.98]"
+            aria-label="新增"
           >
-            <Icon
-              name={privacy ? 'eye' : 'eye-off'}
-              className="h-[18px] w-[18px]"
-            />
+            <Icon name="plus" className="h-[18px] w-[18px]" />
           </button>
         </div>
+        {isHome && (
+          <div className="flex items-center gap-1.5">
+            <button
+              id="privacyBtn"
+              aria-label="隱私模式"
+              aria-pressed={privacy}
+              title={privacy ? '顯示金額' : '隱藏金額'}
+              onClick={onTogglePrivacy}
+              className={`inline-flex items-center justify-center rounded-full min-w-[44px] min-h-[44px] ring-1 ring-black/[.06] transition-all active:scale-[0.97] ${privacy ? 'bg-slate-900 text-white ring-slate-900/20 hover:bg-slate-800' : 'bg-white/70 text-gray-600 hover:bg-white hover:ring-slate-300'}`}
+            >
+              <Icon
+                name={privacy ? 'eye' : 'eye-off'}
+                className="h-[18px] w-[18px]"
+              />
+            </button>
+          </div>
+        )}
       </div>
     </header>
   );
