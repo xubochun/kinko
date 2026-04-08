@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
+import Icon from '../../../components/Icon';
 
 type Props = {
   open: boolean;
-  mode: "new" | "edit";
+  mode: 'new' | 'edit';
   initialTicker?: string;
   initialShares?: number;
   onClose: () => void;
@@ -17,87 +18,117 @@ export default function AddGoalModal({
   initialShares,
   onClose,
   onSave,
-  onRemove
+  onRemove,
 }: Props) {
-  const [ticker, setTicker] = useState("");
-  const [shares, setShares] = useState("");
+  const [ticker, setTicker] = useState('');
+  const [shares, setShares] = useState('');
 
   useEffect(() => {
     if (!open) return;
-    setTicker(initialTicker ?? "");
-    setShares(initialShares ? String(initialShares) : "");
+    setTicker(initialTicker ?? '');
+    setShares(initialShares ? String(initialShares) : '');
   }, [open, initialTicker, initialShares]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const t = ticker.trim();
-    const s = Number(shares.replace(/[^\d]/g, ""));
+    const s = Number(shares.replace(/[^\d]/g, ''));
     if (!t || !s || Number.isNaN(s)) return;
     onSave(t, s);
     onClose();
   };
 
-  const isEdit = mode === "edit";
+  const isEdit = mode === 'edit';
+
+  if (!open) return null;
 
   return (
-    <div id="goalModalOverlay" className={`fixed inset-0 z-50 flex items-end md:items-center justify-center ${open ? "modal-enter-active" : "modal-enter"}`}>
-      <div className="absolute inset-0 bg-slate-900/40" onClick={onClose}></div>
+    <div
+      id="goalModalOverlay"
+      className="fixed inset-0 z-[70] flex items-end md:items-center justify-center"
+    >
+      <div
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300"
+        onClick={onClose}
+      ></div>
 
-      <div id="goalModalSheet" className={`relative w-full bg-white rounded-t-3xl md:rounded-3xl p-6 pb-10 md:pb-6 sm:max-w-sm md:max-w-md mx-auto shadow-2xl ${open ? "sheet-enter-active" : "sheet-enter"}`}>
-        <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6 md:hidden"></div>
+      <div
+        id="goalModalSheet"
+        className="relative w-full bg-white rounded-t-[32px] md:rounded-[32px] p-8 pb-10 md:pb-8 sm:max-w-md mx-auto shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-10 duration-300"
+      >
+        <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto mb-6 md:hidden"></div>
 
-        <button onClick={onClose} className="hidden md:block absolute top-4 right-4 h-9 w-9 text-gray-400 hover:text-gray-600 transition-colors rounded-full hover:bg-gray-100">
-          <i data-lucide="x" className="h-5 w-5"></i>
-        </button>
+        <div className="flex items-center justify-between mb-8">
+          <h3 className="text-[20px] font-black text-slate-900 tracking-tight">
+            {isEdit ? '調整存股目標' : '新增存股目標'}
+          </h3>
+          <button
+            onClick={onClose}
+            className="p-2 text-slate-400 hover:text-slate-600 transition-colors rounded-full hover:bg-slate-50"
+          >
+            <Icon name="x" className="h-5 w-5" />
+          </button>
+        </div>
 
-        <h3 className="text-[18px] font-semibold text-gray-900 mb-4 text-center md:text-left">
-          {isEdit ? "調整存股目標" : "新增存股目標"}
-        </h3>
-
-        <form id="addGoalForm" onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-[13px] font-medium text-gray-700 mb-1.5">股票代號</label>
+        <form
+          id="addGoalForm"
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-6"
+        >
+          <div className="flex flex-col gap-2">
+            <label className="ml-1 text-[11px] font-black text-slate-400 uppercase tracking-widest">
+              股票代號
+            </label>
             <input
               type="text"
               value={ticker}
               onChange={(e) => setTicker(e.target.value)}
               placeholder="例如：2330"
               disabled={isEdit}
-              className={`w-full rounded-xl border border-gray-200 p-3 text-[14px] outline-none transition-all ${isEdit ? "bg-gray-50 text-gray-500 cursor-not-allowed" : "bg-gray-50/50 text-gray-900 focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]"}`}
+              className={`w-full rounded-2xl border border-slate-200 p-4 text-[15px] font-bold outline-none transition-all ${isEdit ? 'bg-slate-50 text-slate-400 cursor-not-allowed' : 'bg-slate-50/50 text-slate-900 focus:border-slate-900 focus:bg-white'}`}
             />
             {isEdit && (
-              <div className="mt-1 text-[11px] text-gray-500">股票代號固定，如需更換請刪除後再新增</div>
+              <div className="ml-1 mt-1 text-[11px] font-bold text-slate-400">
+                股票代號固定，如需更換請刪除後再新增
+              </div>
             )}
           </div>
 
-          <div>
-            <label className="block text-[13px] font-medium text-gray-700 mb-1.5">目標股數</label>
+          <div className="flex flex-col gap-2">
+            <label className="ml-1 text-[11px] font-black text-slate-400 uppercase tracking-widest">
+              目標股數
+            </label>
             <input
               type="text"
               inputMode="numeric"
               value={shares}
               onChange={(e) => setShares(e.target.value)}
               placeholder="例如：300"
-              className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-[14px] text-gray-900 outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 p-4 text-[15px] font-bold text-slate-900 outline-none focus:border-slate-900 focus:bg-white transition-all tabular-nums"
             />
           </div>
 
-          <button type="submit" className="mt-2 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#2563EB] px-5 py-3 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#1d4ed8] active:scale-[0.98]">
-            儲存目標
-          </button>
-
-          {isEdit && onRemove && (
+          <div className="flex flex-col gap-3 mt-4">
             <button
-              type="button"
-              onClick={() => {
-                onRemove();
-                onClose();
-              }}
-              className="w-full inline-flex items-center justify-center rounded-xl bg-slate-100 px-5 py-3 text-[14px] font-semibold text-gray-700 transition hover:bg-slate-200"
+              type="submit"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-4 text-[15px] font-black text-white shadow-xl shadow-slate-900/20 transition-all hover:bg-slate-800 active:scale-[0.98]"
             >
-              刪除目標
+              儲存目標設定
             </button>
-          )}
+
+            {isEdit && onRemove && (
+              <button
+                type="button"
+                onClick={() => {
+                  onRemove();
+                  onClose();
+                }}
+                className="w-full inline-flex items-center justify-center rounded-2xl bg-rose-50 px-5 py-4 text-[14px] font-bold text-rose-600 transition-all hover:bg-rose-100 active:scale-[0.98]"
+              >
+                刪除此目標
+              </button>
+            )}
+          </div>
         </form>
       </div>
     </div>

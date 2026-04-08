@@ -172,74 +172,120 @@ export default function DetailSheet({
   return (
     <div
       id="detailOverlay"
-      className={`fixed inset-0 z-50 flex items-end md:items-center justify-center ${open ? 'modal-enter-active' : 'modal-enter'}`}
+      className={`fixed inset-0 z-[60] flex items-end md:items-center justify-center ${open ? 'modal-enter-active' : 'modal-enter'}`}
     >
-      <div className="absolute inset-0 bg-slate-900/40" onClick={onClose}></div>
+      <div
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+        onClick={onClose}
+      ></div>
       <div
         id="detailSheet"
-        className={`detail-sheet detail-sheet--fullscreen relative w-full bg-white mx-auto shadow-2xl ${open ? 'sheet-enter-active' : 'sheet-enter'} ${type === 'stock' ? 'detail-sheet--stock' : ''}`}
+        className={`detail-sheet relative w-full h-[92vh] md:h-[85vh] md:max-w-2xl bg-[#FAFAFA] rounded-t-[32px] md:rounded-[32px] shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform ${open ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-full md:translate-y-4 opacity-0 md:scale-95'}`}
       >
-        <div className="detail-header detail-header--minimal">
+        {/* Header with Glassmorphism */}
+        <header className="sticky top-0 z-10 flex items-center justify-between px-6 py-5 bg-white/80 backdrop-blur-xl border-b border-slate-200/60">
+          <div className="flex items-center gap-3">
+            <div
+              className={`grid h-10 w-10 place-items-center rounded-2xl ${type === 'cash' ? 'bg-slate-900 text-white' : 'bg-blue-600 text-white'} shadow-sm`}
+            >
+              <Icon
+                name={type === 'cash' ? 'banknote' : 'trending-up'}
+                className="h-5 w-5"
+              />
+            </div>
+            <div>
+              <h2 className="text-[17px] font-black text-slate-900 tracking-tight">
+                {type === 'cash' ? '現金資產明細' : '投資持股明細'}
+              </h2>
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                {type === 'cash'
+                  ? `${cashCount} 個帳戶`
+                  : `${Object.keys(groupedStocks).length} 個標的`}
+              </p>
+            </div>
+          </div>
           <button
             onClick={onClose}
-            className="detail-close detail-close--single"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-all hover:bg-slate-200 active:scale-90"
           >
-            <Icon name="x" className="h-5 w-5" />
+            <Icon name="x" className="h-4 w-4" />
           </button>
-        </div>
-        <div className="detail-content overflow-y-auto flex-1">
-          <div
-            id="detailSummary"
-            className={`detail-summary mb-4 ${type === 'stock' ? 'detail-summary--stock' : ''}`}
-          >
-            {type === 'cash' && (
-              <>
-                <div className="text-[12px] text-gray-500">總現金</div>
-                <div className="text-[18px] font-semibold text-gray-900 tabular-nums">
+        </header>
+
+        <div className="detail-content overflow-y-auto flex-1 px-5 py-6">
+          {/* Key Metrics Dashboard */}
+          <div id="detailSummary" className="grid grid-cols-1 gap-4 mb-8">
+            {type === 'cash' ? (
+              <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[13px] font-bold text-slate-400 uppercase tracking-widest">
+                    總計金額
+                  </span>
+                  <div className="px-2.5 py-1 rounded-full bg-slate-100 text-[11px] font-black text-slate-500">
+                    CASH TOTAL
+                  </div>
+                </div>
+                <div className="text-[32px] font-black text-slate-900 tabular-nums leading-none tracking-tight">
                   {currency(cashTotal)}
                 </div>
-                <div className="text-[12px] text-gray-500 mt-1">
-                  {cashCount} 個帳戶
-                </div>
-              </>
-            )}
-            {type === 'stock' && (
-              <>
-                <div className="summary-top">
-                  <div className="summary-label">總市值</div>
-                  <div className="summary-value summary-value--right summary-value--accent tabular-nums">
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-sm">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-[13px] font-bold text-slate-400 uppercase tracking-widest">
+                      總計市值
+                    </span>
+                    <div className="px-2.5 py-1 rounded-full bg-blue-50 text-[11px] font-black text-blue-600">
+                      TOTAL VALUE
+                    </div>
+                  </div>
+                  <div className="text-[32px] font-black text-slate-900 tabular-nums leading-none tracking-tight">
                     {currency(stockSummary.totalValue)}
                   </div>
                 </div>
-                <div className="summary-rows">
-                  <div className="summary-row">
-                    <div className="summary-label">總成本</div>
-                    <div className="summary-value-sm summary-value--right summary-value--muted tabular-nums">
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white rounded-[24px] border border-slate-200 p-5 shadow-sm">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                      總計成本
+                    </span>
+                    <div className="text-[17px] font-black text-slate-600 tabular-nums mt-1">
                       {currency(stockSummary.totalCost)}
                     </div>
                   </div>
-                  <div className="summary-row">
-                    <div className="summary-label">總損益</div>
+                  <div
+                    className={`bg-white rounded-[24px] border border-slate-200 p-5 shadow-sm`}
+                  >
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                      總計損益
+                    </span>
                     <div
-                      className={`summary-value-sm summary-value--right ${pnlClass(stockSummary.totalPnl)} tabular-nums`}
+                      className={`text-[17px] font-black tabular-nums mt-1 flex items-baseline gap-1.5 ${pnlClass(stockSummary.totalPnl)}`}
                     >
-                      <span>{formatPnlAmount(stockSummary.totalPnl)}</span>
-                      <span className="summary-sub">
+                      {formatPnlAmount(stockSummary.totalPnl)}
+                      <span className="text-[11px] font-bold opacity-80">
                         {formatPnlPct(stockSummary.totalPnlPct)}
                       </span>
                     </div>
                   </div>
                 </div>
-              </>
+              </div>
             )}
           </div>
-          <div
-            id="detailBody"
-            className={`detail-body ${type === 'stock' ? 'detail-body--stock' : ''}`}
-          >
+
+          {/* List Section */}
+          <div className="mb-4 flex items-center gap-2 px-1">
+            <Icon name="list" className="h-4 w-4 text-slate-400" />
+            <h3 className="text-[13px] font-bold text-slate-500 uppercase tracking-wider">
+              資產細項
+            </h3>
+          </div>
+
+          <div id="detailBody" className="flex flex-col gap-3 pb-8">
             {type === 'cash' &&
               (assets.filter((a) => a.type === 'cash').length === 0 ? (
-                <div className="detail-row text-[13px] text-gray-500">
+                <div className="bg-white rounded-2xl border border-slate-200 p-10 text-center text-[13px] font-medium text-slate-400">
                   尚未新增現金帳戶
                 </div>
               ) : (
@@ -269,7 +315,7 @@ export default function DetailSheet({
 
             {type === 'stock' &&
               (stockAssets.length === 0 ? (
-                <div className="detail-row text-[13px] text-gray-500">
+                <div className="bg-white rounded-2xl border border-slate-200 p-10 text-center text-[13px] font-medium text-slate-400">
                   尚未新增股票資產
                 </div>
               ) : (

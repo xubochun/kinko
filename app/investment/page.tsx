@@ -14,7 +14,7 @@ import PortfolioHeader from '../../features/portfolio/components/PortfolioHeader
 
 export default function InvestmentPage() {
   useLucideIcons();
-  const { assets, isReady, toggleClearData } = usePortfolioData({
+  const { assets, isReady } = usePortfolioData({
     privacy: false,
   });
   const { goals, setGoal, removeGoal } = useStockGoals();
@@ -158,13 +158,13 @@ export default function InvestmentPage() {
 
   if (!isReady) {
     return (
-      <div className="flex min-h-screen bg-slate-50/50">
-        <Sidebar />
-        <main className="flex-1 md:ml-64">
-          <div className="w-full px-4 pb-24 pt-5 sm:px-6 sm:pt-7 md:px-10 md:pt-14 md:pb-12">
+      <div className="flex min-h-screen bg-[#FAFAFA]">
+        <Sidebar onAddAsset={openNewGoal} />
+        <main className="flex-1 md:ml-64 relative z-10 min-w-0">
+          <div className="w-full px-4 pb-28 pt-5 sm:px-6 sm:pt-7 md:px-10 md:pt-12 md:pb-12 text-left overflow-hidden">
             <div className="animate-pulse space-y-8">
               <div className="h-10 w-48 bg-slate-200 rounded-lg"></div>
-              <div className="h-64 w-full bg-white border border-slate-200 rounded-3xl"></div>
+              <div className="h-64 w-full bg-white border border-slate-200 rounded-[24px]"></div>
             </div>
           </div>
         </main>
@@ -173,66 +173,63 @@ export default function InvestmentPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50/50">
-      <Sidebar />
+    <div className="flex min-h-screen bg-[#FAFAFA] overflow-x-hidden">
+      <Sidebar onAddAsset={openNewGoal} />
 
-      <main className="flex-1 md:ml-64 relative z-10">
-        <div className="w-full px-4 pb-24 pt-5 sm:px-6 sm:pt-7 md:px-10 md:pt-12 md:pb-12">
+      <main className="flex-1 md:ml-64 relative z-10 min-w-0">
+        <div className="w-full px-4 pb-24 pt-5 sm:px-6 sm:pt-7 md:px-10 md:pt-12 md:pb-12 text-left overflow-hidden">
           {/* Mobile Header */}
-          <div className="md:hidden">
+          <div className="md:hidden overflow-hidden">
             <PortfolioHeader
               hasAssets={allTickers.length > 0}
               privacy={false}
-              onAddAsset={openNewGoal}
               onTogglePrivacy={() => {}}
-              onToggleClearData={toggleClearData}
             />
           </div>
 
           {/* Desktop Header */}
           <header className="mb-10 hidden md:flex items-center justify-between">
             <div>
-              <h1 className="text-[24px] font-black text-slate-900 tracking-tight">
+              <h1 className="text-[26px] font-black text-slate-900 tracking-tight">
                 存股規劃
               </h1>
-              <p className="text-[13px] font-medium text-slate-400 mt-1">
+              <p className="text-[13px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
                 {activeYear} 年度目標達成進度
               </p>
             </div>
-            <button
-              onClick={openNewGoal}
-              className="flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-2.5 text-[13px] font-bold text-white shadow-lg shadow-slate-900/10 hover:bg-slate-800 transition-all active:scale-95"
-            >
-              <Icon name="plus" className="h-4 w-4" />
-              新增目標
-            </button>
           </header>
 
-          <div className="grid gap-6 md:grid-cols-12">
-            <div className="md:col-span-5 flex flex-col gap-6">
-              <section className="bg-white rounded-2xl md:rounded-3xl p-5 sm:p-8 border border-slate-200">
-                <div className="grid gap-3 sm:gap-6 grid-cols-3">
-                  <div>
-                    <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+          <div className="md:hidden mb-10 flex items-center justify-between">
+            <h1 className="text-[22px] font-black text-slate-900 tracking-tight">
+              存股規劃
+            </h1>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-12 overflow-hidden">
+            <div className="md:col-span-5 flex flex-col gap-6 overflow-hidden">
+              <section className="bg-white rounded-[24px] md:rounded-[32px] p-5 md:p-8 border border-slate-200 shadow-sm text-left overflow-hidden">
+                <div className="grid gap-2 sm:gap-6 grid-cols-3 min-w-0">
+                  <div className="min-w-0">
+                    <div className="text-[10px] sm:text-[11px] font-black text-slate-400 uppercase tracking-widest truncate">
                       完成率
                     </div>
-                    <div className="mt-2 text-[24px] font-black text-slate-900 tabular-nums">
+                    <div className="mt-2 text-[18px] sm:text-[24px] font-black text-slate-900 tabular-nums leading-none truncate">
                       {goalTickers.length === 0 ? '—' : `${completionPct}%`}
                     </div>
                   </div>
-                  <div>
-                    <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                  <div className="min-w-0">
+                    <div className="text-[10px] sm:text-[11px] font-black text-slate-400 uppercase tracking-widest truncate">
                       已持有
                     </div>
-                    <div className="mt-2 text-[24px] font-black text-slate-900 tabular-nums">
+                    <div className="mt-2 text-[18px] sm:text-[24px] font-black text-slate-900 tabular-nums leading-none truncate">
                       {summary.totalHeld}
                     </div>
                   </div>
-                  <div>
-                    <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                  <div className="min-w-0">
+                    <div className="text-[10px] sm:text-[11px] font-black text-slate-400 uppercase tracking-widest truncate">
                       剩餘
                     </div>
-                    <div className="mt-2 text-[24px] font-black text-slate-900 tabular-nums">
+                    <div className="mt-2 text-[18px] sm:text-[24px] font-black text-slate-900 tabular-nums leading-none truncate">
                       {summary.remaining}
                     </div>
                   </div>
@@ -252,9 +249,9 @@ export default function InvestmentPage() {
                 </div>
               </section>
 
-              <section className="bg-white rounded-3xl p-8 border border-slate-200">
+              <section className="bg-white rounded-[24px] md:rounded-[32px] p-5 md:p-8 border border-slate-200 shadow-sm text-left">
                 <div className="flex items-center justify-between mb-8">
-                  <div className="text-[14px] font-bold text-slate-900">
+                  <div className="text-[14px] font-black text-slate-900 tracking-tight">
                     持股分布
                   </div>
                   <div
@@ -287,31 +284,45 @@ export default function InvestmentPage() {
               </section>
             </div>
 
-            <section className="md:col-span-7 bg-white rounded-3xl p-8 border border-slate-200">
+            <section className="md:col-span-7 bg-white rounded-[24px] md:rounded-[32px] p-5 md:p-8 border border-slate-200 shadow-sm text-left flex flex-col overflow-hidden">
               <div className="mb-8 flex items-center justify-between">
-                <div className="text-[14px] font-bold text-slate-900">
-                  {allTickers.length === 0
-                    ? '尚未有持股或目標'
-                    : `目標清單 (${allTickers.length})`}
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="text-[14px] font-black text-slate-900 tracking-tight truncate">
+                    持股目標 {allTickers.length > 0 && `(${allTickers.length})`}
+                  </div>
                 </div>
-                <button
-                  onClick={() =>
-                    setSortMode(
-                      sortMode === 'progress-desc'
-                        ? 'progress-asc'
-                        : 'progress-desc',
-                    )
-                  }
-                  className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11px] font-bold transition bg-slate-100 text-slate-600 hover:bg-slate-200"
-                >
-                  排序 {sortMode === 'progress-desc' ? '↓' : '↑'}
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={openNewGoal}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 text-slate-600 text-[11px] font-bold hover:bg-slate-100 transition-colors active:scale-95"
+                  >
+                    <Icon name="plus" className="h-3 w-3" />
+                    新增
+                  </button>
+                  {allTickers.length > 0 && (
+                    <button
+                      onClick={() =>
+                        setSortMode(
+                          sortMode === 'progress-desc'
+                            ? 'progress-asc'
+                            : 'progress-desc',
+                        )
+                      }
+                      className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11px] font-bold transition bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    >
+                      排序 {sortMode === 'progress-desc' ? '↓' : '↑'}
+                    </button>
+                  )}
+                </div>
               </div>
 
               {allTickers.length === 0 ? (
-                <div className="py-20 text-center">
+                <div className="flex-1 flex flex-col items-center justify-center py-20">
+                  <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-300 mb-4 border border-dashed border-slate-200">
+                    <Icon name="target" className="h-8 w-8" />
+                  </div>
                   <p className="text-[14px] font-medium text-slate-400">
-                    尚未設定任何目標
+                    設定您的第一個存股目標
                   </p>
                 </div>
               ) : (
@@ -319,13 +330,13 @@ export default function InvestmentPage() {
                   {cards.map((card) => (
                     <div
                       key={card.ticker}
-                      className={`rounded-2xl border px-6 py-5 transition-all ${card.goal ? 'border-slate-100 bg-white hover:border-slate-200' : 'border-amber-100 bg-amber-50/30'}`}
+                      className={`rounded-2xl border px-5 py-4 sm:px-6 sm:py-5 transition-all ${card.goal ? 'border-slate-100 bg-white hover:border-slate-200' : 'border-amber-100 bg-amber-50/30'}`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 text-[15px] font-bold text-slate-900">
                             <span className="truncate">{card.name}</span>
-                            <span className="text-[11px] font-black text-slate-300">
+                            <span className="text-[11px] font-black text-slate-300 shrink-0">
                               {card.ticker}
                             </span>
                           </div>
@@ -338,7 +349,7 @@ export default function InvestmentPage() {
                         </button>
                       </div>
 
-                      <div className="mt-6 flex items-center justify-between gap-6">
+                      <div className="mt-6 flex items-center justify-between gap-4 sm:gap-6">
                         <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
                           <div
                             className={`h-full transition-all duration-1000 ${card.goal ? 'bg-slate-900' : 'bg-slate-200'}`}
@@ -348,7 +359,7 @@ export default function InvestmentPage() {
                           ></div>
                         </div>
                         {card.goal && (
-                          <div className="shrink-0 text-[12px] font-bold tabular-nums text-slate-600">
+                          <div className="shrink-0 text-[12px] font-bold tabular-nums text-slate-600 w-10 text-right">
                             {card.progress}%
                           </div>
                         )}
@@ -362,7 +373,7 @@ export default function InvestmentPage() {
         </div>
       </main>
 
-      <BottomNav />
+      <BottomNav onAddAsset={openNewGoal} />
 
       <AddGoalModal
         open={goalModalOpen}

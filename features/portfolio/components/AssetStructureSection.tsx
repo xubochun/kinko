@@ -78,16 +78,16 @@ export default function AssetStructureSection({
                 現金{' '}
                 <span
                   id="cashCount"
-                  className="text-[11px] font-normal text-gray-400 ml-1"
+                  className="text-[11px] font-normal text-gray-400 ml-1 hidden xs:inline"
                 >
                   {cashCount} 個帳戶
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 min-w-0">
               <div
                 id="cashValue"
-                className="tabular-nums shrink-0 text-right text-[16px] font-semibold text-gray-900 transition-all duration-300 min-h-[1.3em] leading-[1.2] min-w-[96px]"
+                className="tabular-nums shrink-0 text-right text-[16px] font-semibold text-gray-900 transition-all duration-300 min-h-[1.3em] leading-[1.2] min-w-[80px]"
               >
                 {privacy ? (
                   <HiddenAmount
@@ -120,16 +120,16 @@ export default function AssetStructureSection({
                 股票{' '}
                 <span
                   id="stockCount"
-                  className="text-[11px] font-normal text-gray-400 ml-1"
+                  className="text-[11px] font-normal text-gray-400 ml-1 hidden xs:inline"
                 >
                   {stockCount} 檔標的
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 min-w-0">
               <div
                 id="stockValue"
-                className="tabular-nums shrink-0 text-right text-[16px] font-semibold text-gray-900 transition-all duration-300 min-h-[1.3em] leading-[1.2] min-w-[96px]"
+                className="tabular-nums shrink-0 text-right text-[16px] font-semibold text-gray-900 transition-all duration-300 min-h-[1.3em] leading-[1.2] min-w-[80px]"
               >
                 {privacy ? (
                   <HiddenAmount
@@ -166,10 +166,12 @@ export default function AssetStructureSection({
           </div>
         </div>
 
+        {/* Restore Add Button at the bottom of the section for Mobile */}
         <button
           onClick={onAddAsset}
-          className={`md:hidden w-full mt-4 inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-3 text-[13px] font-semibold text-white transition hover:bg-slate-800 ${!isReady ? 'hidden' : ''}`}
+          className={`md:hidden w-full mt-6 inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-4 text-[15px] font-black text-white shadow-xl shadow-slate-900/10 active:scale-95 transition-all ${!isReady ? 'hidden' : ''}`}
         >
+          <Icon name="plus" className="h-5 w-5" />
           新增資產
         </button>
       </div>

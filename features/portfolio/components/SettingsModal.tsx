@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   HISTORY_KEY,
   STOCK_GOALS_SHARES_KEY,
-  STORAGE_KEY
-} from "../../../lib/storage";
-import type { Asset } from "../../../types/portfolio";
+  STORAGE_KEY,
+} from '../../../lib/storage';
+import type { Asset } from '../../../types/portfolio';
+import Icon from '../../../components/Icon';
 
 type Props = {
   open: boolean;
@@ -31,25 +32,25 @@ const parseCsv = async (file: File): Promise<ParsedRow[]> => {
 
   if (lines.length < 2) return [];
 
-  const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
+  const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
   const idx = (key: string) => headers.indexOf(key);
 
   return lines.slice(1).map((line) => {
-    const cols = line.split(",").map((c) => c.trim());
+    const cols = line.split(',').map((c) => c.trim());
     const get = (key: string) => {
       const i = idx(key);
-      return i >= 0 ? cols[i] : "";
+      return i >= 0 ? cols[i] : '';
     };
 
     return {
-      type: get("type"),
-      name: get("name") || undefined,
-      ticker: get("ticker") || undefined,
-      date: get("date") || undefined,
-      shares: Number(get("shares") || 0) || undefined,
-      price: Number(get("price") || 0) || undefined,
-      amount: Number(get("amount") || 0) || undefined,
-      goal: Number(get("goal") || 0) || undefined
+      type: get('type'),
+      name: get('name') || undefined,
+      ticker: get('ticker') || undefined,
+      date: get('date') || undefined,
+      shares: Number(get('shares') || 0) || undefined,
+      price: Number(get('price') || 0) || undefined,
+      amount: Number(get('amount') || 0) || undefined,
+      goal: Number(get('goal') || 0) || undefined,
     };
   });
 };
@@ -65,7 +66,7 @@ export default function SettingsModal({ open, onClose }: Props) {
     try {
       const rows = await parseCsv(file);
       if (!rows.length) {
-        alert("未偵測到有效資料，請確認 CSV 格式。");
+        alert('未偵測到有效資料，請確認 CSV 格式。');
         return;
       }
 
@@ -76,33 +77,39 @@ export default function SettingsModal({ open, onClose }: Props) {
 
       rows.forEach((row) => {
         const type = row.type?.toLowerCase();
-        if (type === "cash" && row.amount && row.name) {
+        if (type === 'cash' && row.amount && row.name) {
           assets.push({
             id: now + cursor++,
-            type: "cash",
+            type: 'cash',
             name: row.name,
-            amount: Number(row.amount || 0)
+            amount: Number(row.amount || 0),
           });
-        } else if (type === "stock" && row.ticker && row.shares && row.price && row.date) {
+        } else if (
+          type === 'stock' &&
+          row.ticker &&
+          row.shares &&
+          row.price &&
+          row.date
+        ) {
           const ticker = row.ticker.trim();
           const shares = Number(row.shares || 0);
           const price = Number(row.price || 0);
           assets.push({
             id: now + cursor++,
-            type: "stock",
+            type: 'stock',
             ticker,
             name: row.name || ticker,
             date: row.date,
             shares,
             price,
-            costAmount: shares * price
+            costAmount: shares * price,
           });
-        } else if (type === "goal" && row.ticker && row.goal) {
+        } else if (type === 'goal' && row.ticker && row.goal) {
           goals[row.ticker.trim()] = Number(row.goal || 0);
         }
       });
 
-      const confirmed = confirm("匯入會覆蓋目前資料，確定要繼續嗎？");
+      const confirmed = confirm('匯入會覆蓋目前資料，確定要繼續嗎？');
       if (!confirmed) return;
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify(assets));
@@ -115,43 +122,74 @@ export default function SettingsModal({ open, onClose }: Props) {
     }
   };
 
+  if (!open) return null;
+
   return (
-    <div className={`fixed inset-0 z-50 flex items-end md:items-center justify-center ${open ? "modal-enter-active" : "modal-enter"}`}>
-      <div className="absolute inset-0 bg-slate-900/40" onClick={onClose}></div>
+    <div
+      className={`fixed inset-0 z-[70] flex items-end md:items-center justify-center`}
+    >
+      <div
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300"
+        onClick={onClose}
+      ></div>
 
-      <div className={`relative w-full bg-white rounded-t-3xl md:rounded-3xl p-6 pb-8 md:pb-6 sm:max-w-sm md:max-w-md mx-auto shadow-2xl ${open ? "sheet-enter-active" : "sheet-enter"}`}>
-        <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6 md:hidden"></div>
+      <div
+        className={`relative w-full bg-white rounded-t-[32px] md:rounded-[32px] p-8 pb-10 md:pb-8 sm:max-w-md mx-auto shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-10 duration-300`}
+      >
+        <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto mb-6 md:hidden"></div>
 
-        <button onClick={onClose} className="hidden md:block absolute top-4 right-4 h-9 w-9 text-gray-400 hover:text-gray-600 transition-colors rounded-full hover:bg-gray-100">
-          <i data-lucide="x" className="h-5 w-5"></i>
-        </button>
+        <div className="flex items-center justify-between mb-8">
+          <h3 className="text-[20px] font-black text-slate-900 tracking-tight">
+            系統設定
+          </h3>
+          <button
+            onClick={onClose}
+            className="p-2 text-slate-400 hover:text-slate-600 transition-colors rounded-full hover:bg-slate-50"
+          >
+            <Icon name="x" className="h-5 w-5" />
+          </button>
+        </div>
 
-        <h3 className="text-[18px] font-semibold text-gray-900 mb-4 text-center md:text-left">設定</h3>
-
-        <div className="flex flex-col gap-4">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
-            <div className="text-[13px] font-semibold text-gray-900">匯入資料 (CSV)</div>
-            <div className="mt-1 text-[12px] text-gray-500">
+        <div className="flex flex-col gap-6">
+          <div className="rounded-[24px] border border-slate-200 bg-slate-50/50 p-6">
+            <div className="text-[15px] font-black text-slate-900 mb-1">
+              匯入資料 (CSV)
+            </div>
+            <p className="text-[12px] font-medium text-slate-400 leading-relaxed mb-4">
               欄位：`type,name,ticker,date,shares,price,amount,goal`
+            </p>
+
+            <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-4">
+              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+                欄位說明
+              </div>
+              <div className="text-[11px] font-bold text-slate-500 space-y-1">
+                <div>• cash：name, amount</div>
+                <div>• stock：ticker, date, shares, price</div>
+                <div>• goal：ticker, goal</div>
+              </div>
             </div>
-            <div className="mt-3 text-[11px] text-gray-500 leading-relaxed">
-              type = cash/stock/goal<br />
-              cash：name + amount<br />
-              stock：ticker + date + shares + price (name 可選)<br />
-              goal：ticker + goal
-            </div>
+
             <input
               type="file"
               accept=".csv"
-              className="mt-3 w-full text-[12px] text-gray-600"
+              className="w-full text-[13px] text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[12px] file:font-bold file:bg-slate-900 file:text-white hover:file:bg-slate-800"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
             />
+
             <button
               onClick={handleImport}
               disabled={!file || isParsing}
-              className={`mt-4 w-full inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-[13px] font-semibold text-white transition ${file ? "bg-[#2563EB] hover:bg-[#1d4ed8]" : "bg-slate-300 cursor-not-allowed"}`}
+              className={`mt-6 w-full inline-flex items-center justify-center gap-2 rounded-2xl py-4 text-[14px] font-black text-white transition-all shadow-xl ${file ? 'bg-slate-900 hover:bg-slate-800 shadow-slate-900/10 active:scale-[0.98]' : 'bg-slate-200 cursor-not-allowed shadow-none'}`}
             >
-              {isParsing ? "匯入中..." : "開始匯入"}
+              {isParsing ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
+              ) : (
+                <>
+                  <Icon name="file-up" className="h-4 w-4" />
+                  開始匯入資料
+                </>
+              )}
             </button>
           </div>
         </div>

@@ -1,33 +1,26 @@
-import { useLayoutEffect } from "react";
-import { createIcons, icons } from "lucide";
+import { useLayoutEffect } from 'react';
+import { createIcons, icons } from 'lucide';
 
 export function useLucideIcons() {
   useLayoutEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
+
+    // createIcons from 'lucide' replaces <i> tags with <svg> tags.
+    // This is dangerous in React because React loses track of the node.
+    // We only run this on mount to handle any initial icons.
+    // Dynamic icons should ideally use the <Icon /> component which returns stable SVGs.
+
     const run = () => {
-      createIcons({ icons });
-      document.querySelectorAll("svg[data-lucide]").forEach((node) => {
-        node.removeAttribute("data-lucide");
-      });
+      try {
+        createIcons({ icons });
+      } catch (e) {
+        console.warn('Lucide icon replacement failed', e);
+      }
     };
 
-    const hasPending = () => document.querySelector("i[data-lucide]") !== null;
-    if (hasPending()) run();
+    run();
 
-    let frame = 0;
-    const observer = new MutationObserver(() => {
-      if (!hasPending() || frame) return;
-      frame = window.requestAnimationFrame(() => {
-        frame = 0;
-        run();
-      });
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    return () => {
-      observer.disconnect();
-      if (frame) window.cancelAnimationFrame(frame);
-    };
+    // We removed the MutationObserver because it causes "removeChild" errors in React
+    // when it tries to replace icons that React is currently managing or unmounting.
   }, []);
 }
