@@ -1,23 +1,32 @@
-export default function HiddenAmount({
-  sizeClass = "h-3.5 w-3.5",
-  justifyClass = "justify-center",
-  heightClass = "h-[1.2em]",
-  lineHeightClass = "leading-[1.2]",
-  minWidthClass = "min-w-[72px]"
-}: {
+import React from 'react';
+import Icon from './Icon';
+
+interface HiddenAmountProps {
   sizeClass?: string;
   justifyClass?: string;
   heightClass?: string;
   lineHeightClass?: string;
   minWidthClass?: string;
-}) {
+}
+
+export default function HiddenAmount({
+  sizeClass = 'h-4 w-4',
+  justifyClass = 'justify-start',
+  heightClass = 'h-[1.2em]',
+  lineHeightClass = 'leading-none',
+  minWidthClass = 'min-w-[100px]',
+}: HiddenAmountProps) {
   return (
-    <span className={`relative inline-flex items-center w-full ${minWidthClass} ${heightClass} min-h-[1em] ${lineHeightClass}`}>
-      <span className={`absolute inset-0 flex items-center ${justifyClass} gap-1.5 opacity-55 text-gray-400 whitespace-nowrap`}>
-        <i data-lucide="eye-closed" className={sizeClass}></i>
-        <i data-lucide="eye-closed" className={sizeClass}></i>
-        <i data-lucide="eye-closed" className={sizeClass}></i>
-      </span>
-    </span>
+    <div
+      className={`flex items-center gap-1.5 ${justifyClass} ${heightClass} ${lineHeightClass} ${minWidthClass}`}
+    >
+      {[0, 1, 2].map((i) => (
+        <Icon
+          key={i}
+          name="eye-closed"
+          className={`${sizeClass} text-slate-300 opacity-40`}
+        />
+      ))}
+    </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { HistoryEntry, RangeKey } from '../../../../types/portfolio';
 import type { ComponentType } from 'react';
 import { useEffect, useState } from 'react';
+import Icon from '../../../../components/Icon';
 
 type MainChartProps = {
   history?: HistoryEntry[];
@@ -113,7 +114,7 @@ export default function NetWorthChartSection({
       <div className="mb-6 flex items-center justify-between gap-3 px-1">
         <div className="flex items-center gap-2">
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-slate-900/5 text-slate-600">
-            <i data-lucide="line-chart" className="h-4 w-4"></i>
+            <Icon name="line-chart" className="h-4 w-4" />
           </span>
           <span className="text-[14px] font-bold text-slate-900">
             資產淨值走勢
@@ -144,7 +145,7 @@ export default function NetWorthChartSection({
             className="hidden md:inline-flex h-8 w-8 items-center justify-center rounded-xl text-slate-600 transition bg-slate-50 border border-slate-200 hover:bg-slate-100"
             aria-label="放大圖表"
           >
-            <i data-lucide="maximize-2" className="h-4 w-4"></i>
+            <Icon name="maximize-2" className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -213,7 +214,7 @@ export default function NetWorthChartSection({
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500">
-                  <i data-lucide="line-chart" className="h-4 w-4"></i>
+                  <Icon name="line-chart" className="h-4 w-4" />
                 </span>
                 <span className="text-[13px] font-semibold text-gray-700">
                   資產走勢
@@ -224,7 +225,7 @@ export default function NetWorthChartSection({
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100"
                 aria-label="關閉"
               >
-                <i data-lucide="x" className="h-4 w-4"></i>
+                <Icon name="x" className="h-4 w-4" />
               </button>
             </div>
             <div className="h-[520px]">
