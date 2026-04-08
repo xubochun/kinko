@@ -1,7 +1,8 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import type { ChangeEvent } from 'react';
+import Image from 'next/image';
 import BottomNav from '../../features/portfolio/components/BottomNav';
 import Sidebar from '../../features/portfolio/components/Sidebar';
 import PortfolioHeader from '../../features/portfolio/components/PortfolioHeader';
@@ -11,6 +12,7 @@ import {
   HISTORY_KEY,
   STOCK_GOALS_SHARES_KEY,
   STORAGE_KEY,
+  NETWORTH_GOAL_KEY,
 } from '../../lib/storage';
 import { Asset } from '../../types/portfolio';
 import { useLucideIcons } from '../../features/portfolio/hooks/useLucideIcons';
@@ -18,6 +20,16 @@ import { usePortfolioData } from '../../features/portfolio/hooks/usePortfolioDat
 
 export default function SettingsPage() {
   useLucideIcons();
+  const [mounted, setMounted] = useState(false);
+  const [isLocalhost, setIsLocalhost] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setIsLocalhost(
+      ['localhost', '127.0.0.1'].includes(window.location.hostname),
+    );
+  }, []);
+
   const { toggleClearData, assets, addAsset } = usePortfolioData({
     privacy: false,
   });
@@ -26,10 +38,6 @@ export default function SettingsPage() {
   const [modalOpen, setModalOpen] = useState(false);
 
   const toggleAddModal = () => setModalOpen((prev) => !prev);
-
-  const isLocalhost =
-    typeof window !== 'undefined' &&
-    ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
   const triggerImport = () => fileInputRef.current?.click();
 
@@ -58,7 +66,7 @@ export default function SettingsPage() {
       const newGoals: Record<string, number> = {};
       const now = Date.now();
 
-      rows.forEach((row, _idx) => {
+      rows.forEach((row) => {
         if (row.type === 'cash') {
           newAssets.push({
             type: 'cash',
@@ -112,9 +120,18 @@ export default function SettingsPage() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(demoAssets));
       localStorage.setItem(HISTORY_KEY, JSON.stringify(demoHistory));
       localStorage.setItem(STOCK_GOALS_SHARES_KEY, JSON.stringify({}));
+      localStorage.removeItem(NETWORTH_GOAL_KEY);
       window.location.reload();
     }
   };
+
+  if (!mounted) {
+    return (
+      <div className="flex min-h-screen bg-[#FAFAFA]">
+        <div className="flex-1 md:ml-64" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-[#FAFAFA]">
@@ -136,14 +153,14 @@ export default function SettingsPage() {
               系統設定
             </h1>
             <p className="text-[13px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
-              Data Management & System
+              資料管理與系統
             </p>
           </header>
 
           <div className="max-w-xl space-y-6">
             <section className="space-y-3">
               <div className="px-1 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                Data Operations
+                資料操作
               </div>
               <div className="bg-white rounded-[24px] sm:rounded-[32px] border border-slate-200/60 shadow-sm overflow-hidden">
                 <button
@@ -225,12 +242,18 @@ export default function SettingsPage() {
 
             <section className="space-y-3">
               <div className="px-1 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                About
+                關於我們
               </div>
               <div className="bg-white rounded-[24px] sm:rounded-[32px] border border-slate-200/60 shadow-sm p-6 sm:p-8">
                 <div className="flex flex-col items-center text-center">
-                  <div className="h-16 w-16 rounded-3xl bg-slate-900 flex items-center justify-center mb-4 shadow-xl shadow-slate-900/20">
-                    <span className="text-white text-[24px] font-black">K</span>
+                  <div className="h-16 w-16 rounded-[20px] overflow-hidden mb-4 shadow-xl shadow-slate-900/10 flex items-center justify-center bg-white border border-slate-100">
+                    <Image
+                      src="/logo.png"
+                      alt="Kinko Logo"
+                      width={64}
+                      height={64}
+                      className="h-full w-full object-cover"
+                    />
                   </div>
                   <div className="text-[18px] font-black text-slate-900">
                     Kinko Portfolio

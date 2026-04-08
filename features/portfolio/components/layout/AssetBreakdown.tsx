@@ -48,7 +48,7 @@ export const CashBreakdown = ({
         </span>
         <button
           onClick={() => onAddAsset('cash')}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 text-slate-600 text-[11px] font-bold hover:bg-slate-100 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 text-white text-[11px] font-bold hover:bg-slate-800 transition-all active:scale-95 shadow-sm"
         >
           <Icon name="plus" className="h-3 w-3" />
           新增
@@ -67,7 +67,7 @@ export const CashBreakdown = ({
               {asset.name}
             </span>
             <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-              Cash Account
+              現金帳戶
             </span>
           </div>
           <div className="text-[14px] font-black text-slate-900 tabular-nums">
@@ -109,7 +109,7 @@ export const StockBreakdown = ({
         </span>
         <button
           onClick={() => onAddAsset('stock')}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 text-slate-600 text-[11px] font-bold hover:bg-slate-100 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 text-white text-[11px] font-bold hover:bg-slate-800 transition-all active:scale-95 shadow-sm"
         >
           <Icon name="plus" className="h-3 w-3" />
           新增

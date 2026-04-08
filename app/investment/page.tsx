@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { usePortfolioData } from '../../features/portfolio/hooks/usePortfolioData';
 import { useStockGoals } from '../../features/portfolio/hooks/useStockGoals';
 import { groupStocks } from '../../features/portfolio/lib/portfolio';
@@ -14,6 +14,12 @@ import PortfolioHeader from '../../features/portfolio/components/PortfolioHeader
 
 export default function InvestmentPage() {
   useLucideIcons();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const { assets, isReady } = usePortfolioData({
     privacy: false,
   });
@@ -156,7 +162,7 @@ export default function InvestmentPage() {
     [cards, totalSharesByTicker],
   );
 
-  if (!isReady) {
+  if (!isReady || !mounted) {
     return (
       <div className="flex min-h-screen bg-[#FAFAFA]">
         <Sidebar onAddAsset={openNewGoal} />
@@ -294,7 +300,7 @@ export default function InvestmentPage() {
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={openNewGoal}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 text-slate-600 text-[11px] font-bold hover:bg-slate-100 transition-colors active:scale-95"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 text-white text-[11px] font-bold hover:bg-slate-800 transition-all active:scale-95 shadow-sm"
                   >
                     <Icon name="plus" className="h-3 w-3" />
                     新增

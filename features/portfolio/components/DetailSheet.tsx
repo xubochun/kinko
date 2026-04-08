@@ -222,7 +222,7 @@ export default function DetailSheet({
                     總計金額
                   </span>
                   <div className="px-2.5 py-1 rounded-full bg-slate-100 text-[11px] font-black text-slate-500">
-                    CASH TOTAL
+                    現金總額
                   </div>
                 </div>
                 <div className="text-[32px] font-black text-slate-900 tabular-nums leading-none tracking-tight">
@@ -237,7 +237,7 @@ export default function DetailSheet({
                       總計市值
                     </span>
                     <div className="px-2.5 py-1 rounded-full bg-blue-50 text-[11px] font-black text-blue-600">
-                      TOTAL VALUE
+                      總市值
                     </div>
                   </div>
                   <div className="text-[32px] font-black text-slate-900 tabular-nums leading-none tracking-tight">

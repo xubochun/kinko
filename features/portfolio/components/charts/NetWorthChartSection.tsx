@@ -123,7 +123,7 @@ export default function NetWorthChartSection({
         <div className="flex items-center gap-2">
           <button
             onClick={openGoalModal}
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11px] font-bold transition bg-slate-100 text-slate-600 hover:bg-slate-200"
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold transition bg-slate-100 text-slate-600 hover:bg-slate-200"
             aria-label="設定目標"
           >
             設定目標
@@ -180,7 +180,7 @@ export default function NetWorthChartSection({
             <input
               value={goalInput}
               onChange={(e) => setGoalInput(e.target.value)}
-              placeholder="例如：4500000"
+              placeholder="例如：1000000"
               className="mt-3 w-full rounded-xl border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-slate-400"
             />
             {goalError ? (
