@@ -8,7 +8,7 @@ import HiddenAmount from '../../../../components/HiddenAmount';
 import Icon from '../../../../components/Icon';
 import { Asset } from '../../../../types/portfolio';
 
-interface StockDetail {
+export interface StockDetail {
   ticker: string;
   name: string;
   totalShares: number;
@@ -22,12 +22,14 @@ interface CashBreakdownProps {
   cashAssets: Asset[];
   cashCount: number;
   onAddAsset: (type: 'cash' | 'stock') => void;
+  onOpenDetail: (type: 'cash' | 'stock') => void;
 }
 
 interface StockBreakdownProps {
   privacy: boolean;
   stockDetails: StockDetail[];
   onAddAsset: (type: 'cash' | 'stock') => void;
+  onOpenDetail: (type: 'cash' | 'stock', ticker?: string) => void;
 }
 
 export const CashBreakdown = ({
@@ -35,11 +37,14 @@ export const CashBreakdown = ({
   cashAssets,
   cashCount,
   onAddAsset,
+  onOpenDetail,
 }: CashBreakdownProps) => (
   <section className="bg-white rounded-[24px] md:rounded-[32px] p-5 md:p-8 border border-slate-200 shadow-sm h-full text-left">
     <div className="flex items-center justify-between mb-6">
-      <div className="flex items-center gap-2">
-        <Icon name="banknote" className="h-4 w-4 text-slate-400" />
+      <div className="flex items-center gap-3">
+        <div className="grid h-8 w-8 place-items-center rounded-xl bg-slate-100 text-slate-500 shadow-sm">
+          <Icon name="banknote" className="h-4 w-4" />
+        </div>
         <h3 className="text-[14px] font-black text-slate-900">現金明細</h3>
       </div>
       <div className="flex items-center gap-3">
@@ -56,14 +61,15 @@ export const CashBreakdown = ({
       </div>
     </div>
 
-    <div className="space-y-4">
+    <div className="space-y-1">
       {cashAssets.map((asset) => (
         <div
           key={asset.id}
-          className="flex items-center justify-between group cursor-default"
+          onClick={() => onOpenDetail('cash')}
+          className="flex items-center justify-between p-3 -mx-3 rounded-2xl hover:bg-slate-50 transition-colors cursor-pointer group"
         >
           <div className="flex flex-col">
-            <span className="text-[13px] font-bold text-slate-700">
+            <span className="text-[13px] font-bold text-slate-700 group-hover:text-slate-900 transition-colors">
               {asset.name}
             </span>
             <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
@@ -75,6 +81,8 @@ export const CashBreakdown = ({
               <HiddenAmount
                 sizeClass="h-3 w-3"
                 justifyClass="justify-end"
+                heightClass="h-[1.2em]"
+                lineHeightClass="leading-[1.2]"
                 minWidthClass="min-w-[60px]"
               />
             ) : (
@@ -96,11 +104,14 @@ export const StockBreakdown = ({
   privacy,
   stockDetails,
   onAddAsset,
+  onOpenDetail,
 }: StockBreakdownProps) => (
   <section className="bg-white rounded-[24px] md:rounded-[32px] p-5 md:p-8 border border-slate-200 shadow-sm h-full text-left">
     <div className="flex items-center justify-between mb-6">
-      <div className="flex items-center gap-2">
-        <Icon name="candlestick-chart" className="h-4 w-4 text-slate-400" />
+      <div className="flex items-center gap-3">
+        <div className="grid h-8 w-8 place-items-center rounded-xl bg-slate-100 text-slate-500 shadow-sm">
+          <Icon name="candlestick-chart" className="h-4 w-4" />
+        </div>
         <h3 className="text-[14px] font-black text-slate-900">股票持倉</h3>
       </div>
       <div className="flex items-center gap-3">
@@ -117,14 +128,15 @@ export const StockBreakdown = ({
       </div>
     </div>
 
-    <div className="space-y-4">
+    <div className="space-y-1">
       {stockDetails.map((stock) => (
         <div
           key={stock.ticker}
-          className="flex items-center justify-between group py-1"
+          onClick={() => onOpenDetail('stock', stock.ticker)}
+          className="flex items-center justify-between p-3 -mx-3 rounded-2xl hover:bg-slate-50 transition-colors cursor-pointer group"
         >
           <div className="flex flex-col min-w-0 flex-1">
-            <span className="text-[13px] font-bold text-slate-700 truncate">
+            <span className="text-[13px] font-bold text-slate-700 truncate group-hover:text-slate-900 transition-colors">
               {stock.name}
             </span>
             <div className="flex items-center gap-1.5 mt-0.5">
@@ -138,7 +150,7 @@ export const StockBreakdown = ({
             </div>
           </div>
           <div className="flex flex-col items-end pl-4 shrink-0">
-            <div className="text-[14px] font-black text-slate-900 tabular-nums text-right">
+            <div className="text-[14px] font-black text-slate-900 tabular-nums">
               {privacy ? (
                 <HiddenAmount
                   sizeClass="h-3 w-3"

@@ -5,6 +5,7 @@ import Icon from '../../../components/Icon';
 type Props = {
   open: boolean;
   initialType?: 'cash' | 'stock';
+  initialTicker?: string;
   onClose: () => void;
   onAddAsset: (payload: NewAssetPayload) => void;
 };
@@ -12,6 +13,7 @@ type Props = {
 export default function AddAssetModal({
   open,
   initialType,
+  initialTicker,
   onClose,
   onAddAsset,
 }: Props) {
@@ -24,10 +26,11 @@ export default function AddAssetModal({
   const [stockPrice, setStockPrice] = useState('');
 
   useEffect(() => {
-    if (open && initialType) {
-      setAssetType(initialType);
+    if (open) {
+      if (initialType) setAssetType(initialType);
+      if (initialTicker) setStockTicker(initialTicker);
     }
-  }, [open, initialType]);
+  }, [open, initialType, initialTicker]);
 
   useEffect(() => {
     if (assetType === 'stock' && !stockDate) {

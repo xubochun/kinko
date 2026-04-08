@@ -28,7 +28,10 @@ interface DashboardLayoutProps {
   onAddAsset: (type?: 'cash' | 'stock') => void;
   onTogglePrivacy: () => void;
   onToggleClearData: () => void;
-  onOpenDetail: (type: 'cash' | 'stock') => void;
+  onOpenDetail: (
+    type: 'cash' | 'stock' | 'stock-allocation',
+    ticker?: string,
+  ) => void;
 }
 
 export default function DashboardLayout({
@@ -95,14 +98,14 @@ export default function DashboardLayout({
   const PrivacyButton = () => (
     <button
       onClick={onTogglePrivacy}
-      className={`flex items-center justify-center h-6 w-6 rounded-full transition-all active:scale-90 ${
+      className={`flex items-center justify-center h-7 w-7 rounded-xl transition-all active:scale-90 shadow-sm border ${
         privacy
-          ? 'bg-slate-900 text-white shadow-sm'
-          : 'text-slate-300 hover:text-slate-500 hover:bg-slate-100'
+          ? 'bg-slate-900 text-white border-slate-900'
+          : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
       }`}
       aria-label={privacy ? '顯示金額' : '隱藏金額'}
     >
-      <Icon name={privacy ? 'eye' : 'eye-off'} className="h-3.5 w-3.5" />
+      <Icon name={privacy ? 'eye' : 'eye-off'} className="h-4 w-4" />
     </button>
   );
 
@@ -162,14 +165,19 @@ export default function DashboardLayout({
               ) : (
                 <>
                   <Card>
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-2">
-                        <div className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="grid h-8 w-8 place-items-center rounded-xl bg-slate-100 text-slate-500 shadow-sm">
+                          <Icon name="wallet" className="h-4 w-4" />
+                        </div>
+                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">
                           資產總淨值
                         </div>
-                        <PrivacyButton />
+                        <div className="ml-1">
+                          <PrivacyButton />
+                        </div>
                       </div>
-                      <div className="px-3 py-1 rounded-full bg-slate-50 text-[10px] font-black text-slate-400 border border-slate-100 uppercase">
+                      <div className="px-2 py-0.5 rounded-full bg-slate-50 text-[9px] font-black text-slate-400 border border-slate-100 uppercase">
                         即時數據
                       </div>
                     </div>
@@ -191,14 +199,11 @@ export default function DashboardLayout({
                   </Card>
 
                   <Card>
-                    <div className="flex items-center gap-2 mb-6">
-                      <Icon
-                        name="pie-chart"
-                        className="h-4 w-4 text-slate-400"
-                      />
-                      <div className="text-[14px] font-black text-slate-900 tracking-tight">
-                        資產配置比例
+                    <div className="flex items-center gap-3 mb-6 text-[14px] font-black text-slate-900 tracking-tight">
+                      <div className="grid h-8 w-8 place-items-center rounded-xl bg-slate-100 text-slate-500 shadow-sm">
+                        <Icon name="pie-chart" className="h-4 w-4" />
                       </div>
+                      資產配置比例
                     </div>
                     <AssetStructureSection
                       hasAssets={hasAssets}
@@ -210,6 +215,7 @@ export default function DashboardLayout({
                       cashTotal={cashTotal}
                       stockTotal={stockTotal}
                       privacy={privacy}
+                      stockDetails={stockDetails}
                       onOpenDetail={onOpenDetail}
                       onAddAsset={() => onAddAsset('cash')}
                     />
@@ -221,11 +227,13 @@ export default function DashboardLayout({
                       cashAssets={cashAssets}
                       cashCount={cashCount}
                       onAddAsset={onAddAsset}
+                      onOpenDetail={onOpenDetail}
                     />
                     <StockBreakdown
                       privacy={privacy}
                       stockDetails={stockDetails}
                       onAddAsset={onAddAsset}
+                      onOpenDetail={onOpenDetail}
                     />
                   </div>
                 </>
@@ -265,11 +273,16 @@ export default function DashboardLayout({
               <div className="space-y-6">
                 <Card>
                   <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
+                      <div className="grid h-8 w-8 place-items-center rounded-xl bg-slate-100 text-slate-500 shadow-sm">
+                        <Icon name="wallet" className="h-4 w-4" />
+                      </div>
                       <div className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
                         資產總淨值
                       </div>
-                      <PrivacyButton />
+                      <div className="ml-1">
+                        <PrivacyButton />
+                      </div>
                     </div>
                     <div className="px-3 py-1 rounded-full bg-slate-50 text-[10px] font-black text-slate-400 border border-slate-100 uppercase">
                       即時數據
@@ -297,11 +310,10 @@ export default function DashboardLayout({
 
                   <div className="col-span-5">
                     <Card className="h-full">
-                      <div className="flex items-center gap-2 mb-8 text-[14px] font-black text-slate-900 tracking-tight">
-                        <Icon
-                          name="pie-chart"
-                          className="h-4 w-4 text-slate-400"
-                        />
+                      <div className="flex items-center gap-3 mb-8 text-[14px] font-black text-slate-900 tracking-tight">
+                        <div className="grid h-8 w-8 place-items-center rounded-xl bg-slate-100 text-slate-500 shadow-sm">
+                          <Icon name="pie-chart" className="h-4 w-4" />
+                        </div>
                         資產配置比例
                       </div>
                       <AssetStructureSection
@@ -314,6 +326,7 @@ export default function DashboardLayout({
                         cashTotal={cashTotal}
                         stockTotal={stockTotal}
                         privacy={privacy}
+                        stockDetails={stockDetails}
                         onOpenDetail={onOpenDetail}
                         onAddAsset={() => onAddAsset('cash')}
                       />
@@ -328,6 +341,7 @@ export default function DashboardLayout({
                       cashAssets={cashAssets}
                       cashCount={cashCount}
                       onAddAsset={onAddAsset}
+                      onOpenDetail={onOpenDetail}
                     />
                   </div>
                   <div className="col-span-8">
@@ -335,6 +349,7 @@ export default function DashboardLayout({
                       privacy={privacy}
                       stockDetails={stockDetails}
                       onAddAsset={onAddAsset}
+                      onOpenDetail={onOpenDetail}
                     />
                   </div>
                 </div>

@@ -7,6 +7,7 @@ import { groupStocks } from '../../features/portfolio/lib/portfolio';
 import BottomNav from '../../features/portfolio/components/BottomNav';
 import Sidebar from '../../features/portfolio/components/Sidebar';
 import AddGoalModal from '../../features/portfolio/components/AddGoalModal';
+import AddAssetModal from '../../features/portfolio/components/AddAssetModal';
 import Icon from '../../components/Icon';
 import { useLucideIcons } from '../../features/portfolio/hooks/useLucideIcons';
 import InvestmentAllocationChart from '../../features/portfolio/components/charts/InvestmentAllocationChart';
@@ -20,7 +21,7 @@ export default function InvestmentPage() {
     setMounted(true);
   }, []);
 
-  const { assets, isReady } = usePortfolioData({
+  const { assets, isReady, addAsset } = usePortfolioData({
     privacy: false,
   });
   const { goals, setGoal, removeGoal } = useStockGoals();
@@ -30,6 +31,10 @@ export default function InvestmentPage() {
   const [goalModalShares, setGoalModalShares] = useState<number | undefined>(
     undefined,
   );
+
+  const [assetModalOpen, setAssetModalOpen] = useState(false);
+  const [assetModalTicker, setAssetModalTicker] = useState('');
+
   const [activeYear] = useState<number>(2026);
   const [sortMode, setSortMode] = useState<'progress-desc' | 'progress-asc'>(
     'progress-desc',
@@ -105,6 +110,12 @@ export default function InvestmentPage() {
     setGoalModalOpen(true);
   };
 
+  const openAddRecord = (e: React.MouseEvent, ticker: string) => {
+    e.stopPropagation();
+    setAssetModalTicker(ticker);
+    setAssetModalOpen(true);
+  };
+
   const cards = useMemo(() => {
     return allTickers
       .map((ticker) => {
@@ -168,9 +179,15 @@ export default function InvestmentPage() {
         <Sidebar onAddAsset={openNewGoal} />
         <main className="flex-1 md:ml-64 relative z-10 min-w-0">
           <div className="w-full px-4 pb-28 pt-5 sm:px-6 sm:pt-7 md:px-10 md:pt-12 md:pb-12 text-left overflow-hidden">
-            <div className="animate-pulse space-y-8">
-              <div className="h-10 w-48 bg-slate-200 rounded-lg"></div>
-              <div className="h-64 w-full bg-white border border-slate-200 rounded-[24px]"></div>
+            <div className="animate-pulse">
+              <div className="h-10 w-48 bg-slate-200 rounded-lg mb-10 hidden md:block"></div>
+              <div className="grid gap-4 md:grid-cols-12">
+                <div className="md:col-span-5 flex flex-col gap-6">
+                  <div className="h-40 w-full bg-white border border-slate-200 rounded-[24px] md:rounded-[32px]"></div>
+                  <div className="h-64 w-full bg-white border border-slate-200 rounded-[24px] md:rounded-[32px]"></div>
+                </div>
+                <div className="md:col-span-7 h-96 w-full bg-white border border-slate-200 rounded-[24px] md:rounded-[32px]"></div>
+              </div>
             </div>
           </div>
         </main>
@@ -194,21 +211,30 @@ export default function InvestmentPage() {
           </div>
 
           {/* Desktop Header */}
-          <header className="mb-10 hidden md:flex items-center justify-between">
+          <header className="mb-6 md:mb-10 hidden md:flex items-center justify-between">
             <div>
-              <h1 className="text-[26px] font-black text-slate-900 tracking-tight">
-                存股規劃
-              </h1>
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-[26px] font-black text-slate-900 tracking-tight">
+                  存股規劃
+                </h1>
+              </div>
               <p className="text-[13px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
                 {activeYear} 年度目標達成進度
               </p>
             </div>
           </header>
 
-          <div className="md:hidden mb-10 flex items-center justify-between">
-            <h1 className="text-[22px] font-black text-slate-900 tracking-tight">
-              存股規劃
-            </h1>
+          <div className="md:hidden mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-3 mb-2">
+              <div>
+                <h1 className="text-[22px] font-black text-slate-900 tracking-tight">
+                  存股規劃
+                </h1>
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                  {activeYear} 年度目標達成進度
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-12 overflow-hidden">
@@ -219,7 +245,9 @@ export default function InvestmentPage() {
                     <div className="text-[10px] sm:text-[11px] font-black text-slate-400 uppercase tracking-widest truncate">
                       完成率
                     </div>
-                    <div className="mt-2 text-[18px] sm:text-[24px] font-black text-slate-900 tabular-nums leading-none truncate">
+                    <div
+                      className={`mt-2 text-[18px] sm:text-[24px] font-black tabular-nums leading-none truncate ${completionPct >= 100 && goalTickers.length > 0 ? 'text-emerald-500' : 'text-slate-900'}`}
+                    >
                       {goalTickers.length === 0 ? '—' : `${completionPct}%`}
                     </div>
                   </div>
@@ -227,16 +255,22 @@ export default function InvestmentPage() {
                     <div className="text-[10px] sm:text-[11px] font-black text-slate-400 uppercase tracking-widest truncate">
                       已持有
                     </div>
-                    <div className="mt-2 text-[18px] sm:text-[24px] font-black text-slate-900 tabular-nums leading-none truncate">
-                      {summary.totalHeld}
+                    <div className="mt-2 text-[18px] sm:text-[24px] font-black text-slate-900 tabular-nums leading-none truncate flex items-baseline gap-1">
+                      {summary.totalHeld.toLocaleString()}{' '}
+                      <span className="text-[10px] sm:text-[12px] text-slate-400 font-bold">
+                        股
+                      </span>
                     </div>
                   </div>
                   <div className="min-w-0">
                     <div className="text-[10px] sm:text-[11px] font-black text-slate-400 uppercase tracking-widest truncate">
                       剩餘
                     </div>
-                    <div className="mt-2 text-[18px] sm:text-[24px] font-black text-slate-900 tabular-nums leading-none truncate">
-                      {summary.remaining}
+                    <div className="mt-2 text-[18px] sm:text-[24px] font-black text-slate-900 tabular-nums leading-none truncate flex items-baseline gap-1">
+                      {summary.remaining.toLocaleString()}{' '}
+                      <span className="text-[10px] sm:text-[12px] text-slate-400 font-bold">
+                        股
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -244,11 +278,15 @@ export default function InvestmentPage() {
                 <div className="mt-10">
                   <div className="flex items-center justify-between text-[12px] font-bold text-slate-500 mb-3">
                     <span>達成進度</span>
-                    <span className="tabular-nums">{completionPct}%</span>
+                    <span
+                      className={`tabular-nums ${completionPct >= 100 && goalTickers.length > 0 ? 'text-emerald-500' : ''}`}
+                    >
+                      {completionPct}%
+                    </span>
                   </div>
                   <div className="h-2.5 rounded-full bg-slate-100 overflow-hidden">
                     <div
-                      className="h-full bg-slate-900 transition-all duration-1000"
+                      className={`h-full transition-all duration-1000 ${completionPct >= 100 && goalTickers.length > 0 ? 'bg-emerald-500' : 'bg-slate-900'}`}
                       style={{ width: `${completionPct}%` }}
                     ></div>
                   </div>
@@ -285,6 +323,8 @@ export default function InvestmentPage() {
                         ? allocationYear
                         : allocationTotal
                     }
+                    centerLabel="總股數"
+                    centerValueFormatter={(val) => val.toLocaleString()}
                   />
                 </div>
               </section>
@@ -327,45 +367,63 @@ export default function InvestmentPage() {
                   <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-300 mb-4 border border-dashed border-slate-200">
                     <Icon name="target" className="h-8 w-8" />
                   </div>
-                  <p className="text-[14px] font-medium text-slate-400">
+                  <p className="text-[14px] font-medium text-slate-400 mb-6">
                     設定您的第一個存股目標
                   </p>
+                  <button
+                    onClick={openNewGoal}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 text-white text-[13px] font-bold hover:bg-slate-800 transition-all active:scale-95 shadow-sm"
+                  >
+                    <Icon name="plus" className="h-4 w-4" />
+                    新增存股目標
+                  </button>
                 </div>
               ) : (
                 <div className="flex flex-col gap-3">
                   {cards.map((card) => (
                     <div
                       key={card.ticker}
-                      className={`rounded-2xl border px-5 py-4 sm:px-6 sm:py-5 transition-all ${card.goal ? 'border-slate-100 bg-white hover:border-slate-200' : 'border-amber-100 bg-amber-50/30'}`}
+                      onClick={() => openEditGoal(card.ticker)}
+                      className={`cursor-pointer rounded-2xl border px-5 py-4 sm:px-6 sm:py-5 transition-all group ${card.goal ? 'border-slate-100 bg-white hover:border-slate-200 hover:shadow-md hover:-translate-y-0.5' : 'border-amber-100 bg-amber-50/30 hover:border-amber-200 hover:bg-amber-50/50'}`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 text-[15px] font-bold text-slate-900">
-                            <span className="truncate">{card.name}</span>
+                            <span className="truncate group-hover:text-blue-600 transition-colors">
+                              {card.name}
+                            </span>
                             <span className="text-[11px] font-black text-slate-300 shrink-0">
                               {card.ticker}
                             </span>
                           </div>
                         </div>
-                        <button
-                          onClick={() => openEditGoal(card.ticker)}
-                          className="text-slate-300 hover:text-slate-600 transition-colors"
-                        >
-                          <Icon name="more-horizontal" className="h-5 w-5" />
-                        </button>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={(e) => openAddRecord(e, card.ticker)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 text-[12px] font-bold hover:bg-blue-100 transition-all active:scale-95"
+                          >
+                            <Icon name="plus" className="h-3 w-3" />
+                            買進
+                          </button>
+                          <div className="text-slate-300 group-hover:text-slate-600 transition-colors">
+                            <Icon name="more-horizontal" className="h-5 w-5" />
+                          </div>
+                        </div>
                       </div>
 
                       <div className="mt-6 flex items-center justify-between gap-4 sm:gap-6">
                         <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
                           <div
-                            className={`h-full transition-all duration-1000 ${card.goal ? 'bg-slate-900' : 'bg-slate-200'}`}
+                            className={`h-full transition-all duration-1000 ${card.goal ? (card.progress >= 100 ? 'bg-emerald-500' : 'bg-slate-900') : 'bg-slate-200'}`}
                             style={{
                               width: `${card.goal ? card.progress : 5}%`,
                             }}
                           ></div>
                         </div>
                         {card.goal && (
-                          <div className="shrink-0 text-[12px] font-bold tabular-nums text-slate-600 w-10 text-right">
+                          <div
+                            className={`shrink-0 text-[12px] font-bold tabular-nums w-10 text-right ${card.progress >= 100 ? 'text-emerald-500' : 'text-slate-600'}`}
+                          >
                             {card.progress}%
                           </div>
                         )}
@@ -393,6 +451,14 @@ export default function InvestmentPage() {
             ? () => removeGoal(goalModalTicker)
             : undefined
         }
+      />
+
+      <AddAssetModal
+        open={assetModalOpen}
+        initialType="stock"
+        initialTicker={assetModalTicker}
+        onClose={() => setAssetModalOpen(false)}
+        onAddAsset={addAsset}
       />
     </div>
   );

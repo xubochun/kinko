@@ -112,11 +112,11 @@ export default function NetWorthChartSection({
   return (
     <section className="h-full">
       <div className="mb-6 flex items-center justify-between gap-3 px-1">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-slate-900/5 text-slate-600">
+        <div className="flex items-center gap-3">
+          <div className="grid h-8 w-8 place-items-center rounded-xl bg-slate-100 text-slate-500 shadow-sm">
             <Icon name="line-chart" className="h-4 w-4" />
-          </span>
-          <span className="text-[14px] font-bold text-slate-900">
+          </div>
+          <span className="text-[14px] font-black text-slate-900">
             資產淨值走勢
           </span>
         </div>
