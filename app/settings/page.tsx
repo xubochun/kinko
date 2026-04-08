@@ -12,6 +12,7 @@ import {
   STOCK_GOALS_SHARES_KEY,
   STORAGE_KEY,
 } from '../../lib/storage';
+import { Asset } from '../../types/portfolio';
 import { useLucideIcons } from '../../features/portfolio/hooks/useLucideIcons';
 import { usePortfolioData } from '../../features/portfolio/hooks/usePortfolioData';
 
@@ -83,7 +84,7 @@ export default function SettingsPage() {
         // Apply IDs
         const finalAssets: Asset[] = newAssets.map((a, i) => ({
           ...a,
-          id: now + idx + i,
+          id: now + i,
         }));
         localStorage.setItem(STORAGE_KEY, JSON.stringify(finalAssets));
         localStorage.setItem(STOCK_GOALS_SHARES_KEY, JSON.stringify(newGoals));
@@ -103,8 +104,11 @@ export default function SettingsPage() {
     if (confirm('將載入範例資料並覆蓋現有資料，確定嗎？')) {
       const { demoAssets } =
         await import('../../features/portfolio/lib/demoAssets');
-      const { demoHistory } =
+      const { buildDemoHistory } =
         await import('../../features/portfolio/lib/demoHistory');
+
+      const demoHistory = buildDemoHistory();
+
       localStorage.setItem(STORAGE_KEY, JSON.stringify(demoAssets));
       localStorage.setItem(HISTORY_KEY, JSON.stringify(demoHistory));
       localStorage.setItem(STOCK_GOALS_SHARES_KEY, JSON.stringify({}));

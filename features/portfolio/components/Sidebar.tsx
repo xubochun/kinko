@@ -5,7 +5,11 @@ import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import Icon from '../../../components/Icon';
 
-export default function Sidebar() {
+type Props = {
+  onAddAsset?: () => void;
+};
+
+export default function Sidebar({ onAddAsset: _onAddAsset }: Props) {
   const pathname = usePathname();
 
   const navItems = [
