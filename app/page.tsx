@@ -18,7 +18,12 @@ export default function Page() {
     'cash',
   );
   const [detailOpen, setDetailOpen] = useState(false);
-  const [detailType, setDetailType] = useState<'cash' | 'stock' | null>(null);
+  const [detailType, setDetailType] = useState<
+    'cash' | 'stock' | 'stock-allocation' | null
+  >(null);
+  const [initialTicker, setInitialTicker] = useState<string | undefined>(
+    undefined,
+  );
 
   const {
     assets,
@@ -47,15 +52,20 @@ export default function Page() {
     setModalOpen((prev) => !prev);
   };
 
-  const openDetail = (type: 'cash' | 'stock') => {
-    if (!assets.length) return;
+  const openDetail = (
+    type: 'cash' | 'stock' | 'stock-allocation',
+    ticker?: string,
+  ) => {
+    if (!assets.length && type !== 'stock-allocation') return;
     setDetailType(type);
+    setInitialTicker(ticker);
     setDetailOpen(true);
   };
 
   const closeDetail = () => {
     setDetailOpen(false);
     setDetailType(null);
+    setInitialTicker(undefined);
   };
 
   if (!isReady) {
@@ -93,6 +103,7 @@ export default function Page() {
       <DetailSheet
         open={detailOpen}
         type={detailType}
+        initialTicker={initialTicker}
         assets={assets}
         cashTotal={cashTotal}
         cashCount={cashCount}

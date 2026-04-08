@@ -23,8 +23,12 @@ const COLORS = [
 
 export default function InvestmentAllocationChart({
   slices,
+  centerLabel = '總市值',
+  centerValueFormatter,
 }: {
   slices: Slice[];
+  centerLabel?: string;
+  centerValueFormatter?: (value: number) => string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const chartRef = useRef<Chart | null>(null);
@@ -77,11 +81,18 @@ export default function InvestmentAllocationChart({
           "600 18px system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text'";
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(totalValue.toLocaleString(), centerX, centerY - 6);
+
+        const displayValue = centerValueFormatter
+          ? centerValueFormatter(totalValue)
+          : totalValue > 1000000
+            ? (totalValue / 10000).toFixed(1) + '萬'
+            : totalValue.toLocaleString();
+
+        ctx.fillText(displayValue, centerX, centerY - 6);
         ctx.fillStyle = '#64748B';
         ctx.font =
           "500 11px system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text'";
-        ctx.fillText('股', centerX, centerY + 12);
+        ctx.fillText(centerLabel, centerX, centerY + 12);
         ctx.restore();
       },
     };
@@ -123,7 +134,7 @@ export default function InvestmentAllocationChart({
                 const pct = totalValue
                   ? Math.round((val / totalValue) * 100)
                   : 0;
-                return `${item.label} ${val.toLocaleString()} 股 (${pct}%)`;
+                return `${item.label}: ${val.toLocaleString()} (${pct}%)`;
               },
             },
           },
@@ -145,29 +156,8 @@ export default function InvestmentAllocationChart({
       </div>
     </div>
   ) : (
-    <div className="grid gap-4">
-      <div className="h-[220px]">
-        <canvas ref={canvasRef} aria-label="持股分布" role="img" />
-      </div>
-      <div className="grid gap-2">
-        {normalized.map((s) => (
-          <div
-            key={s.label}
-            className="flex items-center gap-3 text-[12px] text-slate-600"
-          >
-            <span
-              className="h-2.5 w-2.5 rounded-full shrink-0"
-              style={{ backgroundColor: s.color }}
-            ></span>
-            <div className="min-w-0 flex-1">
-              <span className="font-medium text-slate-800">{s.label}</span>
-            </div>
-            <span className="shrink-0 tabular-nums text-[11px] text-slate-500 w-10 text-right">
-              {s.pct}%
-            </span>
-          </div>
-        ))}
-      </div>
+    <div className="h-[240px] w-full">
+      <canvas ref={canvasRef} aria-label="持股分布" role="img" />
     </div>
   );
 }
