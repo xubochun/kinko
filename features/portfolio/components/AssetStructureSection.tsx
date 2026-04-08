@@ -27,7 +27,7 @@ export default function AssetStructureSection({
   stockTotal,
   privacy,
   onOpenDetail,
-  onAddAsset,
+  onAddAsset: _onAddAsset,
 }: Props) {
   return (
     <section>
@@ -165,15 +165,6 @@ export default function AssetStructureSection({
             新增資產後，這裡將顯示您的現金與股票配置比例
           </div>
         </div>
-
-        {/* Restore Add Button at the bottom of the section for Mobile */}
-        <button
-          onClick={onAddAsset}
-          className={`md:hidden w-full mt-6 inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-4 text-[15px] font-black text-white shadow-xl shadow-slate-900/10 active:scale-95 transition-all ${!isReady ? 'hidden' : ''}`}
-        >
-          <Icon name="plus" className="h-5 w-5" />
-          新增資產
-        </button>
       </div>
     </section>
   );

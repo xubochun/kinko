@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { HistoryEntry, Asset } from '../../../types/portfolio';
 import { groupStocks } from '../lib/portfolio';
 import PortfolioHeader from './PortfolioHeader';
@@ -52,6 +52,12 @@ export default function DashboardLayout({
   onToggleClearData: _onToggleClearData,
   onOpenDetail,
 }: DashboardLayoutProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Shared Detailed Data Logic
   const cashAssets = useMemo(
     () => assets.filter((a) => a.type === 'cash'),
@@ -114,6 +120,14 @@ export default function DashboardLayout({
     </section>
   );
 
+  if (!mounted) {
+    return (
+      <div className="flex min-h-screen bg-[#FAFAFA]">
+        <div className="flex-1 md:ml-64" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-[#FAFAFA] overflow-x-hidden">
       <Sidebar onAddAsset={() => onAddAsset('cash')} />
@@ -132,9 +146,6 @@ export default function DashboardLayout({
             <div className="flex flex-col gap-6">
               {!hasAssets ? (
                 <div className="py-12 px-4 text-center">
-                  <div className="w-20 h-20 rounded-[28px] bg-slate-900 mx-auto flex items-center justify-center text-white mb-6 shadow-xl shadow-slate-900/20">
-                    <Icon name="plus" className="h-10 w-10" />
-                  </div>
                   <h2 className="text-[24px] font-black text-slate-900 tracking-tight mb-3">
                     開始建立您的投資組合
                   </h2>
@@ -151,15 +162,15 @@ export default function DashboardLayout({
               ) : (
                 <>
                   <Card>
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between mb-6">
                       <div className="flex items-center gap-2">
-                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">
-                          Net Worth Portfolio
+                        <div className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                          資產總淨值
                         </div>
                         <PrivacyButton />
                       </div>
-                      <div className="px-2 py-0.5 rounded-full bg-slate-50 text-[9px] font-black text-slate-400 border border-slate-100 uppercase">
-                        REAL-TIME
+                      <div className="px-3 py-1 rounded-full bg-slate-50 text-[10px] font-black text-slate-400 border border-slate-100 uppercase">
+                        即時數據
                       </div>
                     </div>
                     <TotalSummary
@@ -229,15 +240,12 @@ export default function DashboardLayout({
                 資產概覽
               </h1>
               <p className="text-[13px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
-                {hasAssets ? `Updated: ${updatedAt}` : '開始追蹤您的個人資產'}
+                {hasAssets ? `更新於: ${updatedAt}` : '開始追蹤您的個人資產'}
               </p>
             </header>
 
             {!hasAssets ? (
               <div className="flex flex-col items-center justify-center py-20 px-4 bg-white rounded-[32px] border border-slate-200 shadow-sm border-dashed">
-                <div className="w-24 h-24 rounded-[32px] bg-slate-900 flex items-center justify-center text-white mb-8 shadow-2xl shadow-slate-900/20">
-                  <Icon name="plus" className="h-12 w-12" />
-                </div>
                 <h2 className="text-[32px] font-black text-slate-900 tracking-tight mb-4">
                   歡迎來到 Kinko
                 </h2>
@@ -259,12 +267,12 @@ export default function DashboardLayout({
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-2">
                       <div className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        Net Worth Portfolio
+                        資產總淨值
                       </div>
                       <PrivacyButton />
                     </div>
                     <div className="px-3 py-1 rounded-full bg-slate-50 text-[10px] font-black text-slate-400 border border-slate-100 uppercase">
-                      REAL-TIME
+                      即時數據
                     </div>
                   </div>
                   <TotalSummary

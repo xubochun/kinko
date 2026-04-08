@@ -141,7 +141,7 @@ export default function StockLotItem({
                   <span className="text-[13px] font-black text-slate-900 tabular-nums leading-none">
                     {Number(lot.shares || 0)}
                     <span className="text-[10px] font-bold text-slate-400 ml-1 uppercase">
-                      Shares
+                      股
                     </span>
                   </span>
                 </div>

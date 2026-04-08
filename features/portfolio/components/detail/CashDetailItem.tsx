@@ -51,7 +51,7 @@ export default function CashDetailItem({
                 編輯現金帳戶
               </h4>
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                Update account info
+                更新帳戶資訊
               </p>
             </div>
           </div>
@@ -117,7 +117,7 @@ export default function CashDetailItem({
                   {asset.name || '未命名帳戶'}
                 </div>
                 <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
-                  Cash Account
+                  現金帳戶
                 </div>
               </div>
             </div>
@@ -126,8 +126,8 @@ export default function CashDetailItem({
                 {currency(Number(asset.amount || 0))}
               </div>
               <div className="text-[10px] font-black text-slate-300 uppercase mt-0.5">
-                Updated just now
-              </div>
+                剛剛更新
+              </div>{' '}
             </div>
           </div>
 

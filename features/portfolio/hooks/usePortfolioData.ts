@@ -4,6 +4,8 @@ import {
   ARCHIVE_KEY,
   HISTORY_ARCHIVE_KEY,
   HISTORY_KEY,
+  NETWORTH_GOAL_KEY,
+  STOCK_GOALS_SHARES_KEY,
   STOCK_PRICE_CACHE_KEY,
   STORAGE_KEY,
 } from '../../../lib/storage';
@@ -280,23 +282,46 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
   const addAsset = useCallback(
     (payload: NewAssetPayload) => {
       const type = payload.type;
-      const newRecord: Asset = { id: Date.now(), type };
+      let nextAssets: Asset[];
 
       if (type === 'cash') {
-        newRecord.name = payload.name;
-        newRecord.amount = Number(payload.amount || 0);
+        const trimmedName = payload.name.trim();
+        const existingIndex = assets.findIndex(
+          (a) => a.type === 'cash' && a.name?.trim() === trimmedName,
+        );
+
+        if (existingIndex !== -1) {
+          // Merge into existing entry
+          nextAssets = assets.map((a, i) =>
+            i === existingIndex
+              ? { ...a, amount: (a.amount || 0) + Number(payload.amount || 0) }
+              : a,
+          );
+        } else {
+          // Create new entry
+          const newRecord: Asset = {
+            id: Date.now(),
+            type: 'cash',
+            name: trimmedName || '未命名帳戶',
+            amount: Number(payload.amount || 0),
+          };
+          nextAssets = [...assets, newRecord];
+        }
       } else {
-        const ticker = payload.ticker.trim();
-        newRecord.ticker = ticker;
-        newRecord.name = ticker;
-        newRecord.date = payload.date;
-        newRecord.shares = Number(payload.shares || 0);
-        newRecord.price = Number(payload.price || 0);
-        newRecord.costAmount =
-          Number(payload.shares || 0) * Number(payload.price || 0);
+        const ticker = payload.ticker.trim().toUpperCase();
+        const newRecord: Asset = {
+          id: Date.now(),
+          type: 'stock',
+          ticker,
+          name: ticker,
+          date: payload.date,
+          shares: Number(payload.shares || 0),
+          price: Number(payload.price || 0),
+          costAmount: Number(payload.shares || 0) * Number(payload.price || 0),
+        };
+        nextAssets = [...assets, newRecord];
       }
 
-      const nextAssets = [...assets, newRecord];
       setAssets(nextAssets);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(nextAssets));
       memoryCache.assets = nextAssets;
@@ -333,19 +358,26 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
     const currentAssets = localStorage.getItem(STORAGE_KEY);
     const currentHistory = localStorage.getItem(HISTORY_KEY);
 
+    // 備份到 Archive
     if (currentAssets) localStorage.setItem(ARCHIVE_KEY, currentAssets);
     if (currentHistory)
       localStorage.setItem(HISTORY_ARCHIVE_KEY, currentHistory);
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
-    localStorage.setItem(HISTORY_KEY, JSON.stringify([]));
+    // 徹底從 localStorage 移除所有金鑰
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(HISTORY_KEY);
+    localStorage.removeItem(STOCK_GOALS_SHARES_KEY);
+    localStorage.removeItem(NETWORTH_GOAL_KEY);
+    localStorage.removeItem(STOCK_PRICE_CACHE_KEY);
+
     setAssets([]);
     setHistory([]);
     memoryCache.assets = [];
     memoryCache.history = [];
     setNextAnimationMs(600);
 
-    alert('✅ 資料已清空並備份！');
+    alert('✅ 所有資料與快取已徹底清除並完成備份！');
+    window.location.reload();
   }, [setNextAnimationMs]);
 
   const toggleClearData = useCallback(async () => {
