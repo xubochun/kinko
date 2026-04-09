@@ -34,6 +34,40 @@ interface DashboardLayoutProps {
   ) => void;
 }
 
+const PrivacyButton = ({
+  privacy,
+  onTogglePrivacy,
+}: {
+  privacy: boolean;
+  onTogglePrivacy: () => void;
+}) => (
+  <button
+    onClick={onTogglePrivacy}
+    className={`flex items-center justify-center h-7 w-7 rounded-xl transition-all active:scale-90 shadow-sm border ${
+      privacy
+        ? 'bg-slate-900 text-white border-slate-900'
+        : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+    }`}
+    aria-label={privacy ? '顯示金額' : '隱藏金額'}
+  >
+    <Icon name={privacy ? 'eye' : 'eye-off'} className="h-4 w-4" />
+  </button>
+);
+
+const Card = ({
+  children,
+  className = '',
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <section
+    className={`bg-white rounded-[24px] md:rounded-[32px] p-5 md:p-8 border border-slate-200 shadow-sm text-left overflow-hidden ${className}`}
+  >
+    {children}
+  </section>
+);
+
 export default function DashboardLayout({
   assets,
   stockPrices,
@@ -95,34 +129,6 @@ export default function DashboardLayout({
     });
   }, [grouped, stockPrices]);
 
-  const PrivacyButton = () => (
-    <button
-      onClick={onTogglePrivacy}
-      className={`flex items-center justify-center h-7 w-7 rounded-xl transition-all active:scale-90 shadow-sm border ${
-        privacy
-          ? 'bg-slate-900 text-white border-slate-900'
-          : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
-      }`}
-      aria-label={privacy ? '顯示金額' : '隱藏金額'}
-    >
-      <Icon name={privacy ? 'eye' : 'eye-off'} className="h-4 w-4" />
-    </button>
-  );
-
-  const Card = ({
-    children,
-    className = '',
-  }: {
-    children: React.ReactNode;
-    className?: string;
-  }) => (
-    <section
-      className={`bg-white rounded-[24px] md:rounded-[32px] p-5 md:p-8 border border-slate-200 shadow-sm text-left overflow-hidden ${className}`}
-    >
-      {children}
-    </section>
-  );
-
   if (!mounted) {
     return (
       <div className="flex min-h-screen bg-[#FAFAFA]">
@@ -174,7 +180,10 @@ export default function DashboardLayout({
                           資產總淨值
                         </div>
                         <div className="ml-1">
-                          <PrivacyButton />
+                          <PrivacyButton
+                            privacy={privacy}
+                            onTogglePrivacy={onTogglePrivacy}
+                          />
                         </div>
                       </div>
                       <div className="px-2 py-0.5 rounded-full bg-slate-50 text-[9px] font-black text-slate-400 border border-slate-100 uppercase">
@@ -281,7 +290,10 @@ export default function DashboardLayout({
                         資產總淨值
                       </div>
                       <div className="ml-1">
-                        <PrivacyButton />
+                        <PrivacyButton
+                          privacy={privacy}
+                          onTogglePrivacy={onTogglePrivacy}
+                        />
                       </div>
                     </div>
                     <div className="px-3 py-1 rounded-full bg-slate-50 text-[10px] font-black text-slate-400 border border-slate-100 uppercase">
