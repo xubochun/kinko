@@ -74,7 +74,10 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
     let changed = false;
     const nextAssets = assets.map((a) => {
       if (a.type === 'stock' && a.ticker && stockNames[a.ticker]) {
-        if (!a.name || a.name === a.ticker) {
+        if (
+          (!a.name || a.name === a.ticker) &&
+          a.name !== stockNames[a.ticker]
+        ) {
           changed = true;
           return { ...a, name: stockNames[a.ticker] };
         }

@@ -1,4 +1,5 @@
 import { useQueries } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { fetchStockPriceFromYahoo } from '../../../lib/yahoo';
 
 const fetchPrice = async (ticker: string) => {
@@ -17,18 +18,23 @@ export function useStockPrices(tickers: string[]) {
     })),
   });
 
-  const stockPrices: Record<string, number> = {};
-  const stockNames: Record<string, string> = {};
-
-  queries.forEach((query, index) => {
-    const ticker = tickers[index];
-    if (query.data) {
-      stockPrices[ticker] = query.data.price;
-      stockNames[ticker] = query.data.name;
-    }
-  });
-
   const isLoading = queries.some((q) => q.isLoading);
+  const dataStr = JSON.stringify(queries.map((q) => q.data));
+
+  const { stockPrices, stockNames } = useMemo(() => {
+    const prices: Record<string, number> = {};
+    const names: Record<string, string> = {};
+
+    queries.forEach((query, index) => {
+      const ticker = tickers[index];
+      if (query.data) {
+        prices[ticker] = query.data.price;
+        names[ticker] = query.data.name;
+      }
+    });
+
+    return { stockPrices: prices, stockNames: names };
+  }, [tickers.join(','), dataStr]);
 
   return {
     stockPrices,
