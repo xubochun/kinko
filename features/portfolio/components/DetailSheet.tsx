@@ -192,8 +192,8 @@ export default function DetailSheet({
         id="detailSheet"
         className={`detail-sheet relative w-full h-[92vh] md:h-[85vh] md:max-w-2xl bg-[#FAFAFA] rounded-t-[32px] md:rounded-[32px] shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform ${open ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-full md:translate-y-4 opacity-0 md:scale-95'}`}
       >
-        {/* Header with Glassmorphism */}
-        <header className="sticky top-0 z-10 flex items-center justify-between px-6 py-5 bg-white/80 backdrop-blur-xl border-b border-slate-200/60">
+        {/* Header */}
+        <header className="sticky top-0 z-10 flex items-center justify-between px-6 py-5 bg-white border-b border-slate-200/60">
           <div className="flex items-center gap-3">
             <div
               className={`grid h-10 w-10 place-items-center rounded-2xl ${type === 'cash' ? 'bg-slate-900 text-white' : 'bg-blue-600 text-white'} shadow-sm`}
@@ -211,7 +211,7 @@ export default function DetailSheet({
                     ? '股票配置分析'
                     : '投資持股明細'}
               </h2>
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+              <p className="text-[11px] font-bold text-slate-700 uppercase tracking-widest mt-0.5">
                 {type === 'cash'
                   ? `${cashCount} 個帳戶`
                   : `${Object.keys(groupedStocks).length} 個標的`}
@@ -220,7 +220,7 @@ export default function DetailSheet({
           </div>
           <button
             onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-all hover:bg-slate-200 active:scale-90"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-all hover:bg-slate-200 active:scale-90"
           >
             <Icon name="x" className="h-4 w-4" />
           </button>
@@ -231,11 +231,11 @@ export default function DetailSheet({
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="bg-white rounded-[32px] p-6 sm:p-8 border border-slate-200 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
-                  <div className="text-[13px] font-black text-slate-700">
+                  <div className="text-[13px] font-black text-slate-800">
                     市值權重分佈
                   </div>
-                  <div className="px-3 py-1 rounded-full bg-blue-50 text-[10px] font-black text-blue-600 border border-blue-100">
-                    以當前市值計算
+                  <div className="px-3 py-1 rounded-full bg-blue-50 text-[10px] font-black text-blue-700 border border-blue-100">
+                    目前權重
                   </div>
                 </div>
                 <div className="h-[240px]">
@@ -243,18 +243,18 @@ export default function DetailSheet({
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <div className="px-1 text-[11px] font-black text-slate-400 uppercase tracking-widest">
+              <div className="space-y-1">
+                <div className="px-1 text-[11px] font-black text-slate-700 uppercase tracking-widest mb-3">
                   標的佔比清單
                 </div>
                 {stockChartData.map((s, i) => (
                   <div
                     key={i}
-                    className="bg-white rounded-2xl p-4 border border-slate-100 flex items-center justify-between"
+                    className="bg-white rounded-2xl p-4 border border-slate-100 flex items-center justify-between mb-2"
                   >
                     <div className="flex items-center gap-3">
                       <div
-                        className="w-2 h-2 rounded-full"
+                        className="w-2.5 h-2.5 rounded-full shadow-sm"
                         style={{
                           backgroundColor: [
                             '#1D4ED8',
@@ -268,7 +268,7 @@ export default function DetailSheet({
                           ][i % 8],
                         }}
                       ></div>
-                      <span className="text-[14px] font-bold text-slate-700">
+                      <span className="text-[14px] font-black text-slate-800">
                         {s.label}
                       </span>
                     </div>
@@ -277,7 +277,7 @@ export default function DetailSheet({
                         {((s.value / stockSummary.totalValue) * 100).toFixed(1)}
                         %
                       </div>
-                      <div className="text-[10px] font-bold text-slate-300 tabular-nums">
+                      <div className="text-[10px] font-bold text-slate-700 tabular-nums">
                         {currency(s.value)}
                       </div>
                     </div>
@@ -287,60 +287,64 @@ export default function DetailSheet({
             </div>
           ) : (
             <>
-              {/* Key Metrics Dashboard */}
-              <div id="detailSummary" className="grid grid-cols-1 gap-4 mb-8">
+              {/* Key Metrics Dashboard - Light Style */}
+              <div id="detailSummary" className="grid grid-cols-1 gap-3 mb-8">
                 {type === 'cash' ? (
                   <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-[13px] font-bold text-slate-400 uppercase tracking-widest">
+                      <span className="text-[11px] font-black text-slate-700 uppercase tracking-widest">
                         總計金額
                       </span>
-                      <div className="px-2.5 py-1 rounded-full bg-slate-100 text-[11px] font-black text-slate-500">
+                      <div className="px-2.5 py-1 rounded-full bg-slate-100 text-[10px] font-black text-slate-700 uppercase">
                         現金總額
                       </div>
                     </div>
-                    <div className="text-[32px] font-black text-slate-900 tabular-nums leading-none tracking-tight">
+                    <div className="text-[32px] font-black text-slate-900 tabular-nums leading-none tracking-tight truncate">
                       {currency(cashTotal)}
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-sm">
+                  <div className="space-y-3">
+                    <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-sm overflow-hidden">
                       <div className="flex items-center justify-between mb-4">
-                        <span className="text-[13px] font-bold text-slate-400 uppercase tracking-widest">
-                          總計市值
+                        <span className="text-[14px] font-black text-slate-700 uppercase tracking-widest">
+                          投資總市值
                         </span>
-                        <div className="px-2.5 py-1 rounded-full bg-blue-50 text-[11px] font-black text-blue-600">
-                          總市值
+                        <div
+                          className={`text-[13px] font-black tabular-nums flex items-center gap-1.5 ${pnlClass(stockSummary.totalPnl)}`}
+                        >
+                          <span>{stockSummary.totalPnl >= 0 ? '▲' : '▼'}</span>
+                          <span>{formatPnlPct(stockSummary.totalPnlPct)}</span>
                         </div>
                       </div>
-                      <div className="text-[32px] font-black text-slate-900 tabular-nums leading-none tracking-tight">
+                      <div className="text-[28px] font-black text-slate-900 tabular-nums leading-none tracking-tight truncate">
                         {currency(stockSummary.totalValue)}
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white rounded-[24px] border border-slate-200 p-5 shadow-sm">
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                          總計成本
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-white rounded-[24px] border border-slate-200 p-5 shadow-sm overflow-hidden flex flex-col justify-between min-h-[90px]">
+                        <span className="text-[12px] font-black text-slate-700 uppercase tracking-widest mb-2">
+                          累積投資成本
                         </span>
-                        <div className="text-[17px] font-black text-slate-600 tabular-nums mt-1">
+                        <div className="text-[20px] font-black text-slate-800 tabular-nums leading-tight truncate">
                           {currency(stockSummary.totalCost)}
                         </div>
                       </div>
                       <div
-                        className={`bg-white rounded-[24px] border border-slate-200 p-5 shadow-sm`}
+                        className={`bg-white rounded-[24px] border border-slate-200 p-5 shadow-sm overflow-hidden flex flex-col justify-between min-h-[90px] ${
+                          stockSummary.totalPnl >= 0
+                            ? 'bg-emerald-50/20'
+                            : 'bg-rose-50/20'
+                        }`}
                       >
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                          總計損益
+                        <span className="text-[12px] font-black text-slate-700 uppercase tracking-widest mb-2">
+                          累積投資損益
                         </span>
                         <div
-                          className={`text-[17px] font-black tabular-nums mt-1 flex items-baseline gap-1.5 ${pnlClass(stockSummary.totalPnl)}`}
+                          className={`text-[20px] font-black tabular-nums leading-tight truncate ${pnlClass(stockSummary.totalPnl)}`}
                         >
                           {formatPnlAmount(stockSummary.totalPnl)}
-                          <span className="text-[11px] font-bold opacity-80">
-                            {formatPnlPct(stockSummary.totalPnlPct)}
-                          </span>
                         </div>
                       </div>
                     </div>
@@ -350,8 +354,8 @@ export default function DetailSheet({
 
               {/* List Section */}
               <div className="mb-4 flex items-center gap-2 px-1">
-                <Icon name="list" className="h-4 w-4 text-slate-400" />
-                <h3 className="text-[13px] font-bold text-slate-500 uppercase tracking-wider">
+                <Icon name="list" className="h-4 w-4 text-slate-900" />
+                <h3 className="text-[13px] font-black text-slate-900 uppercase tracking-widest">
                   資產細項
                 </h3>
               </div>
@@ -359,7 +363,7 @@ export default function DetailSheet({
               <div id="detailBody" className="flex flex-col gap-3 pb-8">
                 {type === 'cash' &&
                   (assets.filter((a) => a.type === 'cash').length === 0 ? (
-                    <div className="bg-white rounded-2xl border border-slate-200 p-10 text-center text-[13px] font-medium text-slate-400">
+                    <div className="bg-white rounded-2xl border border-slate-200 p-10 text-center text-[13px] font-medium text-slate-700">
                       尚未新增現金帳戶
                     </div>
                   ) : (
@@ -396,7 +400,7 @@ export default function DetailSheet({
 
                 {type === 'stock' &&
                   (stockAssets.length === 0 ? (
-                    <div className="bg-white rounded-2xl border border-slate-200 p-10 text-center text-[13px] font-medium text-slate-400">
+                    <div className="bg-white rounded-2xl border border-slate-200 p-10 text-center text-[13px] font-medium text-slate-700">
                       尚未新增股票資產
                     </div>
                   ) : (

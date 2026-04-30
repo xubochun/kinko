@@ -1,11 +1,5 @@
 import { Asset } from '../../../../types/portfolio';
-import {
-  currency,
-  formatDate,
-  formatPnlAmount,
-  formatPnlPct,
-  pnlClass,
-} from '../../../../lib/format';
+import { currency, formatPnlAmount, pnlClass } from '../../../../lib/format';
 import ActionMenu from './ActionMenu';
 import Icon from '../../../../components/Icon';
 
@@ -51,134 +45,124 @@ export default function StockLotItem({
   );
   const lotValue = Number(lot.shares || 0) * price;
   const lotPnl = lotValue - lotCost;
-  const lotPnlPct = lotCost > 0 ? (lotPnl / lotCost) * 100 : 0;
-  const lotValueHtml = currency(lotValue);
+  const lotValueHtml = currency(lotValue).replace('NT$', '');
   const lotPnlHtml = formatPnlAmount(lotPnl);
-  const lotPctHtml = formatPnlPct(lotPnlPct);
-  const lotDate = lot.date ? formatDate(lot.date) : '—';
+
+  // Extract date in YYYY.MM.DD format directly from the raw string to avoid long labels
+  const rawDate = lot.date || ''; // YYYY-MM-DD
+  const displayDate = rawDate.replace(/-/g, '.');
 
   return (
-    <div className="relative w-full transition-all duration-300">
+    <div className="relative w-full">
       {isEditing ? (
-        <div className="bg-slate-50 rounded-[20px] border-2 border-slate-900 p-4 animate-in fade-in zoom-in duration-200">
+        <div className="bg-white rounded-2xl border-2 border-slate-900 p-4 mb-3 shadow-lg animate-in fade-in zoom-in duration-200">
           <div className="flex items-center gap-2 mb-4">
             <Icon name="edit-2" className="h-3.5 w-3.5 text-slate-900" />
             <span className="text-[11px] font-black text-slate-900 uppercase tracking-widest">
               編輯成交紀錄
             </span>
           </div>
-
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">
+              <label className="text-[10px] font-black text-slate-700 uppercase tracking-wider ml-1">
                 股數
               </label>
               <input
                 type="number"
                 value={editShares}
                 onChange={(e) => setEditShares(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-[13px] font-bold text-slate-900 outline-none focus:border-slate-900 transition-all tabular-nums"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] font-bold text-slate-900 outline-none focus:border-slate-900 transition-all tabular-nums"
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">
+              <label className="text-[10px] font-black text-slate-700 uppercase tracking-wider ml-1">
                 買入價格
               </label>
               <input
                 type="number"
                 value={editPrice}
                 onChange={(e) => setEditPrice(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-[13px] font-bold text-slate-900 outline-none focus:border-slate-900 transition-all tabular-nums"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] font-bold text-slate-900 outline-none focus:border-slate-900 transition-all tabular-nums"
               />
             </div>
           </div>
-
           <div className="flex flex-col gap-1.5 mt-3">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">
+            <label className="text-[10px] font-black text-slate-700 uppercase tracking-wider ml-1">
               成交日期
             </label>
             <input
               type="date"
               value={editDate}
               onChange={(e) => setEditDate(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-[13px] font-bold text-slate-900 outline-none focus:border-slate-900 transition-all h-[40px]"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] font-bold text-slate-900 outline-none focus:border-slate-900 transition-all h-[40px]"
             />
           </div>
-
           <div className="flex justify-end gap-2 mt-5">
             <button
               onClick={onCancelEdit}
-              className="px-4 py-2 text-[12px] font-bold text-slate-500 hover:bg-slate-200 rounded-lg transition-all"
+              className="px-4 py-2 text-[12px] font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition-all"
             >
               取消
             </button>
             <button
               onClick={onSave}
-              className="px-5 py-2 text-[12px] font-bold bg-slate-900 text-white rounded-lg shadow-sm hover:bg-slate-800 transition-all active:scale-95"
+              className="px-5 py-2 text-[12px] font-bold bg-slate-900 text-white rounded-lg shadow-sm"
             >
               儲存
             </button>
           </div>
         </div>
       ) : (
-        <div className="group relative bg-slate-50/50 rounded-2xl border border-slate-100 p-3.5 transition-all hover:bg-white hover:border-slate-200 hover:shadow-sm active:scale-[0.99] select-none overflow-hidden">
-          <div className="flex items-center justify-between gap-3 sm:gap-4">
-            <div className="flex flex-col gap-1 min-w-0 flex-1">
-              <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest whitespace-nowrap">
-                {lotDate}
-              </div>
-              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                <div className="flex items-center">
-                  <span className="text-[13px] font-black text-slate-900 tabular-nums leading-none whitespace-nowrap">
-                    {Number(lot.shares || 0).toLocaleString()}
-                    <span className="text-[10px] font-bold text-slate-400 ml-1 uppercase">
-                      股
-                    </span>
-                  </span>
-                </div>
-                <span className="hidden sm:block h-3 w-px bg-slate-200"></span>
-                <div className="flex items-center">
-                  <span className="text-[13px] font-bold text-slate-500 tabular-nums leading-none whitespace-nowrap">
-                    @
-                    {Number.isInteger(Number(lot.price || 0))
-                      ? Number(lot.price || 0).toLocaleString()
-                      : Number(lot.price || 0).toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              <div className="text-right flex flex-col items-end min-w-[90px] sm:min-w-[110px]">
-                <div className="text-[14px] font-black text-slate-900 tabular-nums leading-none mb-1">
-                  {lotValueHtml}
-                </div>
-                <div
-                  className={`text-[11px] font-bold tabular-nums flex items-center justify-end gap-1 flex-wrap ${pnlClass(lotPnl)}`}
-                >
-                  <span className="whitespace-nowrap">{lotPnlHtml}</span>
-                  <span className="text-[10px] opacity-70 whitespace-nowrap">
-                    {lotPctHtml}
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onShowMenu(lot.id);
-                }}
-                className="p-1.5 text-slate-300 hover:text-slate-600 transition-colors rounded-lg hover:bg-slate-200"
-              >
-                <Icon name="more-vertical" className="h-4 w-4" />
-              </button>
+        <div className="group flex items-center gap-1 sm:gap-2 py-3 border-b border-slate-100 last:border-0 hover:bg-white transition-all rounded-xl px-1">
+          {/* Date: Dark color, wider column for YYYY.MM.DD */}
+          <div className="w-[70px] shrink-0">
+            <div className="text-[10px] sm:text-[11px] font-black text-slate-900 tabular-nums leading-none">
+              {displayDate || '—'}
             </div>
           </div>
 
+          {/* Shares: Fixed-width aligned column */}
+          <div className="w-[60px] sm:w-[75px] shrink-0 flex items-center justify-end gap-0.5 sm:gap-1">
+            <span className="text-[12px] sm:text-[13px] font-black text-slate-900 tabular-nums leading-none">
+              {Number(lot.shares || 0).toLocaleString()}
+            </span>
+            <span className="text-[9px] sm:text-[10px] font-black text-slate-900 uppercase shrink-0">
+              股
+            </span>
+          </div>
+
+          {/* Price: Auto-growing column with dark labels */}
+          <div className="flex-1 min-w-[50px] px-1 sm:px-2 flex items-center border-l border-slate-100 ml-1 sm:ml-2">
+            <span className="text-[10px] sm:text-[11px] font-bold text-slate-600 tabular-nums leading-none truncate">
+              @{Number(lot.price || 0).toLocaleString()}
+            </span>
+          </div>
+
+          {/* Value & PnL: Unified right-aligned group */}
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            <div className="text-right flex flex-col items-end min-w-[80px] sm:min-w-[95px]">
+              <div className="text-[13px] sm:text-[14px] font-black text-slate-900 tabular-nums leading-none mb-1 truncate max-w-[80px] sm:max-w-none">
+                {lotValueHtml}
+              </div>
+              <div
+                className={`text-[10px] sm:text-[11px] font-black tabular-nums leading-none truncate max-w-[80px] sm:max-w-none ${pnlClass(lotPnl)}`}
+              >
+                {lotPnlHtml}
+              </div>
+            </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onShowMenu(lot.id);
+              }}
+              className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors rounded-lg"
+            >
+              <Icon name="more-vertical" className="h-4 w-4" />
+            </button>
+          </div>
+
           {showActionMenu && (
-            <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/90 backdrop-blur-sm animate-in fade-in duration-200 rounded-2xl">
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/90 backdrop-blur-sm animate-in fade-in duration-200 rounded-xl">
               <ActionMenu
                 onEdit={(e) => {
                   e.stopPropagation();
