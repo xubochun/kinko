@@ -90,17 +90,7 @@ export default function AssetStructureSection({
             </div>
             <div className="flex items-center gap-1 min-w-0">
               <div className="tabular-nums shrink-0 text-right text-[16px] font-semibold text-gray-900 transition-all duration-300 min-h-[1.3em] leading-[1.2] min-w-[80px]">
-                {privacy ? (
-                  <HiddenAmount
-                    sizeClass="h-3.5 w-3.5"
-                    justifyClass="justify-end"
-                    heightClass="h-[1.2em]"
-                    lineHeightClass="leading-[1.2]"
-                    minWidthClass="min-w-[96px]"
-                  />
-                ) : (
-                  currency(cashTotal)
-                )}
+                {privacy ? <HiddenAmount /> : currency(cashTotal)}
               </div>
               <Icon
                 name="chevron-right"
@@ -126,17 +116,7 @@ export default function AssetStructureSection({
             </div>
             <div className="flex items-center gap-1 min-w-0">
               <div className="tabular-nums shrink-0 text-right text-[16px] font-semibold text-[#2563EB] transition-all duration-300 min-h-[1.3em] leading-[1.2] min-w-[80px]">
-                {privacy ? (
-                  <HiddenAmount
-                    sizeClass="h-3.5 w-3.5"
-                    justifyClass="justify-end"
-                    heightClass="h-[1.2em]"
-                    lineHeightClass="leading-[1.2]"
-                    minWidthClass="min-w-[96px]"
-                  />
-                ) : (
-                  currency(stockTotal)
-                )}
+                {privacy ? <HiddenAmount /> : currency(stockTotal)}
               </div>
               <Icon
                 name="chevron-right"

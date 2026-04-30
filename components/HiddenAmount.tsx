@@ -1,32 +1,58 @@
 import React from 'react';
-import Icon from './Icon';
+import { EyeOff } from 'lucide-react';
 
 interface HiddenAmountProps {
-  sizeClass?: string;
-  justifyClass?: string;
-  heightClass?: string;
-  lineHeightClass?: string;
-  minWidthClass?: string;
+  className?: string;
+  iconClassName?: string;
+  count?: number;
 }
 
+/**
+ * A component that displays a masked amount using icons.
+ * The icons automatically scale with the parent's font size using 'em' units.
+ */
 export default function HiddenAmount({
-  sizeClass = 'h-4 w-4',
-  justifyClass = 'justify-start',
-  heightClass = 'h-[1.2em]',
-  lineHeightClass = 'leading-none',
-  minWidthClass = 'min-w-[100px]',
+  className = '',
+  iconClassName = '',
+  count = 3,
 }: HiddenAmountProps) {
   return (
-    <div
-      className={`flex items-center gap-1.5 ${justifyClass} ${heightClass} ${lineHeightClass} ${minWidthClass}`}
+    <span
+      className={`inline-flex items-center gap-[0.2em] leading-none ${className}`}
+      aria-hidden="true"
     >
-      {[0, 1, 2].map((i) => (
-        <Icon
+      {Array.from({ length: count }).map((_, i) => (
+        <EyeOff
           key={i}
-          name="eye-closed"
-          className={`${sizeClass} text-slate-300 opacity-40`}
+          className={`h-[0.8em] w-[0.8em] text-current opacity-30 ${iconClassName}`}
+          strokeWidth={2.5}
         />
       ))}
-    </div>
+    </span>
+  );
+}
+
+/**
+ * A simpler dot-based mask for tighter spaces.
+ */
+export function HiddenDot({
+  count = 3,
+  className = '',
+}: {
+  count?: number;
+  className?: string;
+}) {
+  return (
+    <span
+      className={`inline-flex items-center gap-[0.1em] leading-none ${className}`}
+    >
+      {Array.from({ length: count }).map((_, i) => (
+        <span
+          key={i}
+          className="h-[0.4em] w-[0.4em] rounded-full bg-current opacity-30"
+          style={{ display: 'inline-block', verticalAlign: 'middle' }}
+        />
+      ))}
+    </span>
   );
 }

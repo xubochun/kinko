@@ -4,7 +4,7 @@ import {
   formatPnlPct,
   pnlClass,
 } from '../../../../lib/format';
-import HiddenAmount from '../../../../components/HiddenAmount';
+import HiddenAmount, { HiddenDot } from '../../../../components/HiddenAmount';
 import Icon from '../../../../components/Icon';
 import { Asset } from '../../../../types/portfolio';
 
@@ -77,17 +77,7 @@ export const CashBreakdown = ({
             </span>
           </div>
           <div className="text-[14px] font-black text-slate-900 tabular-nums">
-            {privacy ? (
-              <HiddenAmount
-                sizeClass="h-3 w-3"
-                justifyClass="justify-end"
-                heightClass="h-[1.2em]"
-                lineHeightClass="leading-[1.2]"
-                minWidthClass="min-w-[60px]"
-              />
-            ) : (
-              currency(asset.amount || 0)
-            )}
+            {privacy ? <HiddenAmount /> : currency(asset.amount || 0)}
           </div>
         </div>
       ))}
@@ -151,22 +141,16 @@ export const StockBreakdown = ({
           </div>
           <div className="flex flex-col items-end pl-4 shrink-0">
             <div className="text-[14px] font-black text-slate-900 tabular-nums">
-              {privacy ? (
-                <HiddenAmount
-                  sizeClass="h-3 w-3"
-                  justifyClass="justify-end"
-                  minWidthClass="min-w-[70px]"
-                />
-              ) : (
-                currency(stock.currentValue)
-              )}
+              {privacy ? <HiddenAmount /> : currency(stock.currentValue)}
             </div>
             <div
               className={`text-[11px] font-bold tabular-nums flex items-center justify-end gap-1 mt-0.5 ${pnlClass(stock.pnl)}`}
             >
-              <span>{privacy ? '••••' : formatPnlAmount(stock.pnl)}</span>
+              <span>
+                {privacy ? <HiddenDot count={4} /> : formatPnlAmount(stock.pnl)}
+              </span>
               <span className="opacity-70 text-[9px]">
-                {privacy ? '••%' : formatPnlPct(stock.pnlPct)}
+                {privacy ? <HiddenDot count={2} /> : formatPnlPct(stock.pnlPct)}
               </span>
             </div>
           </div>
