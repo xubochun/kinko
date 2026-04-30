@@ -275,6 +275,9 @@ export default function SettingsPage() {
 
       <AddAssetModal
         open={modalOpen}
+        investmentAccounts={assets.filter(
+          (a) => a.type === 'cash' && a.isInvestmentAccount,
+        )}
         onClose={toggleAddModal}
         onAddAsset={addAsset}
       />

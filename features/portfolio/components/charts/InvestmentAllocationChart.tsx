@@ -33,6 +33,12 @@ export default function InvestmentAllocationChart({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const chartRef = useRef<Chart | null>(null);
 
+  const centerLabelRef = useRef(centerLabel);
+  const centerValueFormatterRef = useRef(centerValueFormatter);
+
+  centerLabelRef.current = centerLabel;
+  centerValueFormatterRef.current = centerValueFormatter;
+
   const normalized = useMemo(() => {
     const total = slices.reduce((acc, s) => acc + s.value, 0);
     if (!total) return [];
@@ -59,19 +65,43 @@ export default function InvestmentAllocationChart({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    if (chartRef.current) chartRef.current.destroy();
-
     if (!normalized.length) {
       canvas.style.display = 'none';
+      if (chartRef.current) {
+        chartRef.current.destroy();
+        chartRef.current = null;
+      }
       return;
     }
 
     canvas.style.display = 'block';
 
     const totalValue = normalized.reduce((acc, s) => acc + s.value, 0);
+
+    if (chartRef.current) {
+      const chart = chartRef.current as Chart & { _totalValue?: number };
+
+      // Prevent tooltip error on data length change
+      if (chart.tooltip && chart.tooltip.getActiveElements().length > 0) {
+        chart.tooltip.setActiveElements([], { x: 0, y: 0 });
+      }
+
+      chart.data.labels = normalized.map((s) => s.label);
+      if (chart.data.datasets && chart.data.datasets.length > 0) {
+        chart.data.datasets[0].data = normalized.map((s) =>
+          Math.round(s.value),
+        );
+        chart.data.datasets[0].backgroundColor = normalized.map((s) => s.color);
+      }
+      // Attach totalValue to chart instance so the plugin can read it dynamically
+      chart._totalValue = totalValue;
+      chart.update('none');
+      return;
+    }
+
     const centerText = {
       id: 'centerText',
-      afterDraw(chart: Chart) {
+      afterDraw(chart: Chart & { _totalValue?: number }) {
         const { ctx, chartArea } = chart;
         const centerX = (chartArea.left + chartArea.right) / 2;
         const centerY = (chartArea.top + chartArea.bottom) / 2;
@@ -82,22 +112,25 @@ export default function InvestmentAllocationChart({
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
-        const displayValue = centerValueFormatter
-          ? centerValueFormatter(totalValue)
-          : totalValue > 1000000
-            ? (totalValue / 10000).toFixed(1) + '萬'
-            : totalValue.toLocaleString();
+        const currentTotal = chart._totalValue || totalValue;
+        const formatter = centerValueFormatterRef.current;
+
+        const displayValue = formatter
+          ? formatter(currentTotal)
+          : currentTotal > 1000000
+            ? (currentTotal / 10000).toFixed(1) + '萬'
+            : currentTotal.toLocaleString();
 
         ctx.fillText(displayValue, centerX, centerY - 6);
         ctx.fillStyle = '#64748B';
         ctx.font =
           "500 11px system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text'";
-        ctx.fillText(centerLabel, centerX, centerY + 12);
+        ctx.fillText(centerLabelRef.current, centerX, centerY + 12);
         ctx.restore();
       },
     };
 
-    chartRef.current = new Chart<'doughnut'>(ctx, {
+    const newChart = new Chart<'doughnut'>(ctx, {
       type: 'doughnut',
       data: {
         labels: normalized.map((s) => s.label),
@@ -131,8 +164,12 @@ export default function InvestmentAllocationChart({
             callbacks: {
               label: (item: TooltipItem<'doughnut'>) => {
                 const val = Number(item.raw || 0);
-                const pct = totalValue
-                  ? Math.round((val / totalValue) * 100)
+                const chartInstance = item.chart as Chart & {
+                  _totalValue?: number;
+                };
+                const currentTotal = chartInstance._totalValue || totalValue;
+                const pct = currentTotal
+                  ? Math.round((val / currentTotal) * 100)
                   : 0;
                 return `${item.label}: ${val.toLocaleString()} (${pct}%)`;
               },
@@ -143,9 +180,14 @@ export default function InvestmentAllocationChart({
       plugins: [centerText],
     });
 
+    (newChart as Chart & { _totalValue?: number })._totalValue = totalValue;
+    chartRef.current = newChart;
+
     return () => {
-      if (chartRef.current) chartRef.current.destroy();
-      chartRef.current = null;
+      if (chartRef.current) {
+        chartRef.current.destroy();
+        chartRef.current = null;
+      }
     };
   }, [normalized]);
 

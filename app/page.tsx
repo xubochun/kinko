@@ -116,6 +116,9 @@ export default function Page() {
       <AddAssetModal
         open={modalOpen}
         initialType={initialAssetType}
+        investmentAccounts={assets.filter(
+          (a) => a.type === 'cash' && a.isInvestmentAccount,
+        )}
         onClose={() => setModalOpen(false)}
         onAddAsset={addAsset}
       />
