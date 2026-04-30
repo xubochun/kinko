@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import type { NewAssetPayload } from '../hooks/usePortfolioData';
 import Icon from '../../../components/Icon';
+import { Asset } from '../../../types/portfolio';
 
 type Props = {
   open: boolean;
   initialType?: 'cash' | 'stock';
   initialTicker?: string;
+  investmentAccounts?: Asset[];
   onClose: () => void;
   onAddAsset: (payload: NewAssetPayload) => void;
 };
@@ -14,23 +16,33 @@ export default function AddAssetModal({
   open,
   initialType,
   initialTicker,
+  investmentAccounts = [],
   onClose,
   onAddAsset,
 }: Props) {
   const [assetType, setAssetType] = useState<'cash' | 'stock'>('cash');
   const [cashName, setCashName] = useState('');
   const [assetAmount, setAssetAmount] = useState('');
+  const [isInvestmentAccount, setIsInvestmentAccount] = useState(false);
   const [stockTicker, setStockTicker] = useState('');
   const [stockDate, setStockDate] = useState('');
   const [stockShares, setStockShares] = useState('');
   const [stockPrice, setStockPrice] = useState('');
+  const [fundingSourceId, setFundingSourceId] = useState<number | ''>('');
 
   useEffect(() => {
     if (open) {
       if (initialType) setAssetType(initialType);
       if (initialTicker) setStockTicker(initialTicker);
+      if (
+        assetType === 'stock' &&
+        investmentAccounts.length === 1 &&
+        fundingSourceId === ''
+      ) {
+        setFundingSourceId(investmentAccounts[0].id);
+      }
     }
-  }, [open, initialType, initialTicker]);
+  }, [open, initialType, initialTicker, assetType, investmentAccounts]);
 
   useEffect(() => {
     if (assetType === 'stock' && !stockDate) {
@@ -41,10 +53,12 @@ export default function AddAssetModal({
   const resetForm = () => {
     setCashName('');
     setAssetAmount('');
+    setIsInvestmentAccount(false);
     setStockTicker('');
     setStockDate('');
     setStockShares('');
     setStockPrice('');
+    setFundingSourceId('');
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -55,6 +69,7 @@ export default function AddAssetModal({
         type: 'cash',
         name: cashName,
         amount: Number(assetAmount || 0),
+        isInvestmentAccount,
       });
     } else {
       onAddAsset({
@@ -63,6 +78,8 @@ export default function AddAssetModal({
         date: stockDate,
         shares: Number(stockShares || 0),
         price: Number(stockPrice || 0),
+        fundingSourceId:
+          fundingSourceId !== '' ? Number(fundingSourceId) : undefined,
       });
     }
 
@@ -160,6 +177,22 @@ export default function AddAssetModal({
                 className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-[15px] font-bold text-slate-900 outline-none focus:border-slate-900 focus:bg-white transition-all tabular-nums"
               />
             </div>
+            <label className="flex items-center gap-3 p-3 rounded-2xl border border-slate-200 bg-slate-50/50 cursor-pointer hover:bg-slate-100 transition-colors">
+              <input
+                type="checkbox"
+                checked={isInvestmentAccount}
+                onChange={(e) => setIsInvestmentAccount(e.target.checked)}
+                className="w-5 h-5 rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+              />
+              <div className="flex flex-col">
+                <span className="text-[13px] font-bold text-slate-900 tracking-tight">
+                  設為投資扣款帳戶
+                </span>
+                <span className="text-[10px] font-medium text-slate-500">
+                  勾選後，買入股票時可選擇從此帳戶扣款
+                </span>
+              </div>
+            </label>
           </div>
 
           <div
@@ -180,6 +213,31 @@ export default function AddAssetModal({
                 className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-[15px] font-bold text-slate-900 outline-none focus:border-slate-900 focus:bg-white transition-all"
               />
             </div>
+
+            {investmentAccounts.length > 0 && (
+              <div className="flex flex-col gap-2">
+                <label className="ml-1 text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                  扣款帳戶
+                </label>
+                <select
+                  value={fundingSourceId}
+                  onChange={(e) =>
+                    setFundingSourceId(
+                      e.target.value === '' ? '' : Number(e.target.value),
+                    )
+                  }
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-[14px] font-bold text-slate-900 outline-none focus:border-slate-900 focus:bg-white transition-all appearance-none cursor-pointer"
+                >
+                  <option value="">(不扣款) 僅新增資產紀錄</option>
+                  {investmentAccounts.map((acc) => (
+                    <option key={acc.id} value={acc.id}>
+                      {acc.name} (餘額: {acc.amount?.toLocaleString()})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div className="flex flex-col gap-2">
               <label className="ml-1 text-[11px] font-black text-slate-400 uppercase tracking-widest">
                 買入日期

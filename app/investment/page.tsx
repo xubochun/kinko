@@ -457,6 +457,9 @@ export default function InvestmentPage() {
         open={assetModalOpen}
         initialType="stock"
         initialTicker={assetModalTicker}
+        investmentAccounts={assets.filter(
+          (a) => a.type === 'cash' && a.isInvestmentAccount,
+        )}
         onClose={() => setAssetModalOpen(false)}
         onAddAsset={addAsset}
       />

@@ -38,16 +38,15 @@ export default function DetailSheet({
   onRemoveAsset,
 }: Props) {
   const [openTicker, setOpenTicker] = useState<string | null>(null);
+  const [openCashId, setOpenCashId] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingTicker, setEditingTicker] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editAmount, setEditAmount] = useState('');
+  const [editIsInvestmentAccount, setEditIsInvestmentAccount] = useState(false);
   const [editDate, setEditDate] = useState('');
   const [editShares, setEditShares] = useState('');
   const [editPrice, setEditPrice] = useState('');
-  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(
-    null,
-  );
   const [showActionMenuId, setShowActionMenuId] = useState<
     number | string | null
   >(null);
@@ -63,6 +62,7 @@ export default function DetailSheet({
   useEffect(() => {
     if (!open) {
       setOpenTicker(null);
+      setOpenCashId(null);
       setShowActionMenuId(null);
       setEditingId(null);
       setEditingTicker(null);
@@ -103,6 +103,11 @@ export default function DetailSheet({
     setOpenTicker((prev) => (prev === ticker ? null : ticker));
   };
 
+  const onCashToggle = (id: number) => {
+    if (showActionMenuId) return;
+    setOpenCashId((prev) => (prev === id ? null : id));
+  };
+
   const handleEdit = (assetOrTicker: Asset | string) => {
     setShowActionMenuId(null);
     setTimeout(() => {
@@ -117,6 +122,7 @@ export default function DetailSheet({
       if (assetOrTicker.type === 'cash') {
         setEditName(assetOrTicker.name || '');
         setEditAmount(String(assetOrTicker.amount || ''));
+        setEditIsInvestmentAccount(assetOrTicker.isInvestmentAccount || false);
       } else {
         setEditDate(assetOrTicker.date || '');
         setEditShares(String(assetOrTicker.shares || ''));
@@ -141,6 +147,7 @@ export default function DetailSheet({
         onUpdateAsset(editingId, {
           name: editName,
           amount: Number(editAmount),
+          isInvestmentAccount: editIsInvestmentAccount,
         });
       } else {
         onUpdateAsset(editingId, {
@@ -169,23 +176,6 @@ export default function DetailSheet({
     if (confirm('確定要刪除這筆紀錄嗎？')) {
       onRemoveAsset(idOrTicker);
       setShowActionMenuId(null);
-    }
-  };
-
-  const startPress = (id: number | string) => {
-    const timer = setTimeout(() => {
-      setShowActionMenuId(id);
-      if (typeof window !== 'undefined' && navigator.vibrate) {
-        navigator.vibrate(10);
-      }
-    }, 500);
-    setLongPressTimer(timer);
-  };
-
-  const endPress = () => {
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      setLongPressTimer(null);
     }
   };
 
@@ -383,16 +373,23 @@ export default function DetailSheet({
                           showActionMenu={showActionMenuId === asset.id}
                           editName={editName}
                           editAmount={editAmount}
+                          editIsInvestmentAccount={editIsInvestmentAccount}
                           setEditName={setEditName}
                           setEditAmount={setEditAmount}
+                          setEditIsInvestmentAccount={
+                            setEditIsInvestmentAccount
+                          }
                           onSave={handleSave}
                           onCancelEdit={() => setEditingId(null)}
                           onEdit={handleEdit}
                           onDelete={handleDelete}
                           onShowMenu={(id) => setShowActionMenuId(id)}
                           onHideMenu={() => setShowActionMenuId(null)}
-                          startPress={startPress}
-                          endPress={endPress}
+                          isOpen={openCashId === asset.id}
+                          onToggle={() => onCashToggle(asset.id)}
+                          fundedStocks={stockAssets.filter(
+                            (s) => s.fundingSourceId === asset.id,
+                          )}
                         />
                       ))
                   ))}
@@ -429,9 +426,8 @@ export default function DetailSheet({
                         onEditLot={handleEdit}
                         onDeleteTicker={handleDelete}
                         onDeleteLot={handleDelete}
+                        onShowMenu={(id) => setShowActionMenuId(id)}
                         onHideMenu={() => setShowActionMenuId(null)}
-                        startPress={startPress}
-                        endPress={endPress}
                       />
                     ))
                   ))}

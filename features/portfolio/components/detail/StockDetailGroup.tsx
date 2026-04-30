@@ -33,9 +33,8 @@ interface StockDetailGroupProps {
   onEditLot: (lot: Asset) => void;
   onDeleteTicker: (ticker: string) => void;
   onDeleteLot: (id: number) => void;
+  onShowMenu: (id: number | string) => void;
   onHideMenu: () => void;
-  startPress: (id: number | string) => void;
-  endPress: () => void;
 }
 
 export default function StockDetailGroup({
@@ -62,9 +61,8 @@ export default function StockDetailGroup({
   onEditLot,
   onDeleteTicker,
   onDeleteLot,
+  onShowMenu,
   onHideMenu,
-  startPress,
-  endPress,
 }: StockDetailGroupProps) {
   const name = lots[0]?.name || ticker;
   const totalShares = lots.reduce((s, l) => s + Number(l.shares || 0), 0);
@@ -132,11 +130,6 @@ export default function StockDetailGroup({
         <div
           className={`p-4 cursor-pointer transition-colors ${isOpen ? 'bg-slate-50/50' : 'hover:bg-slate-50'}`}
           onClick={() => onTickerToggle(ticker)}
-          onTouchStart={() => startPress(ticker)}
-          onTouchEnd={endPress}
-          onMouseDown={() => startPress(ticker)}
-          onMouseUp={endPress}
-          onMouseLeave={endPress}
         >
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -175,6 +168,15 @@ export default function StockDetailGroup({
                   </div>
                 )}
               </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onShowMenu(ticker);
+                }}
+                className="p-1.5 text-slate-300 hover:text-slate-600 transition-colors rounded-lg hover:bg-slate-200"
+              >
+                <Icon name="more-vertical" className="h-4 w-4" />
+              </button>
               <Icon
                 name="chevron-down"
                 className={`h-4 w-4 text-slate-300 transition-transform duration-300 ${isOpen ? 'rotate-180 text-slate-900' : 'group-hover:text-slate-500'}`}
@@ -262,8 +264,7 @@ export default function StockDetailGroup({
                 onEdit={onEditLot}
                 onDelete={onDeleteLot}
                 onHideMenu={onHideMenu}
-                startPress={startPress}
-                endPress={endPress}
+                onShowMenu={onShowMenu}
               />
             ))}
           </div>

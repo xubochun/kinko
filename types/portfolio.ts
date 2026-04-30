@@ -1,4 +1,4 @@
-export type AssetType = "cash" | "stock";
+export type AssetType = 'cash' | 'stock';
 
 export type Asset = {
   id: number;
@@ -10,6 +10,9 @@ export type Asset = {
   shares?: number;
   price?: number;
   costAmount?: number;
+  updatedAt?: number;
+  isInvestmentAccount?: boolean;
+  fundingSourceId?: number;
 };
 
 export type HistoryEntry = {
@@ -17,4 +20,4 @@ export type HistoryEntry = {
   value: number;
 };
 
-export type RangeKey = "1W" | "1M" | "3M" | "1Y" | "ALL";
+export type RangeKey = '1W' | '1M' | '3M' | '1Y' | 'ALL';

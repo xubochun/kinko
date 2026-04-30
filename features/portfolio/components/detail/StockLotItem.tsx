@@ -24,9 +24,8 @@ interface StockLotItemProps {
   onCancelEdit: () => void;
   onEdit: (asset: Asset) => void;
   onDelete: (id: number) => void;
+  onShowMenu: (id: number) => void;
   onHideMenu: () => void;
-  startPress: (id: number) => void;
-  endPress: () => void;
 }
 
 export default function StockLotItem({
@@ -44,9 +43,8 @@ export default function StockLotItem({
   onCancelEdit,
   onEdit,
   onDelete,
+  onShowMenu,
   onHideMenu,
-  startPress,
-  endPress,
 }: StockLotItemProps) {
   const lotCost = Number(
     lot.costAmount || (lot.shares || 0) * (lot.price || 0),
@@ -123,14 +121,7 @@ export default function StockLotItem({
           </div>
         </div>
       ) : (
-        <div
-          className="group relative bg-slate-50/50 rounded-2xl border border-slate-100 p-3.5 transition-all hover:bg-white hover:border-slate-200 hover:shadow-sm active:scale-[0.99] select-none cursor-pointer overflow-hidden"
-          onTouchStart={() => startPress(lot.id)}
-          onTouchEnd={endPress}
-          onMouseDown={() => startPress(lot.id)}
-          onMouseUp={endPress}
-          onMouseLeave={endPress}
-        >
+        <div className="group relative bg-slate-50/50 rounded-2xl border border-slate-100 p-3.5 transition-all hover:bg-white hover:border-slate-200 hover:shadow-sm active:scale-[0.99] select-none overflow-hidden">
           <div className="flex items-center justify-between gap-4">
             <div className="flex flex-col gap-1 min-w-0">
               <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
@@ -157,16 +148,27 @@ export default function StockLotItem({
               </div>
             </div>
 
-            <div className="text-right flex flex-col items-end">
-              <div className="text-[14px] font-black text-slate-900 tabular-nums leading-none">
-                {lotValueHtml}
+            <div className="flex items-center gap-3">
+              <div className="text-right flex flex-col items-end">
+                <div className="text-[14px] font-black text-slate-900 tabular-nums leading-none">
+                  {lotValueHtml}
+                </div>
+                <div
+                  className={`text-[11px] font-bold tabular-nums flex items-center gap-1 mt-1 ${pnlClass(lotPnl)}`}
+                >
+                  {lotPnlHtml}
+                  <span className="text-[10px] opacity-70">{lotPctHtml}</span>
+                </div>
               </div>
-              <div
-                className={`text-[11px] font-bold tabular-nums flex items-center gap-1 mt-1 ${pnlClass(lotPnl)}`}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onShowMenu(lot.id);
+                }}
+                className="p-1.5 text-slate-300 hover:text-slate-600 transition-colors rounded-lg hover:bg-slate-200"
               >
-                {lotPnlHtml}
-                <span className="text-[10px] opacity-70">{lotPctHtml}</span>
-              </div>
+                <Icon name="more-vertical" className="h-4 w-4" />
+              </button>
             </div>
           </div>
 

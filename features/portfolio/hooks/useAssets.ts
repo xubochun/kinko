@@ -12,13 +12,19 @@ const safeParse = <T>(raw: string | null, fallback: T): T => {
 };
 
 export type NewAssetPayload =
-  | { type: 'cash'; name: string; amount: number }
+  | {
+      type: 'cash';
+      name: string;
+      amount: number;
+      isInvestmentAccount?: boolean;
+    }
   | {
       type: 'stock';
       ticker: string;
       date: string;
       shares: number;
       price: number;
+      fundingSourceId?: number;
     };
 
 export function useAssets() {
@@ -51,7 +57,7 @@ export function useAssets() {
 
   const addAsset = useCallback((payload: NewAssetPayload) => {
     setAssets((prev) => {
-      let nextAssets: Asset[];
+      let nextAssets: Asset[] = [...prev];
       if (payload.type === 'cash') {
         const trimmedName = payload.name.trim();
         const existingIndex = prev.findIndex(
@@ -60,7 +66,15 @@ export function useAssets() {
         if (existingIndex !== -1) {
           nextAssets = prev.map((a, i) =>
             i === existingIndex
-              ? { ...a, amount: (a.amount || 0) + Number(payload.amount || 0) }
+              ? {
+                  ...a,
+                  amount: (a.amount || 0) + Number(payload.amount || 0),
+                  isInvestmentAccount:
+                    payload.isInvestmentAccount !== undefined
+                      ? payload.isInvestmentAccount
+                      : a.isInvestmentAccount,
+                  updatedAt: Date.now(),
+                }
               : a,
           );
         } else {
@@ -71,13 +85,31 @@ export function useAssets() {
               type: 'cash',
               name: trimmedName || '未命名帳戶',
               amount: Number(payload.amount || 0),
+              isInvestmentAccount: payload.isInvestmentAccount,
+              updatedAt: Date.now(),
             },
           ];
         }
       } else {
         const ticker = payload.ticker.trim().toUpperCase();
+        const costAmount =
+          Number(payload.shares || 0) * Number(payload.price || 0);
+
+        // Deduct from cash if fundingSourceId is provided
+        if (payload.fundingSourceId) {
+          nextAssets = nextAssets.map((a) =>
+            a.id === payload.fundingSourceId && a.type === 'cash'
+              ? {
+                  ...a,
+                  amount: (a.amount || 0) - costAmount,
+                  updatedAt: Date.now(),
+                }
+              : a,
+          );
+        }
+
         nextAssets = [
-          ...prev,
+          ...nextAssets,
           {
             id: Date.now(),
             type: 'stock',
@@ -86,8 +118,9 @@ export function useAssets() {
             date: payload.date,
             shares: Number(payload.shares || 0),
             price: Number(payload.price || 0),
-            costAmount:
-              Number(payload.shares || 0) * Number(payload.price || 0),
+            costAmount,
+            fundingSourceId: payload.fundingSourceId,
+            updatedAt: Date.now(),
           },
         ];
       }
@@ -99,7 +132,7 @@ export function useAssets() {
   const updateAsset = useCallback((id: number, payload: Partial<Asset>) => {
     setAssets((prev) => {
       const nextAssets = prev.map((a) =>
-        a.id === id ? { ...a, ...payload } : a,
+        a.id === id ? { ...a, ...payload, updatedAt: Date.now() } : a,
       );
       localStorage.setItem(STORAGE_KEY, JSON.stringify(nextAssets));
       return nextAssets;
