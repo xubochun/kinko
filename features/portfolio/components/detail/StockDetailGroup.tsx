@@ -131,56 +131,62 @@ export default function StockDetailGroup({
           className={`p-4 cursor-pointer transition-colors ${isOpen ? 'bg-slate-50/50' : 'hover:bg-slate-50'}`}
           onClick={() => onTickerToggle(ticker)}
         >
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-3 sm:gap-4">
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white border border-slate-200 text-slate-900 group-hover:bg-slate-900 group-hover:text-white group-hover:border-slate-900 transition-all shadow-sm">
                 <span className="text-[13px] font-black uppercase tracking-tight">
                   {ticker.slice(0, 4)}
                 </span>
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="text-[15px] font-black text-slate-900 truncate tracking-tight">
                   {name}
                 </div>
-                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 flex items-center gap-1.5">
-                  <span className="px-1.5 py-0.5 rounded bg-slate-100 text-[10px] font-black text-slate-500">
+                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 flex items-center flex-wrap gap-x-2 gap-y-1">
+                  <span className="shrink-0 px-1.5 py-0.5 rounded bg-slate-100 text-[10px] font-black text-slate-500">
                     {ticker}
                   </span>
-                  <span className="opacity-30">•</span>
-                  <span>{totalShares} 股</span>
+                  <div className="flex items-center gap-1.5 whitespace-nowrap">
+                    <span className="opacity-30">•</span>
+                    <span className="text-slate-500">
+                      {totalShares.toLocaleString()} 股
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="text-right flex items-center gap-3">
-              <div className="flex flex-col items-end">
-                <div className="text-[16px] font-black text-slate-900 tabular-nums tracking-tight">
+            <div className="shrink-0 flex items-center gap-2 sm:gap-3">
+              <div className="text-right flex flex-col items-end min-w-[100px] sm:min-w-[120px]">
+                <div className="text-[16px] font-black text-slate-900 tabular-nums tracking-tight leading-none mb-1">
                   {valueHtml}
                 </div>
                 {!isOpen && (
                   <div
-                    className={`text-[12px] font-bold tabular-nums flex items-center gap-1.5 ${pnlClass(totalPnl)}`}
+                    className={`text-[12px] font-bold tabular-nums flex items-center flex-wrap justify-end gap-x-1.5 gap-y-0 ${pnlClass(totalPnl)}`}
                   >
-                    {pnlHtmlLocal}
-                    <span className="text-[10px] opacity-80">
+                    <span className="whitespace-nowrap">{pnlHtmlLocal}</span>
+                    <span className="text-[10px] opacity-80 whitespace-nowrap">
                       {pnlPctHtmlLocal}
                     </span>
                   </div>
                 )}
               </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onShowMenu(ticker);
-                }}
-                className="p-1.5 text-slate-300 hover:text-slate-600 transition-colors rounded-lg hover:bg-slate-200"
-              >
-                <Icon name="more-vertical" className="h-4 w-4" />
-              </button>
-              <Icon
-                name="chevron-down"
-                className={`h-4 w-4 text-slate-300 transition-transform duration-300 ${isOpen ? 'rotate-180 text-slate-900' : 'group-hover:text-slate-500'}`}
-              />
+              <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onShowMenu(ticker);
+                  }}
+                  className="p-1.5 text-slate-300 hover:text-slate-600 transition-colors rounded-lg hover:bg-slate-200"
+                >
+                  <Icon name="more-vertical" className="h-4 w-4" />
+                </button>
+                <Icon
+                  name="chevron-down"
+                  className={`h-4 w-4 text-slate-300 transition-transform duration-300 ${isOpen ? 'rotate-180 text-slate-900' : 'group-hover:text-slate-500'}`}
+                />
+              </div>
             </div>
           </div>
 

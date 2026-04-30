@@ -122,42 +122,47 @@ export default function StockLotItem({
         </div>
       ) : (
         <div className="group relative bg-slate-50/50 rounded-2xl border border-slate-100 p-3.5 transition-all hover:bg-white hover:border-slate-200 hover:shadow-sm active:scale-[0.99] select-none overflow-hidden">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex flex-col gap-1 min-w-0">
-              <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
+          <div className="flex items-center justify-between gap-3 sm:gap-4">
+            <div className="flex flex-col gap-1 min-w-0 flex-1">
+              <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest whitespace-nowrap">
                 {lotDate}
               </div>
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col">
-                  <span className="text-[13px] font-black text-slate-900 tabular-nums leading-none">
-                    {Number(lot.shares || 0)}
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <div className="flex items-center">
+                  <span className="text-[13px] font-black text-slate-900 tabular-nums leading-none whitespace-nowrap">
+                    {Number(lot.shares || 0).toLocaleString()}
                     <span className="text-[10px] font-bold text-slate-400 ml-1 uppercase">
                       股
                     </span>
                   </span>
                 </div>
-                <span className="h-3 w-px bg-slate-200"></span>
-                <div className="flex flex-col">
-                  <span className="text-[13px] font-bold text-slate-500 tabular-nums leading-none">
+                <span className="hidden sm:block h-3 w-px bg-slate-200"></span>
+                <div className="flex items-center">
+                  <span className="text-[13px] font-bold text-slate-500 tabular-nums leading-none whitespace-nowrap">
                     @
                     {Number.isInteger(Number(lot.price || 0))
-                      ? Number(lot.price || 0)
-                      : Number(lot.price || 0).toFixed(2)}
+                      ? Number(lot.price || 0).toLocaleString()
+                      : Number(lot.price || 0).toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="text-right flex flex-col items-end">
-                <div className="text-[14px] font-black text-slate-900 tabular-nums leading-none">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              <div className="text-right flex flex-col items-end min-w-[90px] sm:min-w-[110px]">
+                <div className="text-[14px] font-black text-slate-900 tabular-nums leading-none mb-1">
                   {lotValueHtml}
                 </div>
                 <div
-                  className={`text-[11px] font-bold tabular-nums flex items-center gap-1 mt-1 ${pnlClass(lotPnl)}`}
+                  className={`text-[11px] font-bold tabular-nums flex items-center justify-end gap-1 flex-wrap ${pnlClass(lotPnl)}`}
                 >
-                  {lotPnlHtml}
-                  <span className="text-[10px] opacity-70">{lotPctHtml}</span>
+                  <span className="whitespace-nowrap">{lotPnlHtml}</span>
+                  <span className="text-[10px] opacity-70 whitespace-nowrap">
+                    {lotPctHtml}
+                  </span>
                 </div>
               </div>
               <button
