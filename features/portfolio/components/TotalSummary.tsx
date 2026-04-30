@@ -21,13 +21,7 @@ export default function TotalSummary({
       >
         {' '}
         {privacy ? (
-          <HiddenAmount
-            sizeClass="h-4 w-4"
-            justifyClass="justify-center md:justify-start"
-            heightClass="h-[1.3em]"
-            lineHeightClass="leading-[1.2]"
-            minWidthClass="min-w-[140px]"
-          />
+          <HiddenAmount className="md:justify-start" />
         ) : (
           currency(animatedTotal)
         )}
