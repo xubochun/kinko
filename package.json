@@ -19,6 +19,7 @@
     "@tanstack/react-query-persist-client": "^5.96.2",
     "chart.js": "^4.4.3",
     "lucide": "^0.469.0",
+    "lucide-react": "^1.14.0",
     "next": "14.2.5",
     "react": "18.3.1",
     "react-dom": "18.3.1"

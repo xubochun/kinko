@@ -36,7 +36,8 @@ type IconName =
   | 'check'
   | 'bar-chart-3'
   | 'compass'
-  | 'shield';
+  | 'shield'
+  | 'dot';
 
 type Props = {
   name: IconName | string;
@@ -44,6 +45,18 @@ type Props = {
 };
 
 export default function Icon({ name, className = 'h-5 w-5' }: Props) {
+  if (name === 'dot') {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        className={className}
+      >
+        <circle cx="12" cy="12" r="4" />
+      </svg>
+    );
+  }
   if (name === 'plus') {
     return (
       <svg
