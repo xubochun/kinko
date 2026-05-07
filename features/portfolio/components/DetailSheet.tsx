@@ -299,7 +299,7 @@ export default function DetailSheet({
                         現金總額
                       </div>
                     </div>
-                    <div className="text-[32px] font-black text-slate-900 tabular-nums leading-none tracking-tight truncate">
+                    <div className="text-[32px] font-black text-slate-900 tabular-nums leading-none tracking-tight break-all">
                       {currency(cashTotal)}
                     </div>
                   </div>
@@ -317,7 +317,7 @@ export default function DetailSheet({
                           <span>{formatPnlPct(stockSummary.totalPnlPct)}</span>
                         </div>
                       </div>
-                      <div className="text-[28px] font-black text-slate-900 tabular-nums leading-none tracking-tight truncate">
+                      <div className="text-[28px] font-black text-slate-900 tabular-nums leading-none tracking-tight break-all">
                         {currency(stockSummary.totalValue)}
                       </div>
                     </div>
@@ -327,7 +327,7 @@ export default function DetailSheet({
                         <span className="text-[12px] font-black text-slate-700 uppercase tracking-widest mb-2">
                           累積投資成本
                         </span>
-                        <div className="text-[20px] font-black text-slate-800 tabular-nums leading-tight truncate">
+                        <div className="text-[20px] font-black text-slate-800 tabular-nums leading-tight break-all">
                           {currency(stockSummary.totalCost)}
                         </div>
                       </div>
@@ -342,7 +342,7 @@ export default function DetailSheet({
                           累積投資損益
                         </span>
                         <div
-                          className={`text-[20px] font-black tabular-nums leading-tight truncate ${pnlClass(stockSummary.totalPnl)}`}
+                          className={`text-[20px] font-black tabular-nums leading-tight break-all ${pnlClass(stockSummary.totalPnl)}`}
                         >
                           {formatPnlAmount(stockSummary.totalPnl)}
                         </div>
