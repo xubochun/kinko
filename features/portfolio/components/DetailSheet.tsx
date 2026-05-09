@@ -317,7 +317,7 @@ export default function DetailSheet({
                           <span>{formatPnlPct(stockSummary.totalPnlPct)}</span>
                         </div>
                       </div>
-                      <div className="text-[28px] font-black text-slate-900 tabular-nums leading-none tracking-tight truncate">
+                      <div className="text-[28px] font-black text-slate-900 tabular-nums leading-none tracking-tight whitespace-nowrap">
                         {currency(stockSummary.totalValue)}
                       </div>
                     </div>
@@ -342,7 +342,7 @@ export default function DetailSheet({
                           累積投資損益
                         </span>
                         <div
-                          className={`text-[20px] font-black tabular-nums leading-tight truncate ${pnlClass(stockSummary.totalPnl)}`}
+                          className={`text-[20px] font-black tabular-nums leading-tight tracking-tight whitespace-nowrap ${pnlClass(stockSummary.totalPnl)}`}
                         >
                           {formatPnlAmount(stockSummary.totalPnl)}
                         </div>
