@@ -15,6 +15,7 @@ export default function Sidebar({ onAddAsset: _onAddAsset }: Props) {
   const navItems = [
     { name: '首頁', href: '/', icon: 'home' as const },
     { name: '存股', href: '/investment', icon: 'pie-chart' as const },
+    { name: '計算機', href: '/calculator', icon: 'calculator' as const },
     { name: '設定', href: '/settings', icon: 'settings' as const },
   ];
 
