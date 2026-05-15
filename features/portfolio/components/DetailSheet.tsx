@@ -47,6 +47,7 @@ export default function DetailSheet({
   const [editDate, setEditDate] = useState('');
   const [editShares, setEditShares] = useState('');
   const [editPrice, setEditPrice] = useState('');
+  const [editAverageCost, setEditAverageCost] = useState('');
   const [showActionMenuId, setShowActionMenuId] = useState<
     number | string | null
   >(null);
@@ -113,8 +114,17 @@ export default function DetailSheet({
     setTimeout(() => {
       if (typeof assetOrTicker === 'string') {
         setEditingTicker(assetOrTicker);
-        const firstLot = assets.find((a) => a.ticker === assetOrTicker);
-        setEditName(firstLot?.name || assetOrTicker);
+        const lots = assets.filter((a) => a.ticker === assetOrTicker);
+        setEditName(lots[0]?.name || assetOrTicker);
+
+        const totalShares = lots.reduce((s, l) => s + Number(l.shares || 0), 0);
+        const totalCost = lots.reduce(
+          (s, l) =>
+            s + Number(l.costAmount || (l.shares || 0) * (l.price || 0)),
+          0,
+        );
+        const avgCost = totalShares > 0 ? totalCost / totalShares : 0;
+        setEditAverageCost(avgCost > 0 ? String(avgCost) : '');
         return;
       }
 
@@ -135,7 +145,14 @@ export default function DetailSheet({
     if (editingTicker) {
       const targetLots = assets.filter((a) => a.ticker === editingTicker);
       targetLots.forEach((lot) => {
-        onUpdateAsset(lot.id, { name: editName });
+        const updates: Partial<Asset> = { name: editName };
+        if (editAverageCost !== '') {
+          const newAvgCost = Number(editAverageCost);
+          if (!isNaN(newAvgCost) && newAvgCost >= 0) {
+            updates.costAmount = newAvgCost * Number(lot.shares || 0);
+          }
+        }
+        onUpdateAsset(lot.id, updates);
       });
       setEditingTicker(null);
       return;
@@ -418,11 +435,13 @@ export default function DetailSheet({
                         editShares={editShares}
                         editPrice={editPrice}
                         editDate={editDate}
+                        editAverageCost={editAverageCost}
                         onTickerToggle={onTickerToggle}
                         setEditName={setEditName}
                         setEditShares={setEditShares}
                         setEditPrice={setEditPrice}
                         setEditDate={setEditDate}
+                        setEditAverageCost={setEditAverageCost}
                         onSave={handleSave}
                         onCancelTickerEdit={() => setEditingTicker(null)}
                         onCancelLotEdit={() => setEditingId(null)}

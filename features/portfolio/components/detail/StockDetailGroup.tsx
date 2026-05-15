@@ -21,11 +21,13 @@ interface StockDetailGroupProps {
   editShares: string;
   editPrice: string;
   editDate: string;
+  editAverageCost: string;
   onTickerToggle: (ticker: string) => void;
   setEditName: (val: string) => void;
   setEditShares: (val: string) => void;
   setEditPrice: (val: string) => void;
   setEditDate: (val: string) => void;
+  setEditAverageCost: (val: string) => void;
   onSave: () => void;
   onCancelTickerEdit: () => void;
   onCancelLotEdit: () => void;
@@ -49,11 +51,13 @@ export default function StockDetailGroup({
   editShares,
   editPrice,
   editDate,
+  editAverageCost,
   onTickerToggle,
   setEditName,
   setEditShares,
   setEditPrice,
   setEditDate,
+  setEditAverageCost,
   onSave,
   onCancelTickerEdit,
   onCancelLotEdit,
@@ -115,6 +119,18 @@ export default function StockDetailGroup({
               autoFocus
             />
           </div>
+          <div className="flex flex-col gap-2 mt-3">
+            <label className="text-[11px] font-black text-slate-700 uppercase tracking-wider ml-1">
+              平均成本
+            </label>
+            <input
+              type="number"
+              value={editAverageCost}
+              onChange={(e) => setEditAverageCost(e.target.value)}
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-[14px] font-bold text-slate-900 outline-none focus:border-slate-900 focus:bg-white transition-all tabular-nums"
+              placeholder="輸入新的平均成本"
+            />
+          </div>
           <div className="flex justify-end gap-2 mt-6">
             <button
               onClick={onCancelTickerEdit}
@@ -132,7 +148,7 @@ export default function StockDetailGroup({
         </div>
       ) : (
         <div
-          className={`p-4 cursor-pointer transition-colors ${
+          className={`p-4 cursor-pointer transition-colors relative ${
             isOpen ? 'bg-slate-50/50' : 'hover:bg-slate-50'
           }`}
           onClick={() => onTickerToggle(ticker)}
