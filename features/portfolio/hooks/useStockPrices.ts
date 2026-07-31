@@ -19,6 +19,7 @@ export function useStockPrices(tickers: string[]) {
   });
 
   const isLoading = queries.some((q) => q.isLoading);
+  const isFetching = queries.some((q) => q.isFetching);
   const dataStr = JSON.stringify(queries.map((q) => q.data));
 
   const { stockPrices, stockNames } = useMemo(() => {
@@ -40,5 +41,6 @@ export function useStockPrices(tickers: string[]) {
     stockPrices,
     stockNames,
     isLoading,
+    isFetching,
   };
 }

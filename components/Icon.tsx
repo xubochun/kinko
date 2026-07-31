@@ -37,6 +37,7 @@ type IconName =
   | 'bar-chart-3'
   | 'compass'
   | 'shield'
+  | 'refresh-cw'
   | 'dot';
 
 type Props = {
@@ -600,6 +601,26 @@ export default function Icon({ name, className = 'h-5 w-5' }: Props) {
         <rect width="20" height="5" x="2" y="3" rx="1" />
         <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" />
         <line x1="10" y1="12" x2="14" y2="12" />
+      </svg>
+    );
+  }
+
+  if (name === 'refresh-cw') {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={className}
+      >
+        <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+        <path d="M3 3v5h5" />
+        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+        <path d="M16 16h5v5" />
       </svg>
     );
   }
