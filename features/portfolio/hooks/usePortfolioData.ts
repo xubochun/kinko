@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAnimatedTotal } from './useAnimatedTotal';
 import { useAssets, type NewAssetPayload } from './useAssets';
 import { useStockPrices } from './useStockPrices';
@@ -44,11 +45,28 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
     return Array.from(tickers);
   }, [assets]);
 
+  const queryClient = useQueryClient();
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
+
   const {
     stockPrices,
     stockNames,
     isLoading: isPricesLoading,
+    isFetching: isPricesFetching,
   } = useStockPrices(uniqueTickers);
+
+  const isRefreshing = isPricesFetching || isManualRefreshing;
+
+  const refreshData = useCallback(async () => {
+    setIsManualRefreshing(true);
+    try {
+      await queryClient.invalidateQueries({ queryKey: ['stockPrice'] });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsManualRefreshing(false);
+    }
+  }, [queryClient]);
 
   const [cashTotal, setCashTotal] = useState(0);
   const [stockTotal, setStockTotal] = useState(0);
@@ -231,5 +249,7 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
     removeAsset,
     toggleClearData,
     loadDemoData,
+    isRefreshing,
+    refreshData,
   };
 }

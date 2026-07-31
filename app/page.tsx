@@ -43,6 +43,8 @@ export default function Page() {
     updateAsset,
     removeAsset,
     toggleClearData,
+    isRefreshing,
+    refreshData,
   } = usePortfolioData({ privacy });
 
   const togglePrivacy = () => setPrivacy((prev) => !prev);
@@ -96,6 +98,8 @@ export default function Page() {
         onTogglePrivacy={togglePrivacy}
         onToggleClearData={toggleClearData}
         onOpenDetail={openDetail}
+        isRefreshing={isRefreshing}
+        onRefresh={refreshData}
       />
 
       <BottomNav onAddAsset={() => toggleAddModal('cash')} />

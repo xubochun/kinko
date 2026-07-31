@@ -32,6 +32,8 @@ interface DashboardLayoutProps {
     type: 'cash' | 'stock' | 'stock-allocation',
     ticker?: string,
   ) => void;
+  isRefreshing?: boolean;
+  onRefresh?: () => void;
 }
 
 const PrivacyButton = ({
@@ -88,6 +90,8 @@ export default function DashboardLayout({
   onTogglePrivacy,
   onToggleClearData: _onToggleClearData,
   onOpenDetail,
+  isRefreshing = false,
+  onRefresh,
 }: DashboardLayoutProps) {
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<'cash' | 'stock'>('cash');
@@ -187,9 +191,18 @@ export default function DashboardLayout({
                           />
                         </div>
                       </div>
-                      <div className="px-2 py-0.5 rounded-full bg-slate-50 text-[9px] font-black text-slate-400 border border-slate-100 uppercase">
-                        即時數據
-                      </div>
+                      <button
+                        onClick={onRefresh}
+                        disabled={isRefreshing}
+                        className="flex items-center justify-center h-7 w-7 rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 shadow-sm transition-all active:scale-90 disabled:opacity-60 disabled:pointer-events-none"
+                        aria-label="更新數據"
+                        title="更新數據"
+                      >
+                        <Icon
+                          name="refresh-cw"
+                          className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`}
+                        />
+                      </button>
                     </div>
                     <TotalSummary
                       privacy={privacy}
@@ -344,9 +357,18 @@ export default function DashboardLayout({
                         />
                       </div>
                     </div>
-                    <div className="px-3 py-1 rounded-full bg-slate-50 text-[10px] font-black text-slate-400 border border-slate-100 uppercase">
-                      即時數據
-                    </div>
+                    <button
+                      onClick={onRefresh}
+                      disabled={isRefreshing}
+                      className="flex items-center justify-center h-7 w-7 rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 shadow-sm transition-all active:scale-90 disabled:opacity-60 disabled:pointer-events-none"
+                      aria-label="更新數據"
+                      title="更新數據"
+                    >
+                      <Icon
+                        name="refresh-cw"
+                        className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`}
+                      />
+                    </button>
                   </div>
                   <TotalSummary
                     privacy={privacy}
