@@ -259,7 +259,7 @@ export default function SettingsPage() {
                     Kinko Portfolio
                   </div>
                   <div className="text-[13px] font-bold text-slate-400 mt-1">
-                    v1.0.0
+                    v1.1.0
                   </div>
                   <p className="text-[13px] font-medium text-slate-500 mt-4 leading-relaxed max-w-[280px]">
                     極簡、私密且強大的個人資產追蹤工具。所有資料均儲存於您的瀏覽器中。

@@ -34,6 +34,7 @@ interface DashboardLayoutProps {
   ) => void;
   isRefreshing?: boolean;
   onRefresh?: () => void;
+  onQuickUpdateCash: (id?: number) => void;
 }
 
 const PrivacyButton = ({
@@ -92,9 +93,9 @@ export default function DashboardLayout({
   onOpenDetail,
   isRefreshing = false,
   onRefresh,
+  onQuickUpdateCash,
 }: DashboardLayoutProps) {
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState<'cash' | 'stock'>('cash');
 
   useEffect(() => {
     setMounted(true);
@@ -130,6 +131,8 @@ export default function DashboardLayout({
         currentValue,
         pnl,
         pnlPct,
+        avgCost: totalShares > 0 ? totalCost / totalShares : 0,
+        currentPrice,
       };
     });
   }, [grouped, stockPrices]);
@@ -244,68 +247,21 @@ export default function DashboardLayout({
                     />
                   </Card>
 
-                  {/* Mobile Tab Switcher */}
-                  <div className="flex p-1.5 bg-slate-100 rounded-[20px] mb-2">
-                    <button
-                      onClick={() => setActiveTab('cash')}
-                      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-[16px] text-[13px] font-black transition-all ${
-                        activeTab === 'cash'
-                          ? 'bg-white text-slate-900 shadow-sm'
-                          : 'text-slate-400 hover:text-slate-600'
-                      }`}
-                    >
-                      <Icon name="banknote" className="h-4 w-4" />
-                      現金明細
-                      <span
-                        className={`ml-1 text-[10px] px-2 py-0.5 rounded-full ${
-                          activeTab === 'cash'
-                            ? 'bg-slate-900 text-white'
-                            : 'bg-slate-200 text-slate-500'
-                        }`}
-                      >
-                        {cashCount}
-                      </span>
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('stock')}
-                      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-[16px] text-[13px] font-black transition-all ${
-                        activeTab === 'stock'
-                          ? 'bg-white text-[#2563EB] shadow-sm'
-                          : 'text-slate-400 hover:text-slate-600'
-                      }`}
-                    >
-                      <Icon name="candlestick-chart" className="h-4 w-4" />
-                      股票持倉
-                      <span
-                        className={`ml-1 text-[10px] px-2 py-0.5 rounded-full ${
-                          activeTab === 'stock'
-                            ? 'bg-[#2563EB] text-white'
-                            : 'bg-slate-200 text-slate-500'
-                        }`}
-                      >
-                        {stockCount}
-                      </span>
-                    </button>
-                  </div>
-
-                  <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    {activeTab === 'cash' ? (
-                      <CashBreakdown
-                        privacy={privacy}
-                        cashAssets={cashAssets}
-                        cashCount={cashCount}
-                        onAddAsset={onAddAsset}
-                        onOpenDetail={onOpenDetail}
-                      />
-                    ) : (
-                      <StockBreakdown
-                        privacy={privacy}
-                        stockDetails={stockDetails}
-                        onAddAsset={onAddAsset}
-                        onOpenDetail={onOpenDetail}
-                      />
-                    )}
-                  </div>
+                  {/* 手機版：兩個區塊直接上下排列，不用切換分頁 */}
+                  <StockBreakdown
+                    privacy={privacy}
+                    stockDetails={stockDetails}
+                    onAddAsset={onAddAsset}
+                    onOpenDetail={onOpenDetail}
+                  />
+                  <CashBreakdown
+                    privacy={privacy}
+                    cashAssets={cashAssets}
+                    cashCount={cashCount}
+                    onAddAsset={onAddAsset}
+                    onOpenDetail={onOpenDetail}
+                    onQuickUpdate={onQuickUpdateCash}
+                  />
                 </>
               )}
             </div>
@@ -424,6 +380,7 @@ export default function DashboardLayout({
                       cashCount={cashCount}
                       onAddAsset={onAddAsset}
                       onOpenDetail={onOpenDetail}
+                      onQuickUpdate={onQuickUpdateCash}
                     />
                   </div>
                   <div className="col-span-8">

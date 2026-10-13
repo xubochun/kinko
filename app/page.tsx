@@ -8,6 +8,7 @@ import { usePortfolioData } from '../features/portfolio/hooks/usePortfolioData';
 import { useLucideIcons } from '../features/portfolio/hooks/useLucideIcons';
 import PortfolioLoading from '../features/portfolio/components/PortfolioLoading';
 import DashboardLayout from '../features/portfolio/components/DashboardLayout';
+import CashUpdateModal from '../features/portfolio/components/cash/CashUpdateModal';
 
 export default function Page() {
   useLucideIcons();
@@ -23,6 +24,10 @@ export default function Page() {
   >(null);
   const [initialTicker, setInitialTicker] = useState<string | undefined>(
     undefined,
+  );
+  const [cashUpdateOpen, setCashUpdateOpen] = useState(false);
+  const [cashUpdateFocusId, setCashUpdateFocusId] = useState<number | null>(
+    null,
   );
 
   const {
@@ -64,6 +69,11 @@ export default function Page() {
     setDetailOpen(true);
   };
 
+  const openCashUpdate = (id?: number) => {
+    setCashUpdateFocusId(id ?? null);
+    setCashUpdateOpen(true);
+  };
+
   const closeDetail = () => {
     setDetailOpen(false);
     setDetailType(null);
@@ -100,6 +110,7 @@ export default function Page() {
         onOpenDetail={openDetail}
         isRefreshing={isRefreshing}
         onRefresh={refreshData}
+        onQuickUpdateCash={openCashUpdate}
       />
 
       <BottomNav onAddAsset={() => toggleAddModal('cash')} />
@@ -115,6 +126,16 @@ export default function Page() {
         onClose={closeDetail}
         onUpdateAsset={updateAsset}
         onRemoveAsset={removeAsset}
+      />
+
+      <CashUpdateModal
+        open={cashUpdateOpen}
+        cashAssets={assets.filter((a) => a.type === 'cash')}
+        focusId={cashUpdateFocusId}
+        onClose={() => setCashUpdateOpen(false)}
+        onSave={(updates) =>
+          updates.forEach((u) => updateAsset(u.id, { amount: u.amount }))
+        }
       />
 
       <AddAssetModal

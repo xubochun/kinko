@@ -6,6 +6,7 @@ import { useStockPrices } from './useStockPrices';
 import { useNetWorthHistory } from './useNetWorthHistory';
 import {
   ARCHIVE_KEY,
+  DIVIDENDS_KEY,
   HISTORY_ARCHIVE_KEY,
   HISTORY_KEY,
   NETWORTH_GOAL_KEY,
@@ -195,6 +196,7 @@ export function usePortfolioData({ privacy }: UsePortfolioDataOptions) {
     localStorage.removeItem(STOCK_GOALS_SHARES_KEY);
     localStorage.removeItem(NETWORTH_GOAL_KEY);
     localStorage.removeItem(STOCK_PRICE_CACHE_KEY);
+    localStorage.removeItem(DIVIDENDS_KEY);
 
     saveAssets([]);
     saveHistory([]);

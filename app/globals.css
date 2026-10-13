@@ -681,3 +681,19 @@ body.no-scroll{
 @keyframes skeleton-shimmer{
   100% { transform: translateX(100%); }
 }
+
+
+/* 手機瀏覽器的日期欄位有固有最小寬度，會撐出容器；強制貼合父層寬度 */
+input[type='date'] {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  text-align: left;
+}
+input[type='date']::-webkit-date-and-time-value {
+  text-align: left;
+  min-height: 1.2em;
+}
