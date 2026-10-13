@@ -132,18 +132,18 @@ export default function CashDetailItem({
                 <Icon name="banknote" className="h-6 w-6" />
               </div>
               <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <div className="text-[15px] font-black text-slate-900 truncate tracking-tight">
-                    {asset.name || '未命名帳戶'}
-                  </div>
+                <div className="text-[15px] font-black text-slate-900 break-words tracking-tight leading-snug">
+                  {asset.name || '未命名帳戶'}
+                </div>
+                <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                    現金帳戶
+                  </span>
                   {asset.isInvestmentAccount && (
-                    <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-widest border border-blue-100">
+                    <span className="shrink-0 whitespace-nowrap px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-600 text-[10px] font-black tracking-widest border border-blue-100">
                       投資帳戶
                     </span>
                   )}
-                </div>
-                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
-                  現金帳戶
                 </div>
               </div>
             </div>

@@ -252,7 +252,7 @@ export default function AddAssetModal({
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2">
+              <div className="flex min-w-0 flex-col gap-2">
                 <label className="ml-1 text-[11px] font-black text-slate-400 uppercase tracking-widest">
                   成交股數
                 </label>
@@ -268,7 +268,7 @@ export default function AddAssetModal({
                   className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-[15px] font-bold text-slate-900 outline-none focus:border-slate-900 focus:bg-white transition-all tabular-nums"
                 />
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="flex min-w-0 flex-col gap-2">
                 <label className="ml-1 text-[11px] font-black text-slate-400 uppercase tracking-widest">
                   成交單價
                 </label>

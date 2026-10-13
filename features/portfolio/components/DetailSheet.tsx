@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Asset } from '../../../types/portfolio';
 import {
   currency,
@@ -10,6 +10,8 @@ import { groupStocks, summarizeStocks } from '../lib/portfolio';
 import Icon from '../../../components/Icon';
 import CashDetailItem from './detail/CashDetailItem';
 import StockDetailGroup from './detail/StockDetailGroup';
+import StockTickerRow from './detail/StockTickerRow';
+import { formatPrice } from '../../../lib/number';
 import InvestmentAllocationChart from './charts/InvestmentAllocationChart';
 
 type Props = {
@@ -99,10 +101,13 @@ export default function DetailSheet({
       .sort((a, b) => b.value - a.value);
   }, [groupedStocks, stockPrices]);
 
-  const onTickerToggle = (ticker: string) => {
-    if (showActionMenuId) return;
-    setOpenTicker((prev) => (prev === ticker ? null : ticker));
-  };
+  const contentRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    contentRef.current?.scrollTo({ top: 0 });
+  }, [openTicker]);
+
+  const focusLots = openTicker ? groupedStocks[openTicker] : undefined;
+  const isStockFocus = type === 'stock' && !!focusLots;
 
   const onCashToggle = (id: number) => {
     if (showActionMenuId) return;
@@ -186,6 +191,7 @@ export default function DetailSheet({
           .map((a) => a.id);
         targetIds.forEach((id) => onRemoveAsset(id));
         setShowActionMenuId(null);
+        setOpenTicker(null);
       }
       return;
     }
@@ -211,29 +217,58 @@ export default function DetailSheet({
       >
         {/* Header */}
         <header className="sticky top-0 z-10 flex items-center justify-between px-6 py-5 bg-white border-b border-slate-200/60">
-          <div className="flex items-center gap-3">
-            <div
-              className={`grid h-10 w-10 place-items-center rounded-2xl ${type === 'cash' ? 'bg-slate-900 text-white' : 'bg-blue-600 text-white'} shadow-sm`}
-            >
-              <Icon
-                name={type === 'cash' ? 'banknote' : 'pie-chart'}
-                className="h-5 w-5"
-              />
-            </div>
-            <div>
-              <h2 className="text-[17px] font-black text-slate-900 tracking-tight">
-                {type === 'cash'
-                  ? '現金資產明細'
-                  : type === 'stock-allocation'
-                    ? '股票配置分析'
-                    : '投資持股明細'}
-              </h2>
-              <p className="text-[11px] font-bold text-slate-700 uppercase tracking-widest mt-0.5">
-                {type === 'cash'
-                  ? `${cashCount} 個帳戶`
-                  : `${Object.keys(groupedStocks).length} 個標的`}
-              </p>
-            </div>
+          <div className="flex items-center gap-3 min-w-0">
+            {isStockFocus ? (
+              <button
+                onClick={() => {
+                  setOpenTicker(null);
+                  setShowActionMenuId(null);
+                  setEditingId(null);
+                  setEditingTicker(null);
+                }}
+                aria-label="返回全部持股"
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-slate-100 text-slate-700 active:scale-90"
+              >
+                <Icon name="chevron-left" className="h-5 w-5" />
+              </button>
+            ) : (
+              <div
+                className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl ${type === 'cash' ? 'bg-slate-900 text-white' : 'bg-blue-600 text-white'} shadow-sm`}
+              >
+                <Icon
+                  name={type === 'cash' ? 'banknote' : 'pie-chart'}
+                  className="h-5 w-5"
+                />
+              </div>
+            )}
+            {isStockFocus && openTicker && focusLots ? (
+              <div className="min-w-0">
+                <h2 className="text-[17px] font-black text-slate-900 tracking-tight truncate">
+                  {focusLots[0]?.name || openTicker}
+                </h2>
+                <p className="text-[12px] font-bold text-slate-500 mt-0.5 tabular-nums">
+                  {openTicker} · 現價{' '}
+                  {stockPrices[openTicker]
+                    ? formatPrice(Number(stockPrices[openTicker]))
+                    : '—'}
+                </p>
+              </div>
+            ) : (
+              <div>
+                <h2 className="text-[17px] font-black text-slate-900 tracking-tight">
+                  {type === 'cash'
+                    ? '現金資產明細'
+                    : type === 'stock-allocation'
+                      ? '股票配置分析'
+                      : '投資持股明細'}
+                </h2>
+                <p className="text-[11px] font-bold text-slate-700 uppercase tracking-widest mt-0.5">
+                  {type === 'cash'
+                    ? `${cashCount} 個帳戶`
+                    : `${Object.keys(groupedStocks).length} 個標的`}
+                </p>
+              </div>
+            )}
           </div>
           <button
             onClick={onClose}
@@ -243,7 +278,10 @@ export default function DetailSheet({
           </button>
         </header>
 
-        <div className="detail-content overflow-y-auto flex-1 px-5 py-6">
+        <div
+          ref={contentRef}
+          className="detail-content overflow-y-auto flex-1 px-4 sm:px-5 py-5"
+        >
           {type === 'stock-allocation' ? (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="bg-white rounded-[32px] p-6 sm:p-8 border border-slate-200 shadow-sm">
@@ -302,6 +340,34 @@ export default function DetailSheet({
                 ))}
               </div>
             </div>
+          ) : isStockFocus && openTicker && focusLots ? (
+            <StockDetailGroup
+              ticker={openTicker}
+              lots={focusLots}
+              price={Number(stockPrices[openTicker] || 0)}
+              editingTicker={editingTicker}
+              editName={editName}
+              showActionMenuId={showActionMenuId}
+              editingId={editingId}
+              editShares={editShares}
+              editPrice={editPrice}
+              editDate={editDate}
+              editAverageCost={editAverageCost}
+              setEditName={setEditName}
+              setEditShares={setEditShares}
+              setEditPrice={setEditPrice}
+              setEditDate={setEditDate}
+              setEditAverageCost={setEditAverageCost}
+              onSave={handleSave}
+              onCancelTickerEdit={() => setEditingTicker(null)}
+              onCancelLotEdit={() => setEditingId(null)}
+              onEditTicker={handleEdit}
+              onEditLot={handleEdit}
+              onDeleteTicker={handleDelete}
+              onDeleteLot={handleDelete}
+              onShowMenu={(id) => setShowActionMenuId(id)}
+              onHideMenu={() => setShowActionMenuId(null)}
+            />
           ) : (
             <>
               {/* Key Metrics Dashboard - Light Style */}
@@ -375,6 +441,11 @@ export default function DetailSheet({
                 <h3 className="text-[13px] font-black text-slate-900 uppercase tracking-widest">
                   資產細項
                 </h3>
+                {type === 'stock' && (
+                  <span className="text-[12px] font-medium text-slate-400">
+                    點選標的查看每筆成交損益
+                  </span>
+                )}
               </div>
 
               <div id="detailBody" className="flex flex-col gap-3 pb-8">
@@ -422,35 +493,12 @@ export default function DetailSheet({
                     </div>
                   ) : (
                     Object.keys(groupedStocks).map((ticker) => (
-                      <StockDetailGroup
+                      <StockTickerRow
                         key={ticker}
                         ticker={ticker}
                         lots={groupedStocks[ticker]}
                         price={Number(stockPrices[ticker] || 0)}
-                        isOpen={openTicker === ticker}
-                        editingTicker={editingTicker}
-                        editName={editName}
-                        showActionMenuId={showActionMenuId}
-                        editingId={editingId}
-                        editShares={editShares}
-                        editPrice={editPrice}
-                        editDate={editDate}
-                        editAverageCost={editAverageCost}
-                        onTickerToggle={onTickerToggle}
-                        setEditName={setEditName}
-                        setEditShares={setEditShares}
-                        setEditPrice={setEditPrice}
-                        setEditDate={setEditDate}
-                        setEditAverageCost={setEditAverageCost}
-                        onSave={handleSave}
-                        onCancelTickerEdit={() => setEditingTicker(null)}
-                        onCancelLotEdit={() => setEditingId(null)}
-                        onEditTicker={handleEdit}
-                        onEditLot={handleEdit}
-                        onDeleteTicker={handleDelete}
-                        onDeleteLot={handleDelete}
-                        onShowMenu={(id) => setShowActionMenuId(id)}
-                        onHideMenu={() => setShowActionMenuId(null)}
+                        onSelect={(t) => setOpenTicker(t)}
                       />
                     ))
                   ))}

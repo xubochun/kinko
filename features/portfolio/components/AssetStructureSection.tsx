@@ -75,7 +75,7 @@ export default function AssetStructureSection({
 
           <button
             onClick={() => onOpenDetail('cash')}
-            className="w-full group mb-3 flex items-center justify-between gap-4 border-b border-gray-100 pb-3 min-h-[32px] transition-opacity hover:opacity-70"
+            className="w-full group mb-2 flex items-center justify-between gap-4 rounded-2xl bg-slate-50 hover:bg-slate-100 active:bg-slate-200 px-3 py-3 min-h-[56px] transition-colors"
           >
             <div className="flex flex-1 min-w-0 items-center gap-2">
               <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-slate-800 text-white">
@@ -101,7 +101,7 @@ export default function AssetStructureSection({
 
           <button
             onClick={() => onOpenDetail('stock-allocation')}
-            className="w-full group flex items-center justify-between gap-4 min-h-[32px] transition-opacity hover:opacity-70"
+            className="w-full group flex items-center justify-between gap-4 rounded-2xl bg-slate-50 hover:bg-slate-100 active:bg-slate-200 px-3 py-3 min-h-[56px] transition-colors"
           >
             <div className="flex flex-1 min-w-0 items-center gap-2">
               <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[#2563EB] text-white">

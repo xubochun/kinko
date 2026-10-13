@@ -12,6 +12,7 @@ import Icon from '../../components/Icon';
 import { useLucideIcons } from '../../features/portfolio/hooks/useLucideIcons';
 import InvestmentAllocationChart from '../../features/portfolio/components/charts/InvestmentAllocationChart';
 import PortfolioHeader from '../../features/portfolio/components/PortfolioHeader';
+import GoalCard from '../../features/portfolio/components/goals/GoalCard';
 
 export default function InvestmentPage() {
   useLucideIcons();
@@ -21,7 +22,7 @@ export default function InvestmentPage() {
     setMounted(true);
   }, []);
 
-  const { assets, isReady, addAsset } = usePortfolioData({
+  const { assets, isReady, addAsset, stockPrices } = usePortfolioData({
     privacy: false,
   });
   const { goals, setGoal, removeGoal } = useStockGoals();
@@ -35,7 +36,7 @@ export default function InvestmentPage() {
   const [assetModalOpen, setAssetModalOpen] = useState(false);
   const [assetModalTicker, setAssetModalTicker] = useState('');
 
-  const [activeYear] = useState<number>(2026);
+  const [activeYear] = useState<number>(() => new Date().getFullYear());
   const [sortMode, setSortMode] = useState<'progress-desc' | 'progress-asc'>(
     'progress-desc',
   );
@@ -126,7 +127,17 @@ export default function InvestmentPage() {
         const progress = goal ? Math.min(100, (shares / goal) * 100) : 0;
         const remaining = goal ? Math.max(0, goal - shares) : 0;
         const isCompleted = goal > 0 && shares >= goal;
-        return { ticker, name, shares, goal, progress, remaining, isCompleted };
+        return {
+          ticker,
+          name,
+          shares,
+          totalShares: totalSharesByTicker.get(ticker) || 0,
+          goal,
+          progress,
+          remaining,
+          isCompleted,
+          price: Number(stockPrices[ticker] || 0),
+        };
       })
       .sort((a, b) => {
         if (a.goal === 0 && b.goal === 0)
@@ -137,7 +148,15 @@ export default function InvestmentPage() {
         if (sortMode === 'progress-desc') return b.progress - a.progress;
         return b.remaining - a.remaining;
       });
-  }, [allTickers, grouped, goals, sharesByTicker, sortMode]);
+  }, [
+    allTickers,
+    grouped,
+    goals,
+    sharesByTicker,
+    totalSharesByTicker,
+    stockPrices,
+    sortMode,
+  ]);
 
   const summary = useMemo(() => {
     const totalGoal = goalTickers.reduce(
@@ -146,12 +165,13 @@ export default function InvestmentPage() {
     );
     let totalHeld = 0;
     let completed = 0;
+    let remaining = 0;
     goalTickers.forEach((t) => {
       const shares = sharesByTicker.get(t) || 0;
       totalHeld += shares;
+      remaining += Math.max(0, Number(goals[t] || 0) - shares);
       if (goals[t] > 0 && shares >= goals[t]) completed += 1;
     });
-    const remaining = Math.max(0, totalGoal - totalHeld);
     return { totalGoal, totalHeld, remaining, completed };
   }, [goalTickers, goals, sharesByTicker]);
 
@@ -253,7 +273,7 @@ export default function InvestmentPage() {
                   </div>
                   <div className="min-w-0">
                     <div className="text-[10px] sm:text-[11px] font-black text-slate-400 uppercase tracking-widest truncate">
-                      已持有
+                      今年已存
                     </div>
                     <div className="mt-2 text-[18px] sm:text-[24px] font-black text-slate-900 tabular-nums leading-none truncate flex items-baseline gap-1">
                       {summary.totalHeld.toLocaleString()}{' '}
@@ -264,7 +284,7 @@ export default function InvestmentPage() {
                   </div>
                   <div className="min-w-0">
                     <div className="text-[10px] sm:text-[11px] font-black text-slate-400 uppercase tracking-widest truncate">
-                      剩餘
+                      還差
                     </div>
                     <div className="mt-2 text-[18px] sm:text-[24px] font-black text-slate-900 tabular-nums leading-none truncate flex items-baseline gap-1">
                       {summary.remaining.toLocaleString()}{' '}
@@ -381,54 +401,13 @@ export default function InvestmentPage() {
               ) : (
                 <div className="flex flex-col gap-3">
                   {cards.map((card) => (
-                    <div
+                    <GoalCard
                       key={card.ticker}
-                      onClick={() => openEditGoal(card.ticker)}
-                      className={`cursor-pointer rounded-2xl border px-5 py-4 sm:px-6 sm:py-5 transition-all group ${card.goal ? 'border-slate-100 bg-white hover:border-slate-200 hover:shadow-md hover:-translate-y-0.5' : 'border-amber-100 bg-amber-50/30 hover:border-amber-200 hover:bg-amber-50/50'}`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 text-[15px] font-bold text-slate-900">
-                            <span className="truncate group-hover:text-blue-600 transition-colors">
-                              {card.name}
-                            </span>
-                            <span className="text-[11px] font-black text-slate-300 shrink-0">
-                              {card.ticker}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={(e) => openAddRecord(e, card.ticker)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 text-[12px] font-bold hover:bg-blue-100 transition-all active:scale-95"
-                          >
-                            <Icon name="plus" className="h-3 w-3" />
-                            買進
-                          </button>
-                          <div className="text-slate-300 group-hover:text-slate-600 transition-colors">
-                            <Icon name="more-horizontal" className="h-5 w-5" />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="mt-6 flex items-center justify-between gap-4 sm:gap-6">
-                        <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                          <div
-                            className={`h-full transition-all duration-1000 ${card.goal ? (card.progress >= 100 ? 'bg-emerald-500' : 'bg-slate-900') : 'bg-slate-200'}`}
-                            style={{
-                              width: `${card.goal ? card.progress : 5}%`,
-                            }}
-                          ></div>
-                        </div>
-                        {card.goal && (
-                          <div
-                            className={`shrink-0 text-[12px] font-bold tabular-nums w-10 text-right ${card.progress >= 100 ? 'text-emerald-500' : 'text-slate-600'}`}
-                          >
-                            {card.progress}%
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                      card={card}
+                      year={activeYear}
+                      onEdit={openEditGoal}
+                      onBuy={openAddRecord}
+                    />
                   ))}
                 </div>
               )}
