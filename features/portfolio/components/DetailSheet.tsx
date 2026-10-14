@@ -7,7 +7,7 @@ import {
   pnlClass,
 } from '../../../lib/format';
 import { groupStocks, summarizeStocks } from '../lib/portfolio';
-import { lotCost } from '../lib/stockStats';
+import { lotCost, rescaleLotsToAverage } from '../lib/stockStats';
 import Icon from '../../../components/Icon';
 import CashDetailItem from './detail/CashDetailItem';
 import StockDetailGroup from './detail/StockDetailGroup';
@@ -146,15 +146,13 @@ export default function DetailSheet({
   const handleSave = () => {
     if (editingTicker) {
       const targetLots = assets.filter((a) => a.ticker === editingTicker);
+      const newAvgCost = Number(editAverageCost);
+      const rescaled =
+        editAverageCost !== '' && !isNaN(newAvgCost) && newAvgCost >= 0
+          ? rescaleLotsToAverage(targetLots, newAvgCost)
+          : null;
       targetLots.forEach((lot) => {
-        const updates: Partial<Asset> = { name: editName };
-        if (editAverageCost !== '') {
-          const newAvgCost = Number(editAverageCost);
-          if (!isNaN(newAvgCost) && newAvgCost >= 0) {
-            updates.costAmount = newAvgCost * Number(lot.shares || 0);
-          }
-        }
-        onUpdateAsset(lot.id, updates);
+        onUpdateAsset(lot.id, { name: editName, ...rescaled?.get(lot.id) });
       });
       setEditingTicker(null);
       return;

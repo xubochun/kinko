@@ -1,7 +1,11 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import type { Asset } from '../../../types/portfolio';
-import { computeLotStats, computeTickerStats } from './stockStats';
+import {
+  computeLotStats,
+  computeTickerStats,
+  rescaleLotsToAverage,
+} from './stockStats';
 
 const lot = (shares: number, price: number, costAmount?: number): Asset =>
   ({
@@ -28,5 +32,16 @@ describe('stockStats', () => {
     const s = computeTickerStats([lot(10, 100), lot(20, 130, 1)], 120);
     expect(s.cost).toBe(3600);
     expect(s.pnl).toBe(0);
+  });
+
+  it('調整平均成本後，整體均價等於新值且各筆比例不變', () => {
+    const lots = [
+      { ...lot(10, 100), id: 1 },
+      { ...lot(10, 200), id: 2 },
+    ];
+    const r = rescaleLotsToAverage(lots, 75);
+    expect(r.get(1)?.price).toBe(50);
+    expect(r.get(2)?.price).toBe(100);
+    expect(r.get(1)!.costAmount + r.get(2)!.costAmount).toBe(75 * 20);
   });
 });

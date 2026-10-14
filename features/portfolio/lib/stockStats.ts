@@ -53,3 +53,23 @@ export function sortLotsByDate(lots: Asset[], order: 'desc' | 'asc' = 'desc') {
     return order === 'desc' ? -cmp : cmp;
   });
 }
+
+/**
+ * 將同一檔股票的各筆成交價依比例調整，使整體平均成本等於 newAvg。
+ * 各筆之間的價差比例維持不變；若原均價為 0 則全部設為 newAvg。
+ */
+export function rescaleLotsToAverage(
+  lots: Asset[],
+  newAvg: number,
+): Map<number, { price: number; costAmount: number }> {
+  const shares = lots.reduce((s, l) => s + Number(l.shares || 0), 0);
+  const cost = lots.reduce((s, l) => s + lotCost(l), 0);
+  const oldAvg = shares > 0 ? cost / shares : 0;
+  const result = new Map<number, { price: number; costAmount: number }>();
+  for (const l of lots) {
+    const price =
+      oldAvg > 0 ? (Number(l.price || 0) * newAvg) / oldAvg : newAvg;
+    result.set(l.id, { price, costAmount: price * Number(l.shares || 0) });
+  }
+  return result;
+}
