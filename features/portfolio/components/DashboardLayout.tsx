@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { HistoryEntry, Asset } from '../../../types/portfolio';
 import { groupStocks } from '../lib/portfolio';
+import { lotCost } from '../lib/stockStats';
 import PortfolioHeader from './PortfolioHeader';
 import TotalSummary from './TotalSummary';
 import NetWorthChartSection from './charts/NetWorthChartSection';
@@ -116,10 +117,7 @@ export default function DashboardLayout({
     return Object.keys(grouped).map((ticker) => {
       const lots = grouped[ticker];
       const totalShares = lots.reduce((s, l) => s + (l.shares || 0), 0);
-      const totalCost = lots.reduce(
-        (s, l) => s + (l.costAmount || (l.shares || 0) * (l.price || 0)),
-        0,
-      );
+      const totalCost = lots.reduce((s, l) => s + lotCost(l), 0);
       const currentPrice = stockPrices[ticker] || 0;
       const currentValue = totalShares * currentPrice;
       const pnl = currentValue - totalCost;
@@ -147,7 +145,7 @@ export default function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-[#FAFAFA] overflow-x-hidden">
-      <Sidebar onAddAsset={() => onAddAsset('cash')} />
+      <Sidebar onAddAsset={() => onAddAsset()} />
 
       <main className="flex-1 md:ml-64 relative z-10 min-w-0">
         <div className="px-4 pb-28 pt-5 sm:px-6 sm:pt-7 md:px-10 md:pt-12 md:pb-12 text-left">
@@ -157,7 +155,7 @@ export default function DashboardLayout({
               hasAssets={hasAssets}
               privacy={privacy}
               onTogglePrivacy={onTogglePrivacy}
-              onAddAsset={() => onAddAsset('cash')}
+              onAddAsset={() => onAddAsset()}
             />
 
             <div className="flex flex-col gap-6">
@@ -170,7 +168,7 @@ export default function DashboardLayout({
                     Kinko 為您追蹤資產變化。點擊下方按鈕新增您的第一個資產.
                   </p>
                   <button
-                    onClick={() => onAddAsset('cash')}
+                    onClick={() => onAddAsset()}
                     className="w-full py-4 rounded-2xl bg-slate-900 text-white font-black text-[15px] shadow-xl shadow-slate-900/20 active:scale-95 transition-all"
                   >
                     立即新增資產
@@ -243,7 +241,7 @@ export default function DashboardLayout({
                       privacy={privacy}
                       stockDetails={stockDetails}
                       onOpenDetail={onOpenDetail}
-                      onAddAsset={() => onAddAsset('cash')}
+                      onAddAsset={() => onAddAsset()}
                     />
                   </Card>
 
@@ -288,7 +286,7 @@ export default function DashboardLayout({
                   Kinko，您可以集中管理所有銀行帳戶、股票投資，並獲取即時的損益分析。
                 </p>
                 <button
-                  onClick={() => onAddAsset('cash')}
+                  onClick={() => onAddAsset()}
                   className="flex items-center gap-3 px-10 py-4 rounded-[20px] bg-slate-900 text-white font-black text-[16px] shadow-2xl shadow-slate-900/20 hover:bg-slate-800 hover:-translate-y-0.5 active:translate-y-0 transition-all"
                 >
                   <Icon name="plus" className="h-5 w-5" />
@@ -366,7 +364,7 @@ export default function DashboardLayout({
                         privacy={privacy}
                         stockDetails={stockDetails}
                         onOpenDetail={onOpenDetail}
-                        onAddAsset={() => onAddAsset('cash')}
+                        onAddAsset={() => onAddAsset()}
                       />
                     </Card>
                   </div>

@@ -15,9 +15,9 @@ export default function Page() {
 
   const [privacy, setPrivacy] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [initialAssetType, setInitialAssetType] = useState<'cash' | 'stock'>(
-    'cash',
-  );
+  const [initialAssetType, setInitialAssetType] = useState<
+    'cash' | 'stock' | undefined
+  >(undefined);
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailType, setDetailType] = useState<
     'cash' | 'stock' | 'stock-allocation' | null
@@ -55,7 +55,7 @@ export default function Page() {
   const togglePrivacy = () => setPrivacy((prev) => !prev);
 
   const toggleAddModal = (type?: 'cash' | 'stock') => {
-    if (type) setInitialAssetType(type);
+    setInitialAssetType(type);
     setModalOpen((prev) => !prev);
   };
 
@@ -81,7 +81,7 @@ export default function Page() {
   };
 
   if (!isReady) {
-    return <PortfolioLoading onAdd={() => toggleAddModal('cash')} />;
+    return <PortfolioLoading onAdd={() => toggleAddModal()} />;
   }
 
   const hasAssets = isReady && assets.length > 0;
@@ -113,7 +113,7 @@ export default function Page() {
         onQuickUpdateCash={openCashUpdate}
       />
 
-      <BottomNav onAddAsset={() => toggleAddModal('cash')} />
+      <BottomNav onAddAsset={() => toggleAddModal()} />
 
       <DetailSheet
         open={detailOpen}

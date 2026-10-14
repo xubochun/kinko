@@ -31,8 +31,11 @@ export default function AddAssetModal({
   const [fundingSourceId, setFundingSourceId] = useState<number | ''>('');
 
   useEffect(() => {
+    if (open) setAssetType(initialType ?? 'cash');
+  }, [open, initialType]);
+
+  useEffect(() => {
     if (open) {
-      if (initialType) setAssetType(initialType);
       if (initialTicker) setStockTicker(initialTicker);
       if (
         assetType === 'stock' &&
@@ -89,6 +92,14 @@ export default function AddAssetModal({
 
   if (!open) return null;
 
+  // 從特定區塊（現金／股票）進入時類型已確定，不需要再選
+  const typeLocked = initialType !== undefined;
+  const title = !typeLocked
+    ? '新增資產紀錄'
+    : assetType === 'cash'
+      ? '新增現金帳戶'
+      : '新增股票持倉';
+
   return (
     <div
       id="addModalOverlay"
@@ -107,7 +118,7 @@ export default function AddAssetModal({
 
         <div className="flex items-center justify-between mb-8">
           <h3 className="text-[20px] font-black text-slate-900 tracking-tight">
-            新增資產紀錄
+            {title}
           </h3>
           <button
             onClick={onClose}
@@ -122,27 +133,29 @@ export default function AddAssetModal({
           onSubmit={handleSubmit}
           className="flex flex-col gap-6"
         >
-          <div className="flex flex-col gap-2">
-            <label className="ml-1 text-[11px] font-black text-slate-400 uppercase tracking-widest">
-              資產類型
-            </label>
-            <div className="flex rounded-2xl bg-slate-100 p-1">
-              <button
-                type="button"
-                onClick={() => setAssetType('cash')}
-                className={`flex-1 rounded-xl py-2.5 text-[13px] font-bold transition-all ${assetType === 'cash' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-              >
-                現金與帳戶
-              </button>
-              <button
-                type="button"
-                onClick={() => setAssetType('stock')}
-                className={`flex-1 rounded-xl py-2.5 text-[13px] font-bold transition-all ${assetType === 'stock' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-              >
-                股票與 ETF
-              </button>
+          {!typeLocked && (
+            <div className="flex flex-col gap-2">
+              <label className="ml-1 text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                資產類型
+              </label>
+              <div className="flex rounded-2xl bg-slate-100 p-1">
+                <button
+                  type="button"
+                  onClick={() => setAssetType('cash')}
+                  className={`flex-1 rounded-xl py-2.5 text-[13px] font-bold transition-all ${assetType === 'cash' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  現金與帳戶
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAssetType('stock')}
+                  className={`flex-1 rounded-xl py-2.5 text-[13px] font-bold transition-all ${assetType === 'stock' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  股票與 ETF
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           <div
             id="cashFields"
