@@ -1,7 +1,7 @@
 import type { Asset } from '../../../types/portfolio';
 
 export const lotCost = (lot: Asset) =>
-  Number(lot.costAmount || Number(lot.shares || 0) * Number(lot.price || 0));
+  Number(lot.shares || 0) * Number(lot.price || 0);
 
 export type LotStats = {
   cost: number;

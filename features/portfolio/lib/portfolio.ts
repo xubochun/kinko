@@ -1,9 +1,10 @@
-import type { Asset } from "../../../types/portfolio";
+import type { Asset } from '../../../types/portfolio';
+import { lotCost } from './stockStats';
 
 export function groupStocks(assets: Asset[]) {
   const grouped: Record<string, Asset[]> = {};
   assets.forEach((asset) => {
-    if (asset.type !== "stock" || !asset.ticker) return;
+    if (asset.type !== 'stock' || !asset.ticker) return;
     if (!grouped[asset.ticker]) grouped[asset.ticker] = [];
     grouped[asset.ticker].push(asset);
   });
@@ -12,7 +13,7 @@ export function groupStocks(assets: Asset[]) {
 
 export function summarizeStocks(
   grouped: Record<string, Asset[]>,
-  stockPrices: Record<string, number>
+  stockPrices: Record<string, number>,
 ) {
   let totalCost = 0;
   let totalValue = 0;
@@ -20,10 +21,7 @@ export function summarizeStocks(
   Object.keys(grouped).forEach((ticker) => {
     const lots = grouped[ticker];
     const shares = lots.reduce((s, l) => s + Number(l.shares || 0), 0);
-    const cost = lots.reduce(
-      (s, l) => s + Number(l.costAmount || (l.shares || 0) * (l.price || 0)),
-      0
-    );
+    const cost = lots.reduce((s, l) => s + lotCost(l), 0);
     const price = Number(stockPrices[ticker] || 0);
     totalCost += cost;
     totalValue += shares * price;
@@ -36,6 +34,6 @@ export function summarizeStocks(
     totalCost,
     totalValue,
     totalPnl,
-    totalPnlPct
+    totalPnlPct,
   };
 }
