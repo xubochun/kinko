@@ -7,6 +7,7 @@ import {
   pnlClass,
 } from '../../../lib/format';
 import { groupStocks, summarizeStocks } from '../lib/portfolio';
+import { lotCost } from '../lib/stockStats';
 import Icon from '../../../components/Icon';
 import CashDetailItem from './detail/CashDetailItem';
 import StockDetailGroup from './detail/StockDetailGroup';
@@ -123,11 +124,7 @@ export default function DetailSheet({
         setEditName(lots[0]?.name || assetOrTicker);
 
         const totalShares = lots.reduce((s, l) => s + Number(l.shares || 0), 0);
-        const totalCost = lots.reduce(
-          (s, l) =>
-            s + Number(l.costAmount || (l.shares || 0) * (l.price || 0)),
-          0,
-        );
+        const totalCost = lots.reduce((s, l) => s + lotCost(l), 0);
         const avgCost = totalShares > 0 ? totalCost / totalShares : 0;
         setEditAverageCost(avgCost > 0 ? String(avgCost) : '');
         return;
