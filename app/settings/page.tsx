@@ -228,6 +228,9 @@ export default function SettingsPage() {
                       <div className="text-[12px] font-medium text-slate-400">
                         下載帳戶、持股、存股與淨值紀錄（JSON）
                       </div>
+                      <div className="text-[11px] font-medium text-slate-400">
+                        帳戶名稱寫上銀行，匯入 iPhone 版時才會對到銀行
+                      </div>
                     </div>
                   </div>
                   <Icon
