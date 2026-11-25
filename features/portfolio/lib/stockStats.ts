@@ -107,3 +107,81 @@ export function findRescaledSiblings(
       : [];
   });
 }
+
+export type DayRange = { date: string; min: number; max: number };
+
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
+/** 台股升降單位（代號 00 開頭視為 ETF） */
+export function tickSize(price: number, ticker: string) {
+  if (ticker.startsWith('00')) return price < 50 ? 0.01 : 0.05;
+  if (price < 10) return 0.01;
+  if (price < 50) return 0.05;
+  if (price < 100) return 0.1;
+  if (price < 500) return 0.5;
+  if (price < 1000) return 1;
+  return 5;
+}
+
+/** 成交日前後 5 天內的最低、最高價，容許日期記差幾天 */
+function priceRange(date: string | undefined, days: DayRange[]) {
+  if (!date) return null;
+  const t = Date.parse(date);
+  const near = days.filter(
+    (d) => Math.abs(Date.parse(d.date) - t) <= 5 * 86_400_000,
+  );
+  if (near.length === 0) return null;
+  return {
+    lo: Math.min(...near.map((d) => d.min)),
+    hi: Math.max(...near.map((d) => d.max)),
+  };
+}
+
+/**
+ * 用成交日當時的股價推算被舊版等比例改過的原始買價：拿一筆被改過的紀錄，
+ * 逐一試算它當時股價區間內的每個合法價位。只有一個倍數能讓它和至少另一筆
+ * 同時落在升降單位上、也都在各自的股價區間內時才採用；推算不出或有多種可能就不回傳。
+ */
+export function inferOriginalPrices(
+  lots: Asset[],
+  days: DayRange[],
+): { lot: Asset; price: number }[] {
+  const ticker = lots[0]?.ticker ?? '';
+  const ranges = new Map(lots.map((l) => [l.id, priceRange(l.date, days)]));
+  const fits = (lot: Asset, factor: number) => {
+    const r = Number(lot.price || 0) / factor;
+    const range = ranges.get(lot.id);
+    const n = r / tickSize(r, ticker);
+    return (
+      !!range &&
+      Math.abs(n - Math.round(n)) < 1e-6 &&
+      r >= range.lo - 1e-6 &&
+      r <= range.hi + 1e-6
+    );
+  };
+
+  const result: { lot: Asset; price: number }[] = [];
+  let pending = lots.filter((l) => hasExtraDecimals(Number(l.price || 0)));
+  for (const anchor of [...pending]) {
+    const range = ranges.get(anchor.id);
+    if (!range || !pending.includes(anchor)) continue;
+    const solutions: { factor: number; matched: Asset[] }[] = [];
+    const first = tickSize(range.lo, ticker);
+    for (
+      let t = round2(Math.ceil(range.lo / first - 1e-9) * first);
+      t <= range.hi + 1e-6;
+      t = round2(t + tickSize(t, ticker))
+    ) {
+      const factor = Number(anchor.price) / t;
+      const matched = pending.filter((l) => fits(l, factor));
+      if (matched.length >= 2) solutions.push({ factor, matched });
+    }
+    if (solutions.length !== 1) continue;
+    const { factor, matched } = solutions[0];
+    for (const lot of matched) {
+      result.push({ lot, price: round2(Number(lot.price) / factor) });
+    }
+    pending = pending.filter((l) => !matched.includes(l));
+  }
+  return result;
+}

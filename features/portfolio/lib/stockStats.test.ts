@@ -6,7 +6,9 @@ import {
   computeTickerStats,
   findRescaledSiblings,
   hasExtraDecimals,
+  inferOriginalPrices,
   rescaleLotsToAverage,
+  tickSize,
 } from './stockStats';
 
 const lot = (shares: number, price: number, costAmount?: number): Asset =>
@@ -61,9 +63,11 @@ describe('還原被舊版等比例改過的買價', () => {
   const shares = [120, 80, 60];
   const real = [815, 920, 1045];
   const oldAvg = real.reduce((s, p, i) => s + p * shares[i], 0) / 260;
+  const dates = ['2023-08-15', '2024-05-22', '2025-12-05'];
   const lots = real.map((p, i) => ({
     ...lot(shares[i], (p * 1000) / oldAvg),
     id: i + 1,
+    date: dates[i],
   }));
   const later = { ...lot(10, 1500), id: 9 }; // 改均價之後才新增，買價正常
 
@@ -83,5 +87,30 @@ describe('還原被舊版等比例改過的買價', () => {
   it('真實買價輸入錯誤時不換算其他筆', () => {
     expect(findRescaledSiblings(lots, lots[0], 816)).toEqual([]);
     expect(findRescaledSiblings(lots, lots[0], 0)).toEqual([]);
+  });
+
+  const days = (min: number[], max: number[]) =>
+    dates.map((date, i) => ({ date, min: min[i], max: max[i] }));
+  const realDays = days([800, 910, 1030], [830, 930, 1060]);
+
+  it('用成交日股價區間與升降單位推算原價，略過正常買價', () => {
+    expect(inferOriginalPrices([...lots, later], realDays)).toEqual([
+      { lot: lots[0], price: 815 },
+      { lot: lots[1], price: 920 },
+      { lot: lots[2], price: 1045 },
+    ]);
+  });
+
+  it('有多種可能、只有一筆被改過或沒有股價資料時不推算', () => {
+    const wide = days([100, 100, 100], [2000, 2000, 2000]);
+    expect(inferOriginalPrices(lots, wide)).toEqual([]);
+    expect(inferOriginalPrices([lots[0], later], realDays)).toEqual([]);
+    expect(inferOriginalPrices(lots, [])).toEqual([]);
+  });
+
+  it('台股與 ETF 升降單位', () => {
+    expect(tickSize(905, '2454')).toBe(1);
+    expect(tickSize(1045, '2454')).toBe(5);
+    expect(tickSize(167.3, '0050')).toBe(0.05);
   });
 });
