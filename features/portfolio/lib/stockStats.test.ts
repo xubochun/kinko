@@ -4,6 +4,8 @@ import type { Asset } from '../../../types/portfolio';
 import {
   computeLotStats,
   computeTickerStats,
+  findRescaledSiblings,
+  hasExtraDecimals,
   rescaleLotsToAverage,
 } from './stockStats';
 
@@ -51,5 +53,35 @@ describe('stockStats', () => {
   it('買進金額為 0 時依股數分攤', () => {
     const r = rescaleLotsToAverage([{ ...lot(10, 0), id: 3 }], 5);
     expect(r.get(3)).toEqual({ costAmount: 50 });
+  });
+});
+
+describe('還原被舊版等比例改過的買價', () => {
+  // 舊版把均價 900.38 改成 1000：每筆買價 × 新均價 / 舊均價
+  const shares = [120, 80, 60];
+  const real = [815, 920, 1045];
+  const oldAvg = real.reduce((s, p, i) => s + p * shares[i], 0) / 260;
+  const lots = real.map((p, i) => ({
+    ...lot(shares[i], (p * 1000) / oldAvg),
+    id: i + 1,
+  }));
+  const later = { ...lot(10, 1500), id: 9 }; // 改均價之後才新增，買價正常
+
+  it('辨識多餘小數，忽略浮點誤差', () => {
+    expect(hasExtraDecimals(lots[0].price!)).toBe(true);
+    expect(hasExtraDecimals(560.32)).toBe(false);
+    expect(hasExtraDecimals(985.0000000000001)).toBe(false);
+  });
+
+  it('依一筆真實買價換算同倍數改過的其他筆，略過正常買價', () => {
+    expect(findRescaledSiblings([...lots, later], lots[0], 815)).toEqual([
+      { lot: lots[1], price: 920 },
+      { lot: lots[2], price: 1045 },
+    ]);
+  });
+
+  it('真實買價輸入錯誤時不換算其他筆', () => {
+    expect(findRescaledSiblings(lots, lots[0], 816)).toEqual([]);
+    expect(findRescaledSiblings(lots, lots[0], 0)).toEqual([]);
   });
 });

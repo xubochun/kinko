@@ -1,7 +1,7 @@
 import { Asset } from '../../../../types/portfolio';
 import { formatPnlPct, pnlClass } from '../../../../lib/format';
 import { formatPrice, formatShares } from '../../../../lib/number';
-import { computeLotStats } from '../../lib/stockStats';
+import { computeLotStats, hasExtraDecimals } from '../../lib/stockStats';
 import ActionMenu from './ActionMenu';
 import StockLotEditForm from './StockLotEditForm';
 
@@ -86,7 +86,9 @@ export default function StockLotItem({
         <div className="text-right text-[13px] font-bold text-slate-900 tabular-nums truncate">
           {formatShares(Number(lot.shares || 0))}
         </div>
-        <div className="text-right text-[13px] font-bold text-slate-900 tabular-nums truncate">
+        <div
+          className={`text-right text-[13px] font-bold tabular-nums truncate ${hasExtraDecimals(Number(lot.price || 0)) ? 'text-amber-600' : 'text-slate-900'}`}
+        >
           {formatPrice(Number(lot.price || 0))}
         </div>
         <div className={`text-right min-w-0 ${pnlClass(stats.pnl)}`}>

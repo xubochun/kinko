@@ -10,6 +10,8 @@ import { groupStocks, summarizeStocks } from '../lib/portfolio';
 import {
   buyCost,
   computeTickerStats,
+  findRescaledSiblings,
+  hasExtraDecimals,
   lotCost,
   rescaleLotsToAverage,
 } from '../lib/stockStats';
@@ -175,6 +177,36 @@ export default function DetailSheet({
           amount: Number(editAmount),
           isInvestmentAccount: editIsInvestmentAccount,
         });
+      } else if (
+        asset &&
+        Number(editShares) === Number(asset.shares || 0) &&
+        hasExtraDecimals(Number(asset.price || 0)) &&
+        Number(editPrice) > 0
+      ) {
+        // 舊版調整均價時被等比例改過的買價：只改回買價、不動 costAmount，整檔均價維持不變
+        const newPrice = Number(editPrice);
+        onUpdateAsset(editingId, { date: editDate, price: newPrice });
+        const siblings = findRescaledSiblings(
+          assets.filter((a) => a.ticker === asset.ticker),
+          asset,
+          newPrice,
+        );
+        const list = siblings
+          .map(
+            ({ lot, price }) =>
+              `${lot.date || '—'}：${formatPrice(Number(lot.price || 0))} → ${formatPrice(price)}`,
+          )
+          .join('\n');
+        if (
+          siblings.length > 0 &&
+          confirm(
+            `同一檔還有 ${siblings.length} 筆買價看起來也被等比例改過，要一起還原嗎？\n\n${list}\n\n整檔均價不會改變。`,
+          )
+        ) {
+          siblings.forEach(({ lot, price }) =>
+            onUpdateAsset(lot.id, { price }),
+          );
+        }
       } else {
         onUpdateAsset(editingId, {
           date: editDate,
