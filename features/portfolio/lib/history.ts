@@ -1,10 +1,16 @@
-import type { HistoryEntry } from "../../../types/portfolio";
+import type { HistoryEntry } from '../../../types/portfolio';
 
-export function recordTodayNetWorth(history: HistoryEntry[], totalValue: number) {
-  const todayStr = new Date().toISOString().split("T")[0];
-  const y = new Date();
-  y.setDate(y.getDate() - 1);
-  const yesterdayStr = y.toISOString().split("T")[0];
+/** 台灣日期 YYYY-MM-DD（台灣沒有日光節約時間，固定 UTC+8） */
+export const taiwanDate = (d: Date) =>
+  new Date(d.getTime() + 8 * 3_600_000).toISOString().slice(0, 10);
+
+export function recordTodayNetWorth(
+  history: HistoryEntry[],
+  totalValue: number,
+) {
+  const now = Date.now();
+  const todayStr = taiwanDate(new Date(now));
+  const yesterdayStr = taiwanDate(new Date(now - 86_400_000));
   const hasYesterday = history.some((h) => h.date === yesterdayStr);
   const onlyToday =
     history.length === 0 ||
@@ -23,7 +29,7 @@ export function recordTodayNetWorth(history: HistoryEntry[], totalValue: number)
   }
 
   nextHistory.sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
 
   return nextHistory;

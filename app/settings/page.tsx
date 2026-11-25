@@ -8,7 +8,9 @@ import Sidebar from '../../features/portfolio/components/Sidebar';
 import PortfolioHeader from '../../features/portfolio/components/PortfolioHeader';
 import AddAssetModal from '../../features/portfolio/components/AddAssetModal';
 import Icon from '../../components/Icon';
+import { useQueryClient } from '@tanstack/react-query';
 import {
+  DIVIDENDS_KEY,
   HISTORY_KEY,
   STOCK_GOALS_SHARES_KEY,
   STORAGE_KEY,
@@ -17,6 +19,12 @@ import {
 import { Asset } from '../../types/portfolio';
 import { useLucideIcons } from '../../features/portfolio/hooks/useLucideIcons';
 import { usePortfolioData } from '../../features/portfolio/hooks/usePortfolioData';
+import {
+  buildExport,
+  exportFileName,
+  saveExportFile,
+} from '../../features/portfolio/lib/exportData';
+import { hasExtraDecimals } from '../../features/portfolio/lib/stockStats';
 
 export default function SettingsPage() {
   useLucideIcons();
@@ -38,6 +46,48 @@ export default function SettingsPage() {
   const [modalOpen, setModalOpen] = useState(false);
 
   const toggleAddModal = () => setModalOpen((prev) => !prev);
+
+  const queryClient = useQueryClient();
+  // 舊版調整均價時被等比例改過、還沒還原的買價，匯出前提醒先到明細還原
+  const rescaledTickers = Array.from(
+    new Set(
+      assets
+        .filter(
+          (a) => a.type === 'stock' && hasExtraDecimals(Number(a.price || 0)),
+        )
+        .map((a) => a.ticker),
+    ),
+  );
+
+  // 不先跳確認視窗：分享選單要在點擊當下開啟，否則 iPhone 會擋掉
+  const exportData = () => {
+    const read = <T,>(key: string, fallback: T): T => {
+      try {
+        return JSON.parse(localStorage.getItem(key) || 'null') ?? fallback;
+      } catch {
+        return fallback;
+      }
+    };
+    const now = new Date();
+    const data = buildExport({
+      assets,
+      history: read(HISTORY_KEY, []),
+      goals: read(STOCK_GOALS_SHARES_KEY, {}),
+      dividends: read(DIVIDENDS_KEY, {}),
+      netWorthGoal: Number(localStorage.getItem(NETWORTH_GOAL_KEY)) || null,
+      quote: (ticker) => {
+        const s = queryClient.getQueryState<{ price: number }>([
+          'stockPrice',
+          ticker,
+        ]);
+        return s?.data
+          ? { price: s.data.price, updatedAt: s.dataUpdatedAt }
+          : undefined;
+      },
+      now,
+    });
+    void saveExportFile(JSON.stringify(data, null, 2), exportFileName(now));
+  };
 
   const triggerImport = () => fileInputRef.current?.click();
 
@@ -163,6 +213,36 @@ export default function SettingsPage() {
                 資料操作
               </div>
               <div className="bg-white rounded-[24px] sm:rounded-[32px] border border-slate-200/60 shadow-sm overflow-hidden">
+                <button
+                  onClick={exportData}
+                  className="w-full flex items-center justify-between px-5 py-4 sm:px-6 sm:py-5 text-left transition hover:bg-slate-50 active:bg-slate-100"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-600">
+                      <Icon name="file-down" className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="text-[15px] font-bold text-slate-900">
+                        匯出資料
+                      </div>
+                      <div className="text-[12px] font-medium text-slate-400">
+                        下載帳戶、持股、存股與淨值紀錄（JSON）
+                      </div>
+                    </div>
+                  </div>
+                  <Icon
+                    name="chevron-right"
+                    className="h-5 w-5 text-slate-300"
+                  />
+                </button>
+                {rescaledTickers.length > 0 && (
+                  <p className="mx-5 mb-4 sm:mx-6 rounded-xl bg-amber-50 px-3 py-2 text-[12px] font-bold text-amber-700">
+                    {rescaledTickers.join('、')}{' '}
+                    有買價可能被舊版調整均價時改過，建議先到該檔明細還原再匯出。
+                  </p>
+                )}
+
+                <div className="h-px bg-slate-100 mx-6"></div>
                 <button
                   onClick={triggerImport}
                   className="w-full flex items-center justify-between px-5 py-4 sm:px-6 sm:py-5 text-left transition hover:bg-slate-50 active:bg-slate-100"

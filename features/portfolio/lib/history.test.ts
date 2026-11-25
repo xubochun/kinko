@@ -33,4 +33,13 @@ describe('history.ts logic tests', () => {
     const entry = result.find((h) => h.date === todayStr);
     expect(entry?.value).toBe(200);
   });
+
+  it('用台灣日期記錄：UTC 17:00 已經是台灣隔天', () => {
+    vi.setSystemTime(new Date('2024-01-15T17:00:00Z'));
+    const result = recordTodayNetWorth([], 100);
+    expect(result).toEqual([
+      { date: '2024-01-15', value: 0 },
+      { date: '2024-01-16', value: 100 },
+    ]);
+  });
 });
