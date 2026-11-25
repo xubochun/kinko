@@ -28,20 +28,28 @@ describe('stockStats', () => {
     expect(s.pnlPct).toBe(20);
   });
 
-  it('個股總覽為各筆加總', () => {
-    const s = computeTickerStats([lot(10, 100), lot(20, 130, 1)], 120);
-    expect(s.cost).toBe(3600);
-    expect(s.pnl).toBe(0);
+  it('個股總覽用含調整的成本，沒調整過的用買進金額', () => {
+    const s = computeTickerStats([lot(10, 100), lot(20, 130, 2900)], 120);
+    expect(s.cost).toBe(3900);
+    expect(s.avgCost).toBe(130);
+    expect(s.pnl).toBe(-300);
   });
 
-  it('調整平均成本後，整體均價等於新值且各筆比例不變', () => {
+  it('調整整檔均價只改 costAmount，買進紀錄不變', () => {
     const lots = [
       { ...lot(10, 100), id: 1 },
       { ...lot(10, 200), id: 2 },
     ];
     const r = rescaleLotsToAverage(lots, 75);
-    expect(r.get(1)?.price).toBe(50);
-    expect(r.get(2)?.price).toBe(100);
-    expect(r.get(1)!.costAmount + r.get(2)!.costAmount).toBe(75 * 20);
+    expect(r.get(1)).toEqual({ costAmount: 500 });
+    expect(r.get(2)).toEqual({ costAmount: 1000 });
+    const updated = lots.map((l) => ({ ...l, ...r.get(l.id) }));
+    expect(computeTickerStats(updated, 0).avgCost).toBe(75);
+    expect(computeLotStats(updated[1], 0).cost).toBe(2000);
+  });
+
+  it('買進金額為 0 時依股數分攤', () => {
+    const r = rescaleLotsToAverage([{ ...lot(10, 0), id: 3 }], 5);
+    expect(r.get(3)).toEqual({ costAmount: 50 });
   });
 });
