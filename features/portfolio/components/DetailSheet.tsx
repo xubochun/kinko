@@ -7,7 +7,12 @@ import {
   pnlClass,
 } from '../../../lib/format';
 import { groupStocks, summarizeStocks } from '../lib/portfolio';
-import { lotCost, rescaleLotsToAverage } from '../lib/stockStats';
+import {
+  buyCost,
+  computeTickerStats,
+  lotCost,
+  rescaleLotsToAverage,
+} from '../lib/stockStats';
 import Icon from '../../../components/Icon';
 import CashDetailItem from './detail/CashDetailItem';
 import StockDetailGroup from './detail/StockDetailGroup';
@@ -147,8 +152,12 @@ export default function DetailSheet({
     if (editingTicker) {
       const targetLots = assets.filter((a) => a.ticker === editingTicker);
       const newAvgCost = Number(editAverageCost);
+      // 均價沒變（例如只改名稱）就不重寫成本
       const rescaled =
-        editAverageCost !== '' && !isNaN(newAvgCost) && newAvgCost >= 0
+        editAverageCost !== '' &&
+        !isNaN(newAvgCost) &&
+        newAvgCost >= 0 &&
+        newAvgCost !== computeTickerStats(targetLots, 0).avgCost
           ? rescaleLotsToAverage(targetLots, newAvgCost)
           : null;
       targetLots.forEach((lot) => {
@@ -171,7 +180,10 @@ export default function DetailSheet({
           date: editDate,
           shares: Number(editShares),
           price: Number(editPrice),
-          costAmount: Number(editShares) * Number(editPrice),
+          // 保留這筆分攤到的整檔均價調整
+          costAmount:
+            Number(editShares) * Number(editPrice) +
+            (asset ? lotCost(asset) - buyCost(asset) : 0),
         });
       }
       setEditingId(null);

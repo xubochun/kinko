@@ -46,7 +46,7 @@ export default function StockTickerEditForm({
       </label>
       <label className="flex flex-col gap-1.5 mt-3">
         <span className="text-[12px] font-bold text-slate-500 ml-1">
-          平均成本（會依股數重算每筆紀錄的成本）
+          平均成本（只調整整體均價，不會改動各筆買進紀錄）
         </span>
         <input
           type="number"

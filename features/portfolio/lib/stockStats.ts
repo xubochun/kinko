@@ -1,7 +1,11 @@
 import type { Asset } from '../../../types/portfolio';
 
-export const lotCost = (lot: Asset) =>
+/** 這筆的買進金額：股數 × 買價（單筆成本、損益用） */
+export const buyCost = (lot: Asset) =>
   Number(lot.shares || 0) * Number(lot.price || 0);
+
+/** 含整檔均價調整的成本（均價、總成本用）；沒調整過就等於買進金額 */
+export const lotCost = (lot: Asset) => Number(lot.costAmount ?? buyCost(lot));
 
 export type LotStats = {
   cost: number;
@@ -11,7 +15,7 @@ export type LotStats = {
 };
 
 export function computeLotStats(lot: Asset, currentPrice: number): LotStats {
-  const cost = lotCost(lot);
+  const cost = buyCost(lot);
   const value = Number(lot.shares || 0) * currentPrice;
   const pnl = value - cost;
   return { cost, value, pnl, pnlPct: cost > 0 ? (pnl / cost) * 100 : 0 };
@@ -55,21 +59,22 @@ export function sortLotsByDate(lots: Asset[], order: 'desc' | 'asc' = 'desc') {
 }
 
 /**
- * 將同一檔股票的各筆成交價依比例調整，使整體平均成本等於 newAvg。
- * 各筆之間的價差比例維持不變；若原均價為 0 則全部設為 newAvg。
+ * 調整整檔均價：新的總成本依各筆買進金額比例分攤到 costAmount，買價等成交紀錄不變。
+ * 買進金額合計為 0 時改依股數分攤。
  */
 export function rescaleLotsToAverage(
   lots: Asset[],
   newAvg: number,
-): Map<number, { price: number; costAmount: number }> {
+): Map<number, { costAmount: number }> {
   const shares = lots.reduce((s, l) => s + Number(l.shares || 0), 0);
-  const cost = lots.reduce((s, l) => s + lotCost(l), 0);
-  const oldAvg = shares > 0 ? cost / shares : 0;
-  const result = new Map<number, { price: number; costAmount: number }>();
+  const cost = lots.reduce((s, l) => s + buyCost(l), 0);
+  const result = new Map<number, { costAmount: number }>();
   for (const l of lots) {
-    const price =
-      oldAvg > 0 ? (Number(l.price || 0) * newAvg) / oldAvg : newAvg;
-    result.set(l.id, { price, costAmount: price * Number(l.shares || 0) });
+    const costAmount =
+      cost > 0
+        ? (buyCost(l) * newAvg * shares) / cost
+        : newAvg * Number(l.shares || 0);
+    result.set(l.id, { costAmount });
   }
   return result;
 }
