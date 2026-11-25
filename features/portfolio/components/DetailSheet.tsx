@@ -150,6 +150,10 @@ export default function DetailSheet({
     }, 20);
   };
 
+  // 還原被舊版等比例改過的買價：只改 price，costAmount 不動，整檔均價不變
+  const restorePrices = (items: { lot: Asset; price: number }[]) =>
+    items.forEach(({ lot, price }) => onUpdateAsset(lot.id, { price }));
+
   const handleSave = () => {
     if (editingTicker) {
       const targetLots = assets.filter((a) => a.ticker === editingTicker);
@@ -203,9 +207,7 @@ export default function DetailSheet({
             `同一檔還有 ${siblings.length} 筆買價看起來也被等比例改過，要一起還原嗎？\n\n${list}\n\n整檔均價不會改變。`,
           )
         ) {
-          siblings.forEach(({ lot, price }) =>
-            onUpdateAsset(lot.id, { price }),
-          );
+          restorePrices(siblings);
         }
       } else {
         onUpdateAsset(editingId, {
@@ -406,6 +408,7 @@ export default function DetailSheet({
               onDeleteLot={handleDelete}
               onShowMenu={(id) => setShowActionMenuId(id)}
               onHideMenu={() => setShowActionMenuId(null)}
+              onRestorePrices={restorePrices}
             />
           ) : (
             <>

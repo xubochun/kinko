@@ -5,8 +5,10 @@ import { formatPrice } from '../../../../lib/number';
 import {
   computeTickerStats,
   hasExtraDecimals,
+  inferOriginalPrices,
   sortLotsByDate,
 } from '../../lib/stockStats';
+import { usePriceHistory } from '../../hooks/usePriceHistory';
 import StockLotItem, { LOT_COLS } from './StockLotItem';
 import StockSummaryCard from './StockSummaryCard';
 import StockTickerEditForm from './StockTickerEditForm';
@@ -37,6 +39,7 @@ interface StockDetailGroupProps {
   onDeleteLot: (id: number) => void;
   onShowMenu: (id: number | string) => void;
   onHideMenu: () => void;
+  onRestorePrices: (items: { lot: Asset; price: number }[]) => void;
 }
 
 /** 單一標的的完整明細：損益摘要在上，成交紀錄以表格呈現 */
@@ -45,9 +48,15 @@ export default function StockDetailGroup(props: StockDetailGroupProps) {
   const [order, setOrder] = useState<'desc' | 'asc'>('desc');
   const stats = useMemo(() => computeTickerStats(lots, price), [lots, price]);
   const sortedLots = useMemo(() => sortLotsByDate(lots, order), [lots, order]);
-  const rescaledCount = lots.filter((l) =>
-    hasExtraDecimals(Number(l.price || 0)),
-  ).length;
+  const rescaled = lots.filter((l) => hasExtraDecimals(Number(l.price || 0)));
+  const { data: days } = usePriceHistory(
+    ticker,
+    rescaled.flatMap((l) => (l.date ? [l.date] : [])),
+  );
+  const suggestions = useMemo(
+    () => (days ? inferOriginalPrices(lots, days) : []),
+    [lots, days],
+  );
 
   return (
     <div className="flex flex-col gap-4 pb-8">
@@ -91,11 +100,34 @@ export default function StockDetailGroup(props: StockDetailGroupProps) {
           以現價 {price > 0 ? formatPrice(price) : '—'}{' '}
           計算每筆損益，點選紀錄可編輯或刪除
         </p>
-        {rescaledCount > 0 && (
-          <p className="mx-1 mb-2 rounded-xl bg-amber-50 px-3 py-2 text-[11px] font-bold text-amber-700">
-            有 {rescaledCount}{' '}
-            筆買價（橘色）可能在舊版調整均價時被改過。把其中一筆改回真實買價後，其他同比例改過的可以一起還原，整檔均價不變。
-          </p>
+        {rescaled.length > 0 && (
+          <div className="mx-1 mb-2 rounded-xl bg-amber-50 px-3 py-2 text-[11px] font-bold text-amber-700">
+            <p>
+              有 {rescaled.length} 筆買價（橘色）可能在舊版調整均價時被改過。
+              {suggestions.length > 0
+                ? `依成交日當時的股價，推算出 ${suggestions.length} 筆的原始買價：`
+                : '把其中一筆改回真實買價後，其他同比例改過的可以一起還原，整檔均價不變。'}
+            </p>
+            {suggestions.length > 0 && (
+              <>
+                <ul className="mt-1 tabular-nums">
+                  {suggestions.map(({ lot, price }) => (
+                    <li key={lot.id}>
+                      {(lot.date || '').replace(/-/g, '/')}：
+                      {formatPrice(Number(lot.price || 0))} →{' '}
+                      {formatPrice(price)}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => props.onRestorePrices(suggestions)}
+                  className="mt-2 rounded-lg bg-amber-600 px-3 py-1.5 text-white hover:bg-amber-700"
+                >
+                  還原這 {suggestions.length} 筆（整檔均價不變）
+                </button>
+              </>
+            )}
+          </div>
         )}
 
         <div
