@@ -78,3 +78,32 @@ export function rescaleLotsToAverage(
   }
   return result;
 }
+
+/** 買價超過兩位小數（排除浮點誤差）：多半是舊版調整均價時被等比例改過的 */
+// shortcut: 假設真實買價最多兩位小數（台股），若支援更多小數的市場要改用其他方式辨識
+export const hasExtraDecimals = (price: number) => {
+  const cents = price * 100;
+  return Math.abs(cents - Math.round(cents)) > 1e-6;
+};
+
+/**
+ * 舊版調整均價會把同一檔每筆買價乘上同一個倍數。anchor 改回真實買價 realPrice 後，
+ * 找出被同一倍數改過的其他筆（目前有多餘小數、除回去後落在兩位小數內）與還原後的買價。
+ */
+export function findRescaledSiblings(
+  lots: Asset[],
+  anchor: Asset,
+  realPrice: number,
+): { lot: Asset; price: number }[] {
+  const factor = Number(anchor.price || 0) / realPrice;
+  if (!(factor > 0 && Number.isFinite(factor))) return [];
+  return lots.flatMap((lot) => {
+    const current = Number(lot.price || 0);
+    const restored = current / factor;
+    return lot.id !== anchor.id &&
+      hasExtraDecimals(current) &&
+      !hasExtraDecimals(restored)
+      ? [{ lot, price: Math.round(restored * 100) / 100 }]
+      : [];
+  });
+}

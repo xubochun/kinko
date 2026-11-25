@@ -2,7 +2,11 @@ import { useMemo, useState } from 'react';
 import { Asset } from '../../../../types/portfolio';
 import Icon from '../../../../components/Icon';
 import { formatPrice } from '../../../../lib/number';
-import { computeTickerStats, sortLotsByDate } from '../../lib/stockStats';
+import {
+  computeTickerStats,
+  hasExtraDecimals,
+  sortLotsByDate,
+} from '../../lib/stockStats';
 import StockLotItem, { LOT_COLS } from './StockLotItem';
 import StockSummaryCard from './StockSummaryCard';
 import StockTickerEditForm from './StockTickerEditForm';
@@ -41,6 +45,9 @@ export default function StockDetailGroup(props: StockDetailGroupProps) {
   const [order, setOrder] = useState<'desc' | 'asc'>('desc');
   const stats = useMemo(() => computeTickerStats(lots, price), [lots, price]);
   const sortedLots = useMemo(() => sortLotsByDate(lots, order), [lots, order]);
+  const rescaledCount = lots.filter((l) =>
+    hasExtraDecimals(Number(l.price || 0)),
+  ).length;
 
   return (
     <div className="flex flex-col gap-4 pb-8">
@@ -84,6 +91,12 @@ export default function StockDetailGroup(props: StockDetailGroupProps) {
           以現價 {price > 0 ? formatPrice(price) : '—'}{' '}
           計算每筆損益，點選紀錄可編輯或刪除
         </p>
+        {rescaledCount > 0 && (
+          <p className="mx-1 mb-2 rounded-xl bg-amber-50 px-3 py-2 text-[11px] font-bold text-amber-700">
+            有 {rescaledCount}{' '}
+            筆買價（橘色）可能在舊版調整均價時被改過。把其中一筆改回真實買價後，其他同比例改過的可以一起還原，整檔均價不變。
+          </p>
+        )}
 
         <div
           className={`${LOT_COLS} px-1 py-2 border-y border-slate-100 text-[11px] font-bold text-slate-400`}
