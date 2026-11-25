@@ -3,7 +3,10 @@ import type { DividendRecord } from './averageCost';
 import { taiwanDate } from './history';
 import { hasExtraDecimals, lotCost, sortLotsByDate } from './stockStats';
 
-/** 匯出格式見〈Kinko 資料匯出接口（草案 v1）〉，kinko-ios 依此匯入 */
+/**
+ * 匯出格式 kinko.export v1，見〈Kinko 資料匯出接口（草案 v1）〉，kinko-ios 依此匯入。
+ * 只新增欄位不用升版；改名、刪除欄位或改型別要升 schemaVersion，並先通知 kinko-ios。
+ */
 export type ExportInput = {
   assets: Asset[];
   history: HistoryEntry[];
